@@ -719,40 +719,45 @@ class ItemForm extends React.Component {
               label={<FormattedMessage id="ui-inventory.notes" />}
             >
               <Row>
-                <Col sm={10}>
-                  <RepeatableField
+                <Col sm={12} md={10}>
+                  <FieldArray
+                    component={RepeatableField2}
                     name="notes"
-                    addButtonId="clickable-add-note"
+                    id="item-notes"
                     addLabel={
                       <Icon icon="plus-sign">
                         <FormattedMessage id="ui-inventory.addNote" />
                       </Icon>
                     }
-                    template={[
-                      {
-                        name: 'itemNoteTypeId',
-                        label: <FormattedMessage id="ui-inventory.noteType" />,
-                        component: Select,
-                        dataOptions: [{ label: 'Select type', value: '' }, ...itemNoteTypeOptions],
-                      },
-                      {
-                        name: 'note',
-                        label: <FormattedMessage id="ui-inventory.note" />,
-                        component: TextField,
-                      },
-                      {
-                        name: 'staffOnly',
-                        label: <FormattedMessage id="ui-inventory.staffOnly" />,
-                        component: Checkbox,
-                        type: 'checkbox',
-                        inline: true,
-                        vertical: true,
-                        columnSize: {
-                          xs: 3,
-                          lg: 2,
-                        }
-                      }
-                    ]}
+                    renderField={field => (
+                      <Row>
+                        <Col xs>
+                          <Field
+                            name={`${field}.itemNoteTypeId`}
+                            label={<FormattedMessage id="ui-inventory.noteType" />}
+                            component={Select}
+                            dataOptions={[{ label: 'Select type', value: '' }, ...itemNoteTypeOptions]}
+                          />
+                        </Col>
+                        <Col xs>
+                          <Field
+                            name={`${field}.note`}
+                            label={<FormattedMessage id="ui-inventory.note" />}
+                            component={TextField}
+                          />
+                        </Col>
+                        <Col xs={3} sm={2}>
+                          <Field
+                            name={`${field}.staffOnly`}
+                            label={<FormattedMessage id="ui-inventory.staffOnly" />}
+                            component={Checkbox}
+                            type="checkbox"
+                            inline
+                            vertical
+                          />
+                        </Col>
+                      </Row>
+                    )}
                   />
                 </Col>
               </Row>
