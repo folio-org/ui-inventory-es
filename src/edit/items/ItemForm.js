@@ -636,14 +636,18 @@ class ItemForm extends React.Component {
               </Row>
               <Row>
                 <Col sm={6}>
-                  <RepeatableField
+                  <FieldArray
+                    component={RepeatableField2}
                     name="yearCaption"
-                    addButtonId="clickable-add-year-caption"
                     addLabel={<FormattedMessage id="ui-inventory.addYearCaption" />}
-                    template={[{
-                      component: TextField,
-                      label: <FormattedMessage id="ui-inventory.yearCaption" />
-                    }]}
+                    onAdd={fields => fields.push('')}
+                    renderField={field => (
+                      <Field
+                        component={TextField}
+                        name={field}
+                        label={<FormattedMessage id="ui-inventory.yearCaption" />}
+                      />
+                    )}
                   />
                 </Col>
               </Row>
