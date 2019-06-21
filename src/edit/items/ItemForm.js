@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import {
   Field,
+  FieldArray,
 } from 'redux-form';
 
 import {
@@ -21,6 +22,7 @@ import {
   Datepicker,
   ExpandAllButton,
   ConfirmationModal,
+  RepeatableField as RepeatableField2
 } from '@folio/stripes/components';
 import { AppIcon } from '@folio/stripes-core';
 import stripesForm from '@folio/stripes/form';
@@ -452,34 +454,40 @@ class ItemForm extends React.Component {
               </Row>
               <Row>
                 <Col sm={8}>
-                  <RepeatableField
+                  <FieldArray
+                    component={RepeatableField2}
                     name="formerIds"
-                    addButtonId="clickable-add-former-id"
+                    id="formerIds"
                     addLabel={<FormattedMessage id="ui-inventory.addFormerId" />}
-                    template={[{
-                      component: TextField,
-                      label: (
-                        <FormattedMessage id="ui-inventory.formerId">
-                          {(message) => message}
-                        </FormattedMessage>
-                      )
-                    }]}
+                    onAdd={fields => fields.push('')}
+                    renderField={field => (
+                      <Field
+                        component={TextField}
+                        name={field}
+                        label={(
+                          <FormattedMessage id="ui-inventory.formerId">
+                            {(message) => message}
+                          </FormattedMessage>
+                        )}
+                      />
+                    )}
                   />
                 </Col>
               </Row>
               <Row>
                 <Col sm={10}>
-                  <RepeatableField
+                  <FieldArray
+                    component={RepeatableField2}
                     name="statisticalCodeIds"
-                    addButtonId="clickable-add-statistical-code"
                     addLabel={<FormattedMessage id="ui-inventory.addStatisticalCode" />}
-                    template={[
-                      {
-                        label: <FormattedMessage id="ui-inventory.statisticalCode" />,
-                        component: Select,
-                        dataOptions: [{ label: 'Select code', value: '' }, ...statisticalCodeOptions],
-                      }
-                    ]}
+                    renderField={(field) => (
+                      <Field
+                        name={field}
+                        component={Select}
+                        label={<FormattedMessage id="ui-inventory.statisticalCode" />}
+                        dataOptions={[{ label: 'Select code', value: '' }, ...statisticalCodeOptions]}
+                      />
+                    )}
                   />
                 </Col>
               </Row>
