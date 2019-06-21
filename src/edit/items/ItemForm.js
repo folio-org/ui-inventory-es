@@ -22,7 +22,7 @@ import {
   Datepicker,
   ExpandAllButton,
   ConfirmationModal,
-  RepeatableField as RepeatableField2
+  RepeatableField,
 } from '@folio/stripes/components';
 import { AppIcon } from '@folio/stripes-core';
 import stripesForm from '@folio/stripes/form';
@@ -31,8 +31,6 @@ import {
   LocationLookup,
   ViewMetaData,
 } from '@folio/stripes/smart-components';
-
-import RepeatableField from '../../components/RepeatableField';
 
 import ElectronicAccessFields from '../electronicAccessFields';
 
@@ -455,7 +453,7 @@ class ItemForm extends React.Component {
               <Row>
                 <Col sm={8}>
                   <FieldArray
-                    component={RepeatableField2}
+                    component={RepeatableField}
                     name="formerIds"
                     id="formerIds"
                     addLabel={<FormattedMessage id="ui-inventory.addFormerId" />}
@@ -477,7 +475,7 @@ class ItemForm extends React.Component {
               <Row>
                 <Col sm={10}>
                   <FieldArray
-                    component={RepeatableField2}
+                    component={RepeatableField}
                     name="statisticalCodeIds"
                     addLabel={<FormattedMessage id="ui-inventory.addStatisticalCode" />}
                     renderField={(field) => (
@@ -518,7 +516,7 @@ class ItemForm extends React.Component {
               <Row>
                 <Col sm={8}>
                   <FieldArray
-                    component={RepeatableField2}
+                    component={RepeatableField}
                     name="copyNumbers"
                     addLabel={<FormattedMessage id="ui-inventory.addCopyNumber" />}
                     onAdd={fields => fields.push('')}
@@ -637,7 +635,7 @@ class ItemForm extends React.Component {
               <Row>
                 <Col sm={6}>
                   <FieldArray
-                    component={RepeatableField2}
+                    component={RepeatableField}
                     name="yearCaption"
                     addLabel={<FormattedMessage id="ui-inventory.addYearCaption" />}
                     onAdd={fields => fields.push('')}
@@ -721,7 +719,7 @@ class ItemForm extends React.Component {
               <Row>
                 <Col sm={12} md={10}>
                   <FieldArray
-                    component={RepeatableField2}
+                    component={RepeatableField}
                     name="notes"
                     id="item-notes"
                     addLabel={
@@ -816,43 +814,50 @@ class ItemForm extends React.Component {
               </Row>
               <Row>
                 <Col sm={10}>
-                  <RepeatableField
+                  <FieldArray
+                    component={RepeatableField}
                     name="circulationNotes"
-                    addButtonId="clickable-add-note"
+                    id="circulationNotes"
                     addLabel={
                       <Icon icon="plus-sign">
                         <FormattedMessage id="ui-inventory.addCirculationNote" />
                       </Icon>
                     }
-                    template={[
-                      {
-                        name: 'noteType',
-                        label: <FormattedMessage id="ui-inventory.noteType" />,
-                        component: Select,
-                        dataOptions: [
-                          { label: 'Select type', value: '' },
-                          { label: 'Check in note', value: 'Check in' },
-                          { label: 'Check out note', value: 'Check out' }
-                        ],
-                      },
-                      {
-                        name: 'note',
-                        label: <FormattedMessage id="ui-inventory.note" />,
-                        component: TextField,
-                      },
-                      {
-                        name: 'staffOnly',
-                        label: <FormattedMessage id="ui-inventory.staffOnly" />,
-                        component: Checkbox,
-                        type: 'checkbox',
-                        inline: true,
-                        vertical: true,
-                        columnSize: {
-                          xs: 3,
-                          lg: 2,
-                        }
-                      }
-                    ]}
+                    renderField={field => (
+                      <Row>
+                        <Col xs>
+                          <Field
+                            component={Select}
+                            name={`${field}.noteType`}
+                            label={<FormattedMessage id="ui-inventory.noteType" />}
+                            dataOptions={
+                              [
+                                { label: 'Select type', value: '' },
+                                { label: 'Check in note', value: 'Check in' },
+                                { label: 'Check out note', value: 'Check out' }
+                              ]
+                            }
+                          />
+                        </Col>
+                        <Col xs>
+                          <Field
+                            component={TextField}
+                            name={`${field}.note`}
+                            label={<FormattedMessage id="ui-inventory.note" />}
+                          />
+                        </Col>
+                        <Col xs={3} sm={2}>
+                          <Field
+                            name={`${field}.staffOnly`}
+                            label={<FormattedMessage id="ui-inventory.staffOnly" />}
+                            component={Checkbox}
+                            type="checkbox"
+                            inline
+                            vertical
+                          />
+                        </Col>
+                      </Row>
+                    )}
                   />
                 </Col>
               </Row>
