@@ -517,18 +517,22 @@ class ItemForm extends React.Component {
               </Row>
               <Row>
                 <Col sm={8}>
-                  <RepeatableField
+                  <FieldArray
+                    component={RepeatableField2}
                     name="copyNumbers"
-                    addButtonId="clickable-add-copy-number"
                     addLabel={<FormattedMessage id="ui-inventory.addCopyNumber" />}
-                    template={[{
-                      component: TextField,
-                      label: (
-                        <FormattedMessage id="ui-inventory.copyNumber">
-                          {(message) => message}
-                        </FormattedMessage>
-                      )
-                    }]}
+                    onAdd={fields => fields.push('')}
+                    renderField={field => (
+                      <Field
+                        component={TextField}
+                        name={field}
+                        label={(
+                          <FormattedMessage id="ui-inventory.copyNumber">
+                            {(message) => message}
+                          </FormattedMessage>
+                        )}
+                      />
+                    )}
                   />
                 </Col>
               </Row>
