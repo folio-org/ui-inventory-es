@@ -1,6 +1,6 @@
 /* global Nightmare describe it before after */
 module.exports.test = function uiTest(uiTestCtx) {
-  describe('Module test: inventory:new_title', function testDescribe() {
+  describe.only('Module test: inventory:new_title', function testDescribe() {
     const { config, helpers: { login, clickApp, createInventory, logout }, meta: { testVersion } } = uiTestCtx;
     const nightmare = new Nightmare(config.nightmare);
 
@@ -92,15 +92,15 @@ module.exports.test = function uiTest(uiTestCtx) {
           .wait(55)
           .wait('select[name="languages[1]"]')
           .select('select[name="languages[1]"]', lang[1])
-          .click('#item-notes-add-buttons')
+          .click('#clickable-add-notes')
           .wait(55)
           .wait('input[name="notes[0]"]')
           .insert('input[name="notes[0]"]', notes[0])
-          .click('#item-notes-add-buttons')
+          .click('#clickable-add-notes')
           .wait(55)
           .wait('input[name="notes[1]"]')
           .insert('input[name="notes[1]"]', notes[1])
-          .click('#item-notes-add-buttons')
+          .click('#clickable-add-notes')
           .wait(55)
           .wait('input[name="notes[2]"]')
           .insert('input[name="notes[2]"]', notes[2])
