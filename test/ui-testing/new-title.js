@@ -1,6 +1,6 @@
 /* global Nightmare describe it before after */
 module.exports.test = function uiTest(uiTestCtx) {
-  describe.only('Module test: inventory:new_title', function testDescribe() {
+  describe('Module test: inventory:new_title', function testDescribe() {
     const { config, helpers: { login, clickApp, createInventory, logout }, meta: { testVersion } } = uiTestCtx;
     const nightmare = new Nightmare(config.nightmare);
 
