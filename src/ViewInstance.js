@@ -122,6 +122,10 @@ class ViewInstance extends React.Component {
 
     this.state = {
       accordions: {},
+      // areAllAccordionsOpen is a misnomer. This is actually the last state
+      // of the "expand/collapse all" toggle -- e.g., "all of the accordions
+      // were last told to expand". But some accordions could since have been
+      // collapsed individually.
       areAllAccordionsOpen: true,
       marcRecord: null,
     };
@@ -266,6 +270,19 @@ class ViewInstance extends React.Component {
     });
   };
 
+  accordionList = [
+    'acc01',
+    'acc02',
+    'acc03',
+    'acc04',
+    'acc05',
+    'acc06',
+    'acc07',
+    'acc08',
+    'acc09',
+    'acc10',
+  ];
+
   handleAccordionToggle = ({ id }) => {
     this.setState(state => {
       const newState = cloneDeep(state);
@@ -277,11 +294,14 @@ class ViewInstance extends React.Component {
     });
   };
 
-  handleExpandAll = obj => {
+  handleToggleAll = obj => {
     this.setState(curState => {
       const newState = cloneDeep(curState);
       newState.accordions = obj;
       newState.areAllAccordionsOpen = !newState.areAllAccordionsOpen;
+      this.accordionList.forEach(a => {
+        newState.accordions[a] = newState.areAllAccordionsOpen;
+      });
 
       return newState;
     });
@@ -809,7 +829,7 @@ class ViewInstance extends React.Component {
           >
             <ExpandAllButton
               accordionStatus={accordions}
-              onToggle={this.handleExpandAll}
+              onToggle={this.handleToggleAll}
             />
           </Col>
         </Row>
