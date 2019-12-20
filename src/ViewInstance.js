@@ -126,6 +126,7 @@ class ViewInstance extends React.Component {
       // of the "expand/collapse all" toggle -- e.g., "all of the accordions
       // were last told to expand". But some accordions could since have been
       // collapsed individually.
+      /* eslint-disable-next-line react/no-unused-state */
       areAllAccordionsOpen: true,
       marcRecord: null,
     };
@@ -772,19 +773,6 @@ class ViewInstance extends React.Component {
     const parentInstancesContentValue = !isEmpty(instanceRelationship.parentInstances)
       ? formatters.parentInstancesFormatter(instance, referenceTables.instanceRelationshipTypes, location)
       : noValue;
-
-    const accordionsState = {
-      acc01: areAllFieldsEmpty(values(instanceData)),
-      acc02: areAllFieldsEmpty(values(titleData)),
-      acc03: areAllFieldsEmpty([identifiers]),
-      acc04: areAllFieldsEmpty([contributors]),
-      acc05: areAllFieldsEmpty(values(descriptiveData)),
-      acc06: areAllFieldsEmpty([instanceNotes]),
-      acc07: areAllFieldsEmpty([electronicAccess]),
-      acc08: areAllFieldsEmpty([subjects]),
-      acc09: areAllFieldsEmpty([classifications]),
-      acc10: areAllFieldsEmpty(values(instanceRelationship)),
-    };
 
     const formattedStatusUpdatedDate = instanceData.instanceStatusUpdatedDate !== '-'
       ? (
