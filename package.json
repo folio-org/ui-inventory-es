@@ -591,11 +591,11 @@
     "@bigtest/mocha": "^0.5.1",
     "@bigtest/react": "^0.1.2",
     "@folio/eslint-config-stripes": "^3.2.1",
-    "@folio/stripes": "^2.13.0",
+    "@folio/stripes": "^3.0.0",
     "@folio/stripes-cli": "^1.13.0",
-    "@folio/stripes-core": "^3.0.1",
-    "@folio/stripes-smart-components": "^2.12.0",
-    "@folio/stripes-components": "^5.9.0",
+    "@folio/stripes-core": "^4.0.0",
+    "@folio/stripes-smart-components": "^3.0.0",
+    "@folio/stripes-components": "^6.0.0",
     "babel-eslint": "^9.0.0",
     "chai": "^4.2.0",
     "core-js": "^3.6.4",
@@ -607,7 +607,7 @@
   },
   "dependencies": {
     "@folio/react-intl-safe-html": "^1.0.2",
-    "@folio/stripes-util": "^1.6.0",
+    "@folio/stripes-util": "^2.0.0",
     "final-form": "^4.18.2",
     "final-form-arrays": "^3.0.1",
     "lodash": "^4.17.4",
@@ -624,7 +624,7 @@
     "moment": "^2.22.2"
   },
   "peerDependencies": {
-    "@folio/stripes": "^2.13.0",
+    "@folio/stripes": "^3.0.0",
     "react": "*",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1"
