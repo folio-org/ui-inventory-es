@@ -1,12 +1,32 @@
+import React from 'react';
 import { beforeEach, describe, it } from '@bigtest/mocha';
 import { expect } from 'chai';
+
+import { Button } from '@folio/stripes/components';
 
 import setupApplication from '../helpers/setup-application';
 import InstanceEditPage from '../interactors/instance-edit-page';
 import InstanceViewPage from '../interactors/instance-view-page';
 
 describe('InstanceEditPage', () => {
-  setupApplication();
+  setupApplication({
+    scenarios: ['default'],
+    modules: [{
+      type: 'plugin',
+      name: '@folio/plugin-find-instance',
+      displayName: 'Find instance',
+      pluginType: 'find-instance',
+      /* eslint-disable-next-line react/prop-types */
+      module: ({ selectInstance }) => (
+        <Button
+          data-test-plugin-find-record-button
+          onClick={() => selectInstance({ id: 1, title: 'Fake instance' })}
+        >
+          +
+        </Button>
+      ),
+    }],
+  });
 
   beforeEach(async function () {
     const instance = this.server.create('instance');
@@ -157,6 +177,89 @@ describe('InstanceEditPage', () => {
 
       it('should change the button style to "primary"', () => {
         expect(InstanceEditPage.contributors.firstContributorIsPrimary).to.be.true;
+      });
+    });
+  });
+
+  describe('clicking on "add preceding title"', () => {
+    const prevCount = InstanceEditPage.precedingTitles.precedingTitlesCount;
+
+    beforeEach(async () => {
+      await InstanceEditPage.precedingTitles.clickAddPrecedingTitle();
+    });
+
+    it('should increase number of preceding title"', () => {
+      expect(InstanceEditPage.precedingTitles.precedingTitlesCount).to.be.gt(prevCount);
+    });
+
+    describe('saving unconnected titles', () => {
+      beforeEach(async () => {
+        await InstanceEditPage.precedingTitles.fillTitleField('title 1');
+        await InstanceEditPage.precedingTitles.fillISBNField('isbn1');
+        await InstanceEditPage.precedingTitles.fillISSNField('issn1');
+        await InstanceEditPage.selectInstanceType('still image');
+        await InstanceEditPage.saveInstance();
+      });
+
+      it('should save instance and go back to instance view', function () {
+        expect(this.location.search).to.not.include('layer=edit');
+      });
+    });
+
+    describe('clicking add instance', () => {
+      beforeEach(async () => {
+        await InstanceEditPage.precedingTitles.clickAddInstance();
+      });
+
+      it('should add instance', () => {
+        expect(InstanceEditPage.precedingTitles.instanceName).to.be.equal('Fake instance');
+      });
+    });
+  });
+
+  describe('clicking on "add succeeding title"', () => {
+    const prevCount = InstanceEditPage.succeedingTitles.succeedingTitlesCount;
+
+    beforeEach(async () => {
+      await InstanceEditPage.succeedingTitles.clickAddSucceedingTitle();
+    });
+
+    it('should increase number of succeeding title"', () => {
+      expect(InstanceEditPage.succeedingTitles.succeedingTitlesCount).to.be.gt(prevCount);
+    });
+
+    describe('saving without title', () => {
+      beforeEach(async () => {
+        await InstanceEditPage.selectInstanceType('still image');
+        await InstanceEditPage.saveInstance();
+      });
+
+      it('should not save instance without missing title', function () {
+        expect(this.location.search).to.include('layer=edit');
+      });
+    });
+
+    describe('saving unconnected titles', () => {
+      beforeEach(async () => {
+        await InstanceEditPage.succeedingTitles.fillTitleField('title 1');
+        await InstanceEditPage.succeedingTitles.fillISBNField('isbn1');
+        await InstanceEditPage.succeedingTitles.fillISSNField('issn1');
+        await InstanceEditPage.selectInstanceType('still image');
+        await InstanceEditPage.saveInstance();
+      });
+
+      it('should save instance and go back to instance view', function () {
+        expect(this.location.search).to.not.include('layer=edit');
+      });
+    });
+
+    describe('clicking add instance', () => {
+      beforeEach(async () => {
+        await InstanceEditPage.succeedingTitles.clickAddInstance();
+      });
+
+      it('should add instance', () => {
+        expect(InstanceEditPage.succeedingTitles.instanceName).to.be.equal('Fake instance');
       });
     });
   });

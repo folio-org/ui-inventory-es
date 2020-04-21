@@ -1,14 +1,8 @@
 import {
-  concat,
-  filter,
   get,
   has,
   cloneDeep,
   orderBy,
-  map,
-  omit,
-  reject,
-  set,
   isEmpty,
   values,
 } from 'lodash';
@@ -21,11 +15,8 @@ import {
   Switch
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import {
-  FormattedDate,
-  FormattedTime,
-  FormattedMessage,
-} from 'react-intl';
+import ReactRouterPropTypes from 'react-router-prop-types';
+import { FormattedMessage } from 'react-intl';
 
 import queryString from 'query-string';
 
@@ -37,7 +28,6 @@ import {
 } from '@folio/stripes/core';
 import {
   Pane,
-  PaneMenu,
   Row,
   Col,
   Button,
@@ -46,7 +36,6 @@ import {
   KeyValue,
   Layer,
   Layout,
-  PaneHeaderIconButton,
   Icon,
   Headline,
   MultiColumnList,
@@ -57,12 +46,14 @@ import { ViewMetaData } from '@folio/stripes/smart-components';
 import {
   areAllFieldsEmpty,
   craftLayerUrl,
-  psTitleRelationshipId,
   checkIfElementIsEmpty,
   convertArrayToBlocks,
   checkIfArrayIsEmpty,
-  staffOnlyFormatter,
+  getDateWithTime,
   getSortedNotes,
+  marshalInstance,
+  staffOnlyFormatter,
+  unmarshalInstance,
 } from './utils';
 import formatters from './referenceFormatters';
 import Holdings from './Holdings';
@@ -72,6 +63,8 @@ import ViewHoldingsRecord from './ViewHoldingsRecord';
 import ViewMarc from './ViewMarc';
 import makeConnectedInstance from './ConnectedInstance';
 import withLocation from './withLocation';
+
+import { TitlesView } from './components';
 import {
   wrappingCell,
   noValue,
@@ -177,6 +170,16 @@ class ViewInstance extends React.Component {
     this.props.updateLocation({ layer: 'edit' });
   };
 
+  editInstanceMarc = () => {
+    const { history, location, match } = this.props;
+    const instanceId = match.params.id;
+
+    history.push({
+      pathname: `/inventory/quick-marc/edit/${instanceId}`,
+      search: location.search,
+    });
+  };
+
   onClickAddNewHoldingsRecord = (e) => {
     if (e) e.preventDefault();
     this.log('clicked "add new holdings record"');
@@ -184,48 +187,15 @@ class ViewInstance extends React.Component {
   };
 
   update = (instance) => {
-    this.combineRelTitles(instance);
+    const { referenceTables: { identifierTypesByName } } = this.props;
+
+    // Massage record to add preceeding and succeeding title fields
+    marshalInstance(instance, identifierTypesByName);
+
     this.props.mutator.selectedInstance.PUT(instance).then(() => {
       this.resetLayerQueryParam();
     });
   };
-
-  // Combine precedingTitles with parentInstances, and succeedingTitles with childInstances,
-  // before saving the instance record
-  combineRelTitles = (instance) => {
-    // preceding/succeeding titles are stored in parentInstances and childInstances
-    // in the instance record and needfrle to be combined with existing relationships here
-    // before saving. Each title needs to provide an instance relationship
-    // type ID corresponding to 'preceeding-succeeding' in addition to the actual parent
-    // instance ID.
-    let instanceCopy = instance;
-    const titleRelationshipTypeId = psTitleRelationshipId(this.props.resources.instanceRelationshipTypes.records);
-    const precedingTitles = map(instanceCopy.precedingTitles, p => { p.instanceRelationshipTypeId = titleRelationshipTypeId; return p; });
-    const succeedingTitles = map(instanceCopy.succeedingTitles, p => { p.instanceRelationshipTypeId = titleRelationshipTypeId; return p; });
-    set(instanceCopy, 'parentInstances', concat(instanceCopy.parentInstances, precedingTitles));
-    set(instanceCopy, 'childInstances', concat(instanceCopy.childInstances, succeedingTitles));
-    instanceCopy = omit(instanceCopy, ['precedingTitles', 'succeedingTitles']);
-    return instanceCopy;
-  };
-
-  // Separate preceding/succeeding title relationships from other types of
-  // parent/child instances before displaying the record
-  splitRelTitles = (instance) => {
-    const instanceCopy = cloneDeep(instance);
-    const psRelId = psTitleRelationshipId(this.props.resources.instanceRelationshipTypes.records);
-    if (instanceCopy.parentInstances) {
-      const parentInstances = reject(instanceCopy.parentInstances, { 'instanceRelationshipTypeId': psRelId });
-      const precedingTitles = filter(instanceCopy.parentInstances, { 'instanceRelationshipTypeId': psRelId });
-      instance.precedingTitles = instance.precedingTitles || precedingTitles;
-      instance.parentInstances = parentInstances;
-    }
-    if (instanceCopy.childInstances) {
-      const childInstances = reject(instanceCopy.childInstances, { 'instanceRelationshipTypeId': psRelId });
-      const succeedingTitles = filter(instanceCopy.childInstances, { 'instanceRelationshipTypeId': psRelId });
-      instance.succeedingTitles = instance.succeedingTitles || succeedingTitles;
-      instance.childInstances = childInstances;
-    }
-  }
 
   resetLayerQueryParam = (e) => {
     if (e) e.preventDefault();
@@ -255,7 +225,6 @@ class ViewInstance extends React.Component {
     this.resetLayerQueryParam();
     this.props.goTo(`/inventory/view/${this.props.match.params.id}${search}`);
   };
-
 
   createHoldingsRecord = (holdingsRecord) => {
     // POST holdings record
@@ -376,23 +345,43 @@ class ViewInstance extends React.Component {
             </Icon>
           </Button>
         </IfPermission>
-        <IfPermission perm="ui-inventory.instance.view">
-          {isSourceMARC &&
-            <Button
-              id="clickable-view-source"
-              buttonStyle="dropdownItem"
-              onClick={(e) => {
-                onToggle();
-                this.handleViewSource(e, instance);
-              }}
-              disabled={!marcRecord}
-            >
-              <Icon icon="document">
-                <FormattedMessage id="ui-inventory.viewSource" />
-              </Icon>
-            </Button>
-          }
-        </IfPermission>
+
+        {
+          isSourceMARC && (
+            <>
+              <IfPermission perm="ui-inventory.instance.view">
+                <Button
+                  id="clickable-view-source"
+                  buttonStyle="dropdownItem"
+                  disabled={!marcRecord}
+                  onClick={(e) => {
+                    onToggle();
+                    this.handleViewSource(e, instance);
+                  }}
+                >
+                  <Icon icon="document">
+                    <FormattedMessage id="ui-inventory.viewSource" />
+                  </Icon>
+                </Button>
+              </IfPermission>
+
+              <IfPermission perm="records-editor.records.item.put">
+                <Button
+                  id="edit-instance-marc"
+                  buttonStyle="dropdownItem"
+                  onClick={() => {
+                    onToggle();
+                    this.editInstanceMarc();
+                  }}
+                >
+                  <Icon icon="edit">
+                    <FormattedMessage id="ui-inventory.editInstanceMarc" />
+                  </Icon>
+                </Button>
+              </IfPermission>
+            </>
+          )
+        }
       </Fragment>
     );
   };
@@ -435,6 +424,8 @@ class ViewInstance extends React.Component {
       accordions,
       marcRecord
     } = this.state;
+
+    const { identifierTypesById } = referenceTables;
 
     const query = location.search ? queryString.parse(location.search) : {};
     const ci = makeConnectedInstance(this.props, stripes.logger);
@@ -508,25 +499,6 @@ class ViewInstance extends React.Component {
       'Source': x => this.refLookup(referenceTables.instanceFormats, x.id).source || noValue,
     };
 
-    const detailMenu = (
-      <IfPermission perm="ui-inventory.instance.edit">
-        <PaneMenu>
-          <FormattedMessage id="ui-inventory.editInstance">
-            {ariaLabel => (
-              <PaneHeaderIconButton
-                id="clickable-edit-instance"
-                style={{ visibility: !instance ? 'hidden' : 'visible' }}
-                href={this.craftLayerUrl('edit', location)}
-                onClick={this.onClickEditInstance}
-                ariaLabel={ariaLabel}
-                icon="edit"
-              />
-            )}
-          </FormattedMessage>
-        </PaneMenu>
-      </IfPermission>
-    );
-
     if (!instance) {
       return (
         <Pane
@@ -534,7 +506,6 @@ class ViewInstance extends React.Component {
           defaultWidth={paneWidth}
           paneTitle={<FormattedMessage id="ui-inventory.editInstance" />}
           appIcon={<AppIcon app="inventory" iconKey="instance" />}
-          lastMenu={detailMenu}
           dismissible
           onClose={onClose}
         >
@@ -573,8 +544,6 @@ class ViewInstance extends React.Component {
       </FormattedMessage>
     );
 
-    this.splitRelTitles(instance);
-
     if (query.layer === 'edit') {
       return (
         <IntlConsumer>
@@ -585,7 +554,7 @@ class ViewInstance extends React.Component {
             >
               <InstanceForm
                 onSubmit={this.update}
-                initialValues={instance}
+                initialValues={unmarshalInstance(instance, identifierTypesById)}
                 instanceSource={get(instance, ['source'])}
                 referenceTables={referenceTables}
                 stripes={stripes}
@@ -665,7 +634,7 @@ class ViewInstance extends React.Component {
       instanceStatusTerm: this.refLookup(referenceTables.instanceStatuses, get(instance, ['statusId'])).name || '-',
       instanceStatusCode: this.refLookup(referenceTables.instanceStatuses, get(instance, ['statusId'])).code || '-',
       instanceStatusSource: this.refLookup(referenceTables.instanceStatuses, get(instance, ['statusId'])).source || '-',
-      instanceStatusUpdatedDate: get(instance, ['statusUpdatedDate'], '-'),
+      instanceStatusUpdatedDate: instance?.statusUpdatedDate,
       modeOfIssuance: formatters.modesOfIssuanceFormatter(instance, referenceTables.modesOfIssuance) || '-',
       statisticalCodeIds: get(instance, ['statisticalCodeIds'], []),
     };
@@ -679,16 +648,13 @@ class ViewInstance extends React.Component {
       alternativeTitles: get(instance, ['alternativeTitles'], []),
       indexTitle: get(instance, ['indexTitle'], '-'),
       series: get(instance, ['series'], []),
-      precedingTitles: get(instance, ['precedingTitles'], []),
-      succeedingTitles: get(instance, ['succeedingTitles'], []),
     };
+    const {
+      precedingTitles,
+      succeedingTitles,
+    } = instance;
 
     const seriesContent = !isEmpty(titleData.series) ? titleData.series.map(x => ({ value: x })) : emptyList;
-
-    const precedingTitlesContent = !isEmpty(titleData.precedingTitles) ? formatters.precedingTitlesFormatter(instance, location) : noValue;
-
-    const succeedingTitlesContent = !isEmpty(titleData.succeedingTitles) ? formatters.succeedingTitlesFormatter(instance, location) : noValue;
-
     const identifiers = get(instance, 'identifiers', []).map(x => ({
       identifierType: this.refLookup(referenceTables.identifierTypes, get(x, 'identifierTypeId')).name,
       value: x.value,
@@ -705,6 +671,9 @@ class ViewInstance extends React.Component {
 
     const contributors = get(instance, ['contributors'], []);
 
+    const natureOfContentTerms = get(instance, 'natureOfContentTermIds', [])
+      .map(termId => this.refLookup(referenceTables.natureOfContentTerms, termId).name);
+
     const descriptiveData = {
       publication: get(instance, ['publication'], []),
       editions: get(instance, ['editions'], []),
@@ -712,7 +681,7 @@ class ViewInstance extends React.Component {
       resourceTypeTerm: this.refLookup(referenceTables.instanceTypes, get(instance, ['instanceTypeId'])).name || '-',
       resourceTypeCode: this.refLookup(referenceTables.instanceTypes, get(instance, ['instanceTypeId'])).code || '-',
       resourceTypeSource: this.refLookup(referenceTables.instanceTypes, get(instance, ['instanceTypeId'])).source || '-',
-      natureOfContentTermIds: get(instance, ['natureOfContentTermIds'], []),
+      natureOfContentTerms: natureOfContentTerms || [],
       instanceFormatIds: get(instance, ['instanceFormatIds'], []),
       languages: get(instance, ['languages'], []),
       publicationFrequency: get(instance, ['publicationFrequency'], []),
@@ -798,7 +767,6 @@ class ViewInstance extends React.Component {
           </span>
         }
         paneSub={instanceSub()}
-        lastMenu={detailMenu}
         dismissible
         onClose={onClose}
         actionMenu={this.createActionMenuGetter(instance)}
@@ -935,6 +903,12 @@ class ViewInstance extends React.Component {
               <KeyValue
                 label={<FormattedMessage id="ui-inventory.instanceStatusTerm" />}
                 value={checkIfElementIsEmpty(instanceData.instanceStatusTerm)}
+                subValue={
+                  <FormattedMessage
+                    id="ui-inventory.item.status.statusUpdatedLabel"
+                    values={{ statusDate: formattedStatusUpdatedDate }}
+                  />
+                }
               />
             </Col>
             <Col xs={3}>
@@ -947,12 +921,6 @@ class ViewInstance extends React.Component {
               <KeyValue
                 label={<FormattedMessage id="ui-inventory.instanceStatusSource" />}
                 value={checkIfElementIsEmpty(instanceData.instanceStatusSource)}
-              />
-            </Col>
-            <Col xs={3}>
-              <KeyValue
-                label={<FormattedMessage id="ui-inventory.instanceStatusUpdatedDate" />}
-                value={formattedStatusUpdatedDate}
               />
             </Col>
           </Row>
@@ -1079,9 +1047,11 @@ class ViewInstance extends React.Component {
               data-test-preceding-titles
               xs={12}
             >
-              <KeyValue
+              <TitlesView
+                id="precedingTitles"
+                titleKey="precedingInstanceId"
                 label={<FormattedMessage id="ui-inventory.precedingTitles" />}
-                value={precedingTitlesContent}
+                titles={isEmpty(precedingTitles) ? emptyList : precedingTitles}
               />
             </Col>
           </Row>
@@ -1090,9 +1060,11 @@ class ViewInstance extends React.Component {
               data-test-succeeding-titles
               xs={12}
             >
-              <KeyValue
+              <TitlesView
+                id="succeedingTitles"
+                titleKey="succeedingInstanceId"
                 label={<FormattedMessage id="ui-inventory.succeedingTitles" />}
-                value={succeedingTitlesContent}
+                titles={isEmpty(succeedingTitles) ? emptyList : succeedingTitles}
               />
             </Col>
           </Row>
@@ -1248,10 +1220,13 @@ class ViewInstance extends React.Component {
           </Row>
 
           <Row>
-            <Col xs={3}>
+            <Col
+              data-test-nature-of-content-terms
+              xs={3}
+            >
               <KeyValue
                 label={<FormattedMessage id="ui-inventory.natureOfContentTerms" />}
-                value={convertArrayToBlocks(descriptiveData.natureOfContentTermIds)}
+                value={convertArrayToBlocks(descriptiveData.natureOfContentTerms)}
               />
             </Col>
           </Row>
@@ -1492,6 +1467,7 @@ ViewInstance.propTypes = {
       id: PropTypes.string,
     }),
   }),
+  history: ReactRouterPropTypes.history.isRequired,
   mutator: PropTypes.shape({
     selectedInstance: PropTypes.shape({
       PUT: PropTypes.func.isRequired,

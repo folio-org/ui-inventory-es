@@ -12,10 +12,10 @@ import {
 
 const INITIAL_RESULT_COUNT = 100;
 
-function buildQuery(queryParams, pathComponents, resourceData, logger, props) {
+export function buildQuery(queryParams, pathComponents, resourceData, logger, props) {
   const { indexes, sortMap, filters } = getFilterConfig(queryParams.segment);
   const query = { ...resourceData.query };
-  const queryIndex = get(queryParams, 'qindex', 'all');
+  const queryIndex = queryParams?.qindex ?? 'all';
   const queryValue = get(queryParams, 'query', '');
   let queryTemplate = getQueryTemplate(queryIndex, indexes);
 
@@ -38,7 +38,7 @@ function buildQuery(queryParams, pathComponents, resourceData, logger, props) {
   )(queryParams, pathComponents, resourceData, logger, props);
 }
 
-export default function buildManifestObject() {
+export function buildManifestObject() {
   return {
     numFiltersLoaded: { initialValue: 1 }, // will be incremented as each filter loads
     query: {
@@ -63,14 +63,14 @@ export default function buildManifestObject() {
     },
     recordsToExportIDs: {
       type: 'okapi',
-      records: 'instances',
+      records: 'ids',
       accumulate: true,
       fetch: false,
-      path: 'inventory/instances',
+      path: 'instance-bulk/ids',
       GET: {
         params: {
           query: buildQuery,
-          limit: '30',
+          limit: '2147483647',
         },
         staticFallback: { params: {} },
       },

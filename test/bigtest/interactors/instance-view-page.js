@@ -13,6 +13,8 @@ import { AccordionInteractor } from '@folio/stripes-components/lib/Accordion/tes
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumnList/tests/interactor';
 
+import KeyValue from './KeyValue';
+
 @interactor class HeaderDropdown {
   click = clickable('button');
 }
@@ -23,6 +25,7 @@ import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumn
   clickDuplicate = clickable('#copy-instance');
   hasDuplicateButton = isPresent('#copy-instance');
   hasViewSourceButton = isPresent('#clickable-view-source');
+  hasEditMarcButton = isPresent('#edit-instance-marc');
   disabledNewViewSourceButton = property('#clickable-view-source', 'disabled');
 }
 
@@ -41,7 +44,7 @@ import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumn
   }
 
   title = text('[data-test-header-title]');
-  headerDropdown = new HeaderDropdown('[class*=paneHeaderCenterInner---] [class*=dropdown---]');
+  headerDropdown = new HeaderDropdown('[data-pane-header-actions-dropdown]');
   hasHeaderDropdown = isPresent('[class^=DropdownMenuTether---]');
   headerDropdownMenu = new HeaderDropdownMenu();
   itemsList = new MultiColumnListInteractor('#list-items');
@@ -52,8 +55,6 @@ import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumn
   items = collection('#list-items div[class^=mclRow]', Item);
   hasViewHoldingsButton = isPresent('[data-test-view-holdings]');
   clickViewHoldings = clickable('[data-test-view-holdings]');
-  clickEditInstance = clickable('#clickable-edit-instance');
-  hasButtonEditInstance = isPresent('#clickable-edit-instance');
   hasButtonAddItem = isPresent('#clickable-new-item');
   clickButtonAddItem = clickable('#clickable-new-item');
   hasButtonAddHoldings = isPresent('#clickable-new-holdings-record');
@@ -62,8 +63,10 @@ import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumn
   accordion = new AccordionInteractor('#acc02');
   expandAll = scoped('[data-test-expand-all] button');
   hasExpandAll = isPresent('[data-test-expand-all] button');
-  hasPrecedingTitles = isPresent('[data-test-preceding-titles]');
-  hasSucceedingTitles = isPresent('[data-test-succeeding-titles]');
+  precedingTitles = new MultiColumnListInteractor('#precedingTitles');
+  succeedingTitles = new MultiColumnListInteractor('#succeedingTitles');
+  natureOfContent = scoped('[data-test-nature-of-content-terms] div', KeyValue);
+
   notes = collection('[id^="list-instance-notes"]', MultiColumnListInteractor);
 
   getCellContent(row, cell) {
@@ -73,5 +76,5 @@ import MultiColumnListInteractor from '@folio/stripes-components/lib/MultiColumn
 
 export default new InstanceViewPage({
   scope: '[data-test-instance-details]',
-  timeout: 3000,
+  timeout: 20000,
 });

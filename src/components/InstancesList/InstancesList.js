@@ -5,7 +5,8 @@ import {
   get,
   set,
   flowRight,
-  isEmpty
+  isEmpty,
+  noop,
 } from 'lodash';
 import {
   injectIntl,
@@ -13,9 +14,15 @@ import {
   FormattedMessage,
 } from 'react-intl';
 
-import { AppIcon } from '@folio/stripes/core';
+import {
+  AppIcon,
+  IfPermission,
+} from '@folio/stripes/core';
 import { SearchAndSort } from '@folio/stripes/smart-components';
-import { Button } from '@folio/stripes/components';
+import {
+  Button,
+  Icon
+} from '@folio/stripes/components';
 
 import FilterNavigation from '../FilterNavigation';
 import packageInfo from '../../../package';
@@ -26,12 +33,17 @@ import withLocation from '../../withLocation';
 import {
   getCurrentFilters,
   parseFiltersToStr,
+  marshalInstance,
 } from '../../utils';
 import {
   InTransitItemReport,
   InstancesIdReport,
+  exportStringToCSV,
 } from '../../reports';
 import ErrorModal from '../ErrorModal';
+import { buildQuery } from '../../routes/buildManifestObject';
+
+import css from './instances.css';
 
 const INITIAL_RESULT_COUNT = 30;
 const RESULT_COUNT_INCREMENT = 30;
@@ -52,7 +64,6 @@ class InstancesView extends React.Component {
     onSelectRow: PropTypes.func,
     visibleColumns: PropTypes.arrayOf(PropTypes.string),
     updateLocation: PropTypes.func.isRequired,
-    onCreate: PropTypes.func,
     segment: PropTypes.string,
     intl: intlShape,
     match: PropTypes.shape({
@@ -91,15 +102,29 @@ class InstancesView extends React.Component {
     this.props.updateLocation({ layer: null });
   };
 
+  createInstance = (instance) => {
+    const { data: { identifierTypesByName } } = this.props;
+
+    // Massage record to add preceeding and succeeding title fields
+    marshalInstance(instance, identifierTypesByName);
+
+    // POST item record
+    return this.props.parentMutator.records.POST(instance);
+  };
+
   onCreate = (instance) => {
-    this.props.onCreate(instance).then(() => this.closeNewInstance());
+    this.createInstance(instance).then(() => this.closeNewInstance());
+  }
+
+  openCreateInstance = () => {
+    this.props.updateLocation({ layer: 'create' });
   }
 
   copyInstance = (instance) => {
     let copiedInstance = omit(instance, ['id', 'hrid']);
     copiedInstance = set(copiedInstance, 'source', 'FOLIO');
     this.setState({ copiedInstance });
-    this.props.updateLocation({ layer: 'create' });
+    this.openCreateInstance();
   }
 
   renderNavigation = () => (
@@ -167,34 +192,95 @@ class InstancesView extends React.Component {
     });
   };
 
+  generateCQLQueryReport = async () => {
+    const { data } = this.props;
+
+    const cqlQuery = buildQuery(data.query, {}, data, { log: noop }, this.props);
+
+    exportStringToCSV(cqlQuery);
+  }
+
+  getActionItem = ({ id, icon, messageId, onClickHandler, isDisabled = false }) => {
+    return (
+      <Button
+        buttonStyle="dropdownItem"
+        id={id}
+        disabled={isDisabled}
+        onClick={onClickHandler}
+      >
+        <Icon
+          icon={icon}
+          size="medium"
+          iconClassName={css.actionIcon}
+        />
+        <FormattedMessage id={messageId} />
+      </Button>
+    );
+  }
+
   getActionMenu = ({ onToggle }) => {
     const { parentResources } = this.props;
+    const isInstancesListEmpty = isEmpty(get(parentResources, ['records', 'records'], []));
+
+    const buildOnClickHandler = onClickHandler => {
+      return () => {
+        onToggle();
+
+        onClickHandler();
+      };
+    };
 
     return (
       <Fragment>
-        <Button
-          buttonStyle="dropdownItem"
-          id="dropdown-clickable-get-report"
-          onClick={() => {
-            onToggle();
+        <IfPermission perm="ui-inventory.instance.create">
+          <Button
+            buttonStyle="dropdownItem"
+            id="clickable-newinventory"
+            onClick={buildOnClickHandler(this.openCreateInstance)}
+          >
+            <Icon
+              icon="plus-sign"
+              size="medium"
+              iconClassName={css.actionIcon}
+            />
+            <FormattedMessage id="stripes-smart-components.new" />
+          </Button>
+        </IfPermission>
 
-            this.startInTransitReportGeneration();
-          }}
-        >
-          <FormattedMessage id="ui-inventory.inTransitReport" />
-        </Button>
-        <Button
-          disabled={isEmpty(get(parentResources, ['records', 'records'], []))}
-          buttonStyle="dropdownItem"
-          id="dropdown-clickable-get-items-uiids"
-          onClick={() => {
-            onToggle();
-
-            this.generateInstancesIdReport();
-          }}
-        >
-          <FormattedMessage id="ui-inventory.saveInstancesUIIDS" />
-        </Button>
+        {this.getActionItem({
+          id: 'dropdown-clickable-get-report',
+          icon: 'report',
+          messageId: 'ui-inventory.inTransitReport',
+          onClickHandler: buildOnClickHandler(this.startInTransitReportGeneration),
+        })}
+        {this.getActionItem({
+          id: 'dropdown-clickable-get-items-uiids',
+          icon: 'save',
+          messageId: 'ui-inventory.saveInstancesUIIDS',
+          onClickHandler: buildOnClickHandler(this.generateInstancesIdReport),
+          isDisabled: isInstancesListEmpty,
+        })}
+        {this.getActionItem({
+          id: 'dropdown-clickable-get-cql-query',
+          icon: 'search',
+          messageId: 'ui-inventory.saveInstancesCQLQuery',
+          onClickHandler: buildOnClickHandler(this.generateCQLQueryReport),
+          isDisabled: isInstancesListEmpty,
+        })}
+        {this.getActionItem({
+          id: 'dropdown-clickable-export-marc',
+          icon: 'download',
+          messageId: 'ui-inventory.exportInstancesInMARC',
+          onClickHandler: buildOnClickHandler(noop),
+          isDisabled: true,
+        })}
+        {this.getActionItem({
+          id: 'dropdown-clickable-export-json',
+          icon: 'download',
+          messageId: 'ui-inventory.exportInstancesInJSON',
+          onClickHandler: buildOnClickHandler(noop),
+          isDisabled: true,
+        })}
       </Fragment>
     );
   };
@@ -295,6 +381,7 @@ class InstancesView extends React.Component {
             onFilterChange={this.onFilterChangeHandler}
             pageAmount={100}
             pagingType="click"
+            hasNewButton={false}
           />
         </div>
         <ErrorModal

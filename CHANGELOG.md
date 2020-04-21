@@ -1,6 +1,30 @@
 # Change history for ui-inventory
 
-## **1.14.0** (in progress)
+## [2.1.0] IN PROGRESS
+* Display instance status date with status. Refs UIIN-1007.
+* Import `stripes-util` via `stripes`. Fixes UIIN-1021 and UIIN-1029.
+* Add CQL query report generation to search instances. UIDEXP-13 and UIDEXP-2
+* Add validation for notes in inventory, holdings, item forms. Refs UIIN-994.
+* Use correct operator when searching by item status and hrid. Fixes UIIN-1048, UIIN-1051, UIIN-1052, UIIN-1053.
+* Add ability to mark item as withdrawn. Refs UIIN-817.
+* Register `instanceFormatIds` filter. Fixes UIIN-1057.
+* Add filter for instance date created. Refs UIIN-788.
+* Improve `buildOptionalBooleanQuery` performance by using `cql.allRecords=1` and `==` operator. Fixes UIIN-1064.
+* Make the title element required for preceding and succeeding titles. Fixes UIIN-1033 and UIIN-1034.
+* Display item status date with status. Refs UIIN-984.
+* Add ability to search by `ISBN, normalized` option. Refs UIIN-647.
+* Instance. Remove The New button. Refs UIIN-1023.
+* Instance. Remove The Edit pen icon in the top pane. Refs UIIN-1024.
+* New/Edit Instance Record: Move Save button to fixed footer component Refs UIIN-915.
+* New/Edit Holding Record: Move Save button to fixed footer component Refs UIIN-916.
+* New/Edit Item Record: Move Save button to fixed footer component. Refs UIIN-917.
+* Add missing location permissions to `ui-inventory.instance.view`. Fixes UIIN-1056.
+* Item. Remove The Edit pen icon in the top main pane. Fixes UIIN-1026.
+* Holdings. Remove The Edit pen icon in the top main pane. Fixes UIIN-1025.
+
+## [2.0.0](https://github.com/folio-org/ui-inventory/tree/v2.0.0) (2020-03-17)
+[Full Changelog](https://github.com/folio-org/ui-inventory/compare/v1.13.1...v2.0.0)
+
 * Increase number of digits for HRID settings page. Refs UIIN-904
 * Add warning modal to HRID settings page. Refs UIIN-861
 * Fix display of information when the item's status is "Missing". Refs UIIN-913.
@@ -30,6 +54,17 @@
 * Omit Former holdings ID when copying holdings record. Refs UIIN-845.
 * Filter instance by "Call number, eye readable" via holdings segment. Refs UIIN-858.
 * Filter instance by "Call number, eye readable" via items segment. Refs UIIN-990.
+* Enhance preceding connected titles. Refs UIIN-960.
+* Add Save icon to the Save Instances UUIDs option in Action menu. UIDEXP-32.
+* Display succeeding/preceding titles on instance view. Refs UIIN-952, UIIN-961 and UIIN-964.
+* Rename the filter `Effective location` to `Effective location (item)`. Refs UIIN-1008.
+* Change endpoint to request instances UIIDs for report generation. UIDEXP-28.
+* Migrate to `stripes` `v3.0.0` and move `react-intl` to peerDependencies.
+* Add new options with icons to action menu - `Export instances (MARC)` and `Export instances (JSON)`. UIDEXP-33.
+* Add support for unconnected preceding titles. Refs UIIN-950.
+* Add support for connected and connected succeeding titles. Refs UIIN-962 and UIIN-963.
+* Add `parse` to `discoverySuppress` and `staffSuppress` filters. Refs STCOM-654.
+* Display the value in the 'Nature of content' field instead of the UUID. Fixes UIIN-1022.
 
 ## [1.13.1](https://github.com/folio-org/ui-inventory/tree/v1.13.1) (2019-12-11)
 [Full Changelog](https://github.com/folio-org/ui-inventory/compare/v1.13.0...v1.13.1)

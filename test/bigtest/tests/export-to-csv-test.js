@@ -35,6 +35,22 @@ describe('Instances', () => {
     it('should enable action button for saving instances UIIDs if there are items in search result', () => {
       expect(inventory.headerDropdownMenu.isSaveInstancesUIIDsBtnDisabled).to.be.false;
     });
+
+    it('should enable action button for saving instances CQL query if there are items in search result', () => {
+      expect(inventory.headerDropdownMenu.isSaveInstancesCQLQueryDisabled).to.be.false;
+    });
+
+    describe('clicking saving instances CQL query button', () => {
+      beforeEach(async function () {
+        // Timeout to skip enabling animation
+        await new Promise((resolve) => { setTimeout(() => resolve(), 3000); });
+        await inventory.headerDropdownMenu.saveInstancesCQLQueryBtn.click();
+      });
+
+      it('should hide action items', () => {
+        expect(inventory.headerDropdownMenu.saveInstancesCQLQueryBtn.isVisible).to.be.false;
+      });
+    });
   });
 
   describe('clicking on header dropdown button', () => {
@@ -48,12 +64,52 @@ describe('Instances', () => {
       expect(inventory.headerDropdownMenu.itemsInTransitReportBtnIsVisible).to.be.true;
     });
 
+    it('should display correct icon for saving items in transit to csv', () => {
+      expect(inventory.headerDropdownMenu.isTransitItemsReportIconPresent).to.be.true;
+    });
+
     it('should display action button for saving instances UIIDs to csv', () => {
       expect(inventory.headerDropdownMenu.saveInstancesUIIDsBtnIsVisible).to.be.true;
     });
 
+    it('should display correct icon for saving instances UIIDs to csv', () => {
+      expect(inventory.headerDropdownMenu.isSaveInstancesUIIDsIconPresent).to.be.true;
+    });
+
     it('should disable action button for saving instances UIIDs if there are not items in search result', () => {
       expect(inventory.headerDropdownMenu.isSaveInstancesUIIDsBtnDisabled).to.be.true;
+    });
+
+    it('should display correct icon for saving instances CQL query to csv', () => {
+      expect(inventory.headerDropdownMenu.isSaveInstancesCQLQueryIconPresent).to.be.true;
+    });
+
+    it('should disable action button for saving instances CQL query if there are no items in search result', () => {
+      expect(inventory.headerDropdownMenu.isSaveInstancesCQLQueryDisabled).to.be.true;
+    });
+
+    it('should display action button for export instances (MARC)', () => {
+      expect(inventory.headerDropdownMenu.exportInstancesMARCBtnIsVisible).to.be.true;
+    });
+
+    it('should display correct icon for export instances (MARC)', () => {
+      expect(inventory.headerDropdownMenu.isExportInstancesMARCIconPresent).to.be.true;
+    });
+
+    it('should disable action button for export instances (MARC) if there are not items in search result', () => {
+      expect(inventory.headerDropdownMenu.isExportInstancesMARCBtnDisabled).to.be.true;
+    });
+
+    it('should display action button for export instances (JSON)', () => {
+      expect(inventory.headerDropdownMenu.exportInstancesJSONBtnIsVisible).to.be.true;
+    });
+
+    it('should display correct icon for export instances (JSON)', () => {
+      expect(inventory.headerDropdownMenu.isExportInstancesJSONIconPresent).to.be.true;
+    });
+
+    it('should disable action button for export instances (JSON) if there are not items in search result', () => {
+      expect(inventory.headerDropdownMenu.isExportInstancesJSONBtnDisabled).to.be.true;
     });
 
     describe('clicking Items in transit report button', () => {
@@ -83,8 +139,8 @@ describe('Instances', () => {
         expect(requests.length).to.equal(0);
       });
 
-      it('should hide action items', () => {
-        expect(inventory.headerDropdownMenu.saveInstancesUIIDsBtnIsVisible).to.be.false;
+      it('should not hide action items', () => {
+        expect(inventory.headerDropdownMenu.saveInstancesUIIDsBtnIsVisible).to.be.true;
       });
     });
   });

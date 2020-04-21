@@ -6,6 +6,8 @@ import {
   property,
   attribute,
   count,
+  fillable,
+  selectable,
 } from '@bigtest/interactor';
 
 @interactor class HeaderDropdown {
@@ -38,11 +40,33 @@ import {
   clickAddNewContributor = clickable('#clickable-add-contributor');
 }
 
+@interactor class PrecedingTitles {
+  precedingTitlesCount = count('[data-test-repeater-field-row]');
+  clickAddPrecedingTitle = clickable('#clickable-add-precedingTitle-add-button');
+  clickAddInstance = clickable('[data-test-plugin-find-record-button]');
+  instanceName = text('[data-test-connected-instance-title]');
+
+  fillTitleField = fillable('[name="precedingTitles[0].title"]');
+  fillISBNField = fillable('[name="precedingTitles[0].isbn"]');
+  fillISSNField = fillable('[name="precedingTitles[0].issn"]');
+}
+
+@interactor class SucceedingTitles {
+  succeedingTitlesCount = count('[data-test-repeater-field-row]');
+  clickAddSucceedingTitle = clickable('#clickable-add-succeedingTitle-add-button');
+  clickAddInstance = clickable('[data-test-plugin-find-record-button]');
+  instanceName = text('[data-test-connected-instance-title]');
+
+  fillTitleField = fillable('[name="succeedingTitles[0].title"]');
+  fillISBNField = fillable('[name="succeedingTitles[0].isbn"]');
+  fillISSNField = fillable('[name="succeedingTitles[0].issn"]');
+}
+
 @interactor class Foo { }
 
 @interactor class InstanceEditPage {
   title = text('[data-test-header-title]');
-  headerDropdown = new HeaderDropdown('[class*=paneHeaderCenterInner---] [class*=dropdown---]');
+  headerDropdown = new HeaderDropdown('[data-pane-header-actions-dropdown]');
   headerDropdownMenu = new HeaderDropdownMenu();
 
   classifications = new Classifications('select[name="classifications[0].classificationTypeId"]');
@@ -58,6 +82,8 @@ import {
   secondFormatLabelId = attribute('[data-test-instance-format-field-count="1"]', 'aria-labelledby');
   firstFormatFieldExists = isPresent('[data-test-instance-format-field-count="0"]');
   secondFormatFieldExists = isPresent('[data-test-instance-format-field-count="1"]');
+  selectInstanceType = selectable('#select_instance_type');
+  saveInstance = clickable('#clickable-save-instance');
 
   languages = new Languages('select[name="languages[0]"]');
   clickAddLanguage = clickable('#clickable-add-language');
@@ -67,6 +93,8 @@ import {
   secondLanguageLabelId = attribute('[data-test-language-field-count="1"]', 'aria-labelledby');
 
   contributors = new Contributors();
+  precedingTitles = new PrecedingTitles();
+  succeedingTitles = new SucceedingTitles();
 
   // The BigTest documentation shows examples like
   //   let input = new Interactor('input');
@@ -81,5 +109,5 @@ import {
 
 export default new InstanceEditPage({
   scope: '[data-test-instance-page-type="edit"]',
-  timeout: 4000,
+  timeout: 10000,
 });

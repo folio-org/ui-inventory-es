@@ -122,13 +122,22 @@ export default function configure() {
         right,
       } = cqlParser.tree;
 
-      if (left?.field === 'title' && right?.field === 'contributors') {
-        return instances.all().filter(inst => inst.title === left.term &&
-          inst.contributors[0].name === right.term);
+      if (left?.field === 'metadata.createdDate' && right?.field === 'metadata.createdDate') {
+        return instances.all().filter(inst => {
+          const createdDate = new Date(inst.metadata.createdDate);
+          const from = new Date(left.term);
+          const to = new Date(right.term);
+
+          return createdDate >= from && createdDate < to;
+        });
       }
 
+      if (left?.field === 'title' && right?.field === 'contributors') {
+        return instances.all().filter(inst => inst.title.match(left.term) &&
+          inst.contributors[0].name.match(right.term));
+      }
 
-      if (left.field === 'holdingsRecords.fullCallNumber') {
+      if (left?.field === 'holdingsRecords.fullCallNumber') {
         const holding = holdings.where({ callNumber: left.term }).models[0];
 
         return instances.where({ id: holding.instanceId });
@@ -141,13 +150,21 @@ export default function configure() {
         return instances.where({ id: holding.instanceId });
       }
 
-      if (!term) return instances.all();
-
       if (field === 'identifiers') {
         const idType = identifierTypes.where({ name: term }).models[0];
 
         return instances.all().filter(inst => inst.identifiers.length &&
           inst.identifiers[0].identifierTypeId === idType.id);
+      }
+
+      if (left?.field === 'isbn' && right?.field === 'invalidIsbn') {
+        const groupPattern = /^([0-9\s-]*)(.*)/;
+        const removePattern = /[-\s]+/g;
+
+        return instances.all().filter(
+          inst => inst.identifiers[0]?.value?.replace(groupPattern, '$1').replace(removePattern, '') === left.term ||
+            inst.identifiers[1]?.value?.replace(groupPattern, '$1').replace(removePattern, '') === right.term
+        );
       }
 
       if (field === 'item.barcode') {
@@ -185,6 +202,8 @@ export default function configure() {
 
         return instances.where({ id: holding.instanceId });
       }
+
+      if (!term) return instances.all();
     }
 
     return instances.all();
@@ -192,6 +211,11 @@ export default function configure() {
 
   this.get('/inventory/instances/:id', (schema, { params }) => {
     return schema.instances.find(params.id);
+  });
+
+  this.put('/inventory/instances/:id', ({ instances }, request) => {
+    const { id } = JSON.parse(request.requestBody);
+    return instances.find(id);
   });
 
   this.get('/locations', {
@@ -356,6 +380,14 @@ export default function configure() {
     const item = items.find(id);
 
     item.update({ name, description, status });
+
+    return item.attrs;
+  });
+
+  this.put('/inventory/items/:id/mark-withdrawn', ({ items }, request) => {
+    const item = items.find(request.params.id);
+
+    item.update({ status: { name: 'Withdrawn' } });
 
     return item.attrs;
   });

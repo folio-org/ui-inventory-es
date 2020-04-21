@@ -90,10 +90,6 @@ describe('InstanceViewPage', () => {
       expect(InstanceViewPage.headlineInViewInstance).to.be.true;
     });
 
-    it('displays the clickable edit button near the header', () => {
-      expect(InstanceViewPage.hasButtonEditInstance).to.be.true;
-    });
-
     it('displays the instance title in the pane header', () => {
       expect(InstanceViewPage.title).to.equal('Instance record ADVANCING RESEARCH');
     });
@@ -428,16 +424,6 @@ describe('InstanceViewPage', () => {
           expect(ItemViewPage.$root).to.exist;
         });
       });
-
-      describe('clicking edit instance button', () => {
-        beforeEach(async () => {
-          await InstanceViewPage.clickEditInstance();
-        });
-
-        it('should redirect to instance edit page', () => {
-          expect(InstanceEditPage.$root).to.exist;
-        });
-      });
     });
   });
 
@@ -452,10 +438,6 @@ describe('InstanceViewPage', () => {
 
     visitingViewInventoryPageWithContent();
 
-    it('displays the clickable edit button near the header', () => {
-      expect(InstanceViewPage.hasButtonEditInstance).to.be.false;
-    });
-
     it('should render a edit instance button at the bottom of opened instance', () => {
       expect(InstanceViewPage.headerDropdownMenu.hasEditButton).to.be.false;
     });
@@ -466,6 +448,10 @@ describe('InstanceViewPage', () => {
 
     it('should render an view source button', () => {
       expect(InstanceViewPage.headerDropdownMenu.hasViewSourceButton).to.be.false;
+    });
+
+    it('should not render an view source button', () => {
+      expect(InstanceViewPage.headerDropdownMenu.hasEditMarcButton).to.be.false;
     });
 
     it('should render an add item button', () => {
@@ -480,21 +466,19 @@ describe('InstanceViewPage', () => {
   describe('Preceding and succeding titles', () => {
     setupApplication();
     beforeEach(async function () {
-      this.server.create('instanceRelationshipType', {
-        'id': '7531246',
-        'name': 'preceding-succeeding',
-      });
       const instance = this.server.create('instance', {
         title: 'ADVANCING RESEARCH',
-        parentInstances: [{
-          id: '10101010101',
-          superInstanceId: '130400000',
-          instanceRelationshipTypeId: '7531246',
+        precedingTitles: [{
+          id: 'da672352-7856-4241-ac06-ae62f0bade4c',
+          precedingInstanceId: '5bf370e0-8cca-4d9c-82e4-5170ab2a0a39',
+          title: 'A semantic web primer',
+          hrid: 'inst000000000022',
         }],
-        childInstances: [{
-          id: '10101010101',
-          subInstanceId: '130400000',
-          instanceRelationshipTypeId: '7531246',
+        succeedingTitles: [{
+          id: '668b93f1-4821-4eb0-8a2b-d507434965f4',
+          succeedingInstanceId: '5bf370e0-8cca-4d9c-82e4-5170ab2a0a39',
+          title: 'Bridget Jones\'s Baby: the diaries',
+          hrid: 'inst000000000022',
         }],
       });
 
@@ -503,10 +487,27 @@ describe('InstanceViewPage', () => {
     });
 
     it('should show preceding title', () => {
-      expect(InstanceViewPage.hasPrecedingTitles).to.be.true;
+      expect(InstanceViewPage.precedingTitles.rowCount).to.be.equal(1);
     });
     it('should show succeding title', () => {
-      expect(InstanceViewPage.hasSucceedingTitles).to.be.true;
+      expect(InstanceViewPage.succeedingTitles.rowCount).to.be.equal(1);
+    });
+  });
+
+  describe('Nature of content field', () => {
+    setupApplication();
+
+    const name = 'audiobook';
+
+    beforeEach(async function () {
+      const natureOfContentTerm = this.server.create('nature-of-content-term', { name });
+      const instance = this.server.create('instance', { natureOfContentTermIds: [natureOfContentTerm.id] });
+      this.visit(`/inventory/view/${instance.id}`);
+      await InstanceViewPage.whenLoaded();
+    });
+
+    it('should display nature of content value', () => {
+      expect(InstanceViewPage.natureOfContent.value.text).to.equal(name);
     });
   });
 
@@ -566,6 +567,12 @@ describe('InstanceViewPage', () => {
 
       it('has correct value - dash', () => {
         expect(InstanceViewPage.subjectsList.rows(0).cells(0).content).to.be.equal('-');
+      });
+    });
+
+    describe('Nature of content field', () => {
+      it('should display dash', () => {
+        expect(InstanceViewPage.natureOfContent.value.text).to.equal('-');
       });
     });
   });
