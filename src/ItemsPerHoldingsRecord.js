@@ -21,10 +21,7 @@ import {
 import Items from './Items';
 import ItemForm from './edit/items/ItemForm';
 import withLocation from './withLocation';
-import {
-  areAllFieldsEmpty,
-  callNumberLabel
-} from './utils';
+import { callNumberLabel } from './utils';
 
 /**
  * Accordion wrapper for an individual Holdings record on the instance-view
@@ -186,11 +183,9 @@ class ItemsPerHoldingsRecord extends React.Component {
       );
     }
 
-    const accordionState = areAllFieldsEmpty([this.state.records]);
-
     return (
       <Accordion
-        open={isAccordionOpen(holdingsRecord.id, accordionState)}
+        open={isAccordionOpen(holdingsRecord.id, [this.state.records])}
         id={holdingsRecord.id}
         onToggle={accordionToggle}
         label={(

@@ -120,19 +120,12 @@ class ViewInstance extends React.Component {
     this.log = logger.log.bind(logger);
 
     this.state = {
-      accordions: {
-        acc01: true,
-        acc02: true,
-        acc03: true,
-        acc04: true,
-        acc05: true,
-        acc06: true,
-        acc07: true,
-        acc08: true,
-        acc09: true,
-        acc10: true,
-        acc11: true,
-      },
+      accordions: {},
+      // areAllAccordionsOpen is a misnomer. This is actually the last state
+      // of the "expand/collapse all" toggle -- e.g., "all of the accordions
+      // were last told to expand". But some accordions could since have been
+      // collapsed individually.
+      /* eslint-disable-next-line react/no-unused-state */
       areAllAccordionsOpen: true,
       marcRecord: null,
     };
@@ -272,6 +265,19 @@ class ViewInstance extends React.Component {
     });
   };
 
+  accordionList = [
+    'acc01',
+    'acc02',
+    'acc03',
+    'acc04',
+    'acc05',
+    'acc06',
+    'acc07',
+    'acc08',
+    'acc09',
+    'acc10',
+  ];
+
   handleAccordionToggle = ({ id }) => {
     this.setState(state => {
       const newState = cloneDeep(state);
@@ -283,11 +289,14 @@ class ViewInstance extends React.Component {
     });
   };
 
-  handleExpandAll = obj => {
+  handleToggleAll = obj => {
     this.setState(curState => {
       const newState = cloneDeep(curState);
       newState.accordions = obj;
       newState.areAllAccordionsOpen = !newState.areAllAccordionsOpen;
+      this.accordionList.forEach(a => {
+        newState.accordions[a] = newState.areAllAccordionsOpen;
+      });
 
       return newState;
     });
@@ -388,14 +397,17 @@ class ViewInstance extends React.Component {
     );
   };
 
-  isAccordionOpen = (id, hasAllFieldsEmpty) => {
-    const {
-      accordions,
-      areAllAccordionsOpen,
-    } = this.state;
+  isAccordionOpen = (id, content) => {
+    // Accordion state is complicated by the requirement to have accordions
+    // closed by default if their contents are empty. Of course, user actions
+    // to open/close an accordion have to override this default. Thus the
+    // *preferred* or directed status is reflected in this.state, while the
+    // fallback areAllFieldsEmpty provides the default.
 
-    return accordions[id] === !hasAllFieldsEmpty && areAllAccordionsOpen;
-  };
+    const stateValue = this.state.accordions[id];
+    if (stateValue !== undefined) return stateValue;
+    else return !areAllFieldsEmpty(content);
+  }
 
   updateAccordions = ({ id }) => {
     this.setState(state => {
@@ -756,19 +768,6 @@ class ViewInstance extends React.Component {
       ? formatters.parentInstancesFormatter(instance, referenceTables.instanceRelationshipTypes, location)
       : noValue;
 
-    const accordionsState = {
-      acc01: areAllFieldsEmpty(values(instanceData)),
-      acc02: areAllFieldsEmpty(values(titleData)),
-      acc03: areAllFieldsEmpty([identifiers]),
-      acc04: areAllFieldsEmpty([contributors]),
-      acc05: areAllFieldsEmpty(values(descriptiveData)),
-      acc06: areAllFieldsEmpty([instanceNotes]),
-      acc07: areAllFieldsEmpty([electronicAccess]),
-      acc08: areAllFieldsEmpty([subjects]),
-      acc09: areAllFieldsEmpty([classifications]),
-      acc10: areAllFieldsEmpty(values(instanceRelationship)),
-    };
-
     const formattedStatusUpdatedDate = instanceData.instanceStatusUpdatedDate !== '-'
       ? (
         <Fragment>
@@ -812,7 +811,7 @@ class ViewInstance extends React.Component {
           >
             <ExpandAllButton
               accordionStatus={accordions}
-              onToggle={this.handleExpandAll}
+              onToggle={this.handleToggleAll}
             />
           </Col>
         </Row>
@@ -895,7 +894,7 @@ class ViewInstance extends React.Component {
         </Row>
 
         <Accordion
-          open={this.isAccordionOpen('acc01', accordionsState.acc01)}
+          open={this.isAccordionOpen('acc01', values(instanceData))}
           id="acc01"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.instanceData" />}
@@ -1005,7 +1004,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc02', accordionsState.acc02)}
+          open={this.isAccordionOpen('acc02', values(titleData))}
           id="acc02"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.titleData" />}
@@ -1100,7 +1099,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc03', accordionsState.acc03)}
+          open={this.isAccordionOpen('acc03', [identifiers])}
           id="acc03"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.identifier" />}
@@ -1136,7 +1135,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc04', accordionsState.acc04)}
+          open={this.isAccordionOpen('acc04', [contributors])}
           id="acc04"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.contributor" />}
@@ -1176,7 +1175,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc05', accordionsState.acc05)}
+          open={this.isAccordionOpen('acc05', values(descriptiveData))}
           id="acc05"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.descriptiveData" />}
@@ -1312,7 +1311,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc06', accordionsState.acc06)}
+          open={this.isAccordionOpen('acc06', [instanceNotes])}
           id="acc06"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.instanceNotes" />}
@@ -1321,7 +1320,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc07', accordionsState.acc07)}
+          open={this.isAccordionOpen('acc07', [electronicAccess])}
           id="acc07"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.electronicAccess" />}
@@ -1362,7 +1361,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc08', accordionsState.acc08)}
+          open={this.isAccordionOpen('acc08', [subjects])}
           id="acc08"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.subject" />}
@@ -1391,7 +1390,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc09', accordionsState.acc09)}
+          open={this.isAccordionOpen('acc09', [classifications])}
           id="acc09"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.classification" />}
@@ -1427,7 +1426,7 @@ class ViewInstance extends React.Component {
         </Accordion>
 
         <Accordion
-          open={this.isAccordionOpen('acc10', accordionsState.acc10)}
+          open={this.isAccordionOpen('acc10', values(instanceRelationship))}
           id="acc10"
           onToggle={this.handleAccordionToggle}
           label={<FormattedMessage id="ui-inventory.instanceRelationshipAnalyticsBoundWith" />}
