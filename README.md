@@ -1,4 +1,4 @@
-# ui-inventory
+# ui-inventory-es
 
 Copyright (C) 2017-2019 The Open Library Foundation
 
@@ -7,8 +7,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Introduction
 
-This is a [Stripes](https://github.com/folio-org/stripes-core/) UI module for administrating locally created
-instances, holdings records and items.
+This is a [Stripes](https://github.com/folio-org/stripes-core/) UI module which is the cope of ui-invetoru for the ElasticSearch POC.
 
 ## Additional information
 
