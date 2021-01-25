@@ -16,7 +16,7 @@ function HelperApp({
 
   return (
     <HelperAppComponent
-      link={`inventory/instances/${params.id}`}
+      link={`search/instances/${params.id}`}
       onToggle={onClose}
     />
   );

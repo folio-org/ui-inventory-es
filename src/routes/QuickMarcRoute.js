@@ -7,7 +7,7 @@ import { Pluggable } from '@folio/stripes/core';
 const QuickMarcRoute = ({ match, history, location }) => {
   const onClose = useCallback((instanceId) => {
     history.push({
-      pathname: `/inventory/view/${instanceId}`,
+      pathname: `/search/view/${instanceId}`,
       search: location.search,
     });
   }, [location.search]);

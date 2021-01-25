@@ -43,7 +43,7 @@ const ItemBarcode = ({ location, item, holdingId, instanceId }) => {
   return (
     <>
       <Link
-        to={`/inventory/view/${instanceId}/${holdingId}/${item.id}${search}`}
+        to={`/search/view/${instanceId}/${holdingId}/${item.id}${search}`}
         data-test-item-link
       >
         <span data-test-items-app-icon>

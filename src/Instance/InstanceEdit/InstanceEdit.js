@@ -40,7 +40,7 @@ const InstanceEdit = ({
     setInitialValues(unmarshalInstance(instance, identifierTypesById));
   }, [instance, identifierTypesById]);
 
-  const goBack = useGoBack(`/inventory/view/${instanceId}`);
+  const goBack = useGoBack(`/search/view/${instanceId}`);
 
   const onSubmit = useCallback((updatedInstance) => {
     return mutator.instanceEdit.PUT(marshalInstance(updatedInstance, identifierTypesByName))
@@ -72,7 +72,7 @@ InstanceEdit.manifest = Object.freeze({
     type: 'okapi',
     records: 'instances',
     throwErrors: false,
-    path: 'inventory/instances',
+    path: 'search/instances',
     accumulate: true,
   },
 });

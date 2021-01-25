@@ -222,7 +222,7 @@ class InventorySettings extends React.Component {
       <Settings
         {...this.props}
         sections={this.sections}
-        paneTitle={<FormattedMessage id="ui-inventory.inventory.label" />}
+        paneTitle={<FormattedMessage id="ui-inventory-es.inventory.label" />}
         data-test-inventory-settings
       />
     );

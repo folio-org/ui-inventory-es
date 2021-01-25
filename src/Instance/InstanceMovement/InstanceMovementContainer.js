@@ -45,7 +45,7 @@ const InstanceMovementContainer = ({
       : instanceFrom.id;
 
     history.push({
-      pathname: `/inventory/view/${instanceId}`,
+      pathname: `/search/view/${instanceId}`,
       search: location.search,
     });
   });
@@ -141,7 +141,7 @@ InstanceMovementContainer.manifest = Object.freeze({
     type: 'okapi',
     records: 'instances',
     throwErrors: false,
-    path: 'inventory/instances',
+    path: 'search/instances',
     accumulate: true,
   },
   movableHoldings: {

@@ -108,7 +108,7 @@ class ItemView extends React.Component {
     const instance = instances1.records[0];
 
     this.props.mutator.items.POST(item).then((data) => {
-      this.props.goTo(`/inventory/view/${instance.id}/${holdingsRecord.id}/${data.id}`);
+      this.props.goTo(`/search/view/${instance.id}/${holdingsRecord.id}/${data.id}`);
     });
   };
 
