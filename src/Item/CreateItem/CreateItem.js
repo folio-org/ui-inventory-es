@@ -54,7 +54,7 @@ const CreateItem = ({
 
   const onCancel = useCallback(() => {
     history.push({
-      pathname: `/inventory/view/${instanceId}`,
+      pathname: `/search/view/${instanceId}`,
       search: location.search,
     });
   }, [location.search, instanceId]);

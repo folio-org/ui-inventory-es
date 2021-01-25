@@ -85,7 +85,7 @@ const HRIDHandlingForm = ({
       {ariaLabel => (
         <PaneCloseLink
           ariaLabel={ariaLabel}
-          to="/settings/inventory"
+          to="/settings/search"
         />
       )}
     </FormattedMessage>

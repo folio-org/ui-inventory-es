@@ -43,7 +43,7 @@ const ConnectedTitle = ({ instance, onSelect, titleIdKey }) => {
           value={
             <Link
               data-test-connected-instance-title
-              to={`/inventory/view/${instance[titleIdKey]}`}
+              to={`/search/view/${instance[titleIdKey]}`}
             >
               {title}
             </Link>

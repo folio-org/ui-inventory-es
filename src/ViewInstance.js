@@ -185,7 +185,7 @@ class ViewInstance extends React.Component {
     const instanceId = match.params.id;
 
     history.push({
-      pathname: `/inventory/edit/${instanceId}/instance`,
+      pathname: `/search/edit/${instanceId}/instance`,
       search: location.search,
     });
   };
@@ -195,7 +195,7 @@ class ViewInstance extends React.Component {
     const instanceId = match.params.id;
 
     history.push({
-      pathname: `/inventory/view-requests/${instanceId}`,
+      pathname: `/search/view-requests/${instanceId}`,
       search: location.search,
     });
   };
@@ -205,7 +205,7 @@ class ViewInstance extends React.Component {
     const instanceId = match.params.id;
 
     history.push({
-      pathname: `/inventory/quick-marc/edit/${instanceId}`,
+      pathname: `/search/quick-marc/edit/${instanceId}`,
       search: location.search,
     });
   };
@@ -215,7 +215,7 @@ class ViewInstance extends React.Component {
     const instanceId = match.params.id;
 
     history.push({
-      pathname: `/inventory/move/${instanceId}/${selectedInstance.id}/instance`,
+      pathname: `/search/move/${instanceId}/${selectedInstance.id}/instance`,
       search: location.search,
     });
   };

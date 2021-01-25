@@ -25,7 +25,7 @@ const TitlesViews = ({
   const formatter = {
     title: row => (row[titleKey] ?
       <Link
-        to={`/inventory/view/${row[titleKey]}`}
+        to={`/search/view/${row[titleKey]}`}
       >
         {row.title}
       </Link> :

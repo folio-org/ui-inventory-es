@@ -152,7 +152,7 @@ class ViewHoldingsRecord extends React.Component {
     const instance = instances1.records[0];
 
     this.props.mutator.holdingsRecords.POST(holdingsRecord).then((data) => {
-      this.props.goTo(`/inventory/view/${instance.id}/${data.id}`);
+      this.props.goTo(`/search/view/${instance.id}/${data.id}`);
     });
   }
 

@@ -29,7 +29,7 @@ const InstanceNewHolding = ({
         <Col sm={12}>
           <Button
             id="clickable-new-holdings-record"
-            to={`/inventory/create/${instance?.id}/holding${location.search}`}
+            to={`/search/create/${instance?.id}/holding${location.search}`}
             aria-label={label}
             buttonStyle="primary"
             fullWidth

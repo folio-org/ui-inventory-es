@@ -46,7 +46,7 @@ const ViewRequestsRoute = ({ mutator, resources }) => {
 
   const onCloseViewRequests = useCallback(() => {
     history.push({
-      pathname: `/inventory/view/${instanceId}`,
+      pathname: `/search/view/${instanceId}`,
       search,
     });
   }, [history, instanceId, search]);

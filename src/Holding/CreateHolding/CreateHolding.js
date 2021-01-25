@@ -32,7 +32,7 @@ const CreateHolding = ({
 
   const onCancel = useCallback(() => {
     history.push({
-      pathname: `/inventory/view/${instanceId}`,
+      pathname: `/search/view/${instanceId}`,
       search: location.search,
     });
   }, [location.search, instanceId]);
@@ -71,7 +71,7 @@ CreateHolding.manifest = Object.freeze({
     type: 'okapi',
     records: 'instances',
     throwErrors: false,
-    path: 'inventory/instances',
+    path: 'search/instances',
     accumulate: true,
   },
   holding: {

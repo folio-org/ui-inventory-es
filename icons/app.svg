@@ -1,1 +1,30 @@
-<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><style></style><linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="12" y1="24" x2="12"><stop offset="0" stop-color="#853b33"/><stop offset="1" stop-color="#c7725f"/></linearGradient><path fill="url(#SVGID_1_)" d="M0 0h24v24H0z"/><path d="M12.07 11.007c-.024 0-.046-.007-.07-.007s-.046.007-.07.007H9V14a3 3 0 1 0 6 0v-2.993h-2.93z" opacity=".2"/><linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="12" y1="15.005" x2="12" y2="5"><stop offset="0" stop-color="#b57541"/><stop offset="1" stop-color="#fff4a1"/></linearGradient><path d="M19.504 5H4.496A.496.496 0 0 0 4 5.496v5.007c0 .275.222.497.496.497H8.5a.5.5 0 0 1 .5.5v.505a3 3 0 1 0 6 0V11.5a.5.5 0 0 1 .5-.5h4.004a.496.496 0 0 0 .496-.496V5.496A.496.496 0 0 0 19.504 5z" fill="url(#SVGID_2_)"/><g><path d="M6.208 7h11.584c.115 0 .208.093.208.208v1.584a.208.208 0 0 1-.208.208H6.208A.208.208 0 0 1 6 8.792V7.208C6 7.093 6.093 7 6.208 7z" fill="#fff"/></g><g><linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="12" y1="20.175" x2="12" y2="15.645"><stop offset="0" stop-color="#b57541"/><stop offset="1" stop-color="#fff4a1"/></linearGradient><circle cx="12" cy="19" r="1.175" fill="url(#SVGID_3_)"/></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon Artboard</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#E98D27" offset="0%"></stop>
+            <stop stop-color="#CC3D11" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-2">
+            <stop stop-color="#853B33" offset="0%"></stop>
+            <stop stop-color="#C7725F" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#FFF4A1" offset="0%"></stop>
+            <stop stop-color="#B57541" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Icon-Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="BG" fill="url(#linearGradient-1)">
+            <rect x="0" y="0" width="1024" height="1024"></rect>
+        </g>
+        <g id="app" fill-rule="nonzero">
+            <polygon id="Path" fill="url(#linearGradient-2)" points="0 0 1024 0 1024 1024 0 1024"></polygon>
+            <path d="M207.239752,519.877266 C299.629549,523.14116 353.547589,517.043708 368.99387,501.584911 C413.744821,456.797698 274.324478,353.836743 404.820215,363.977401 C413.6527,364.663762 757.890508,434.630191 798.537084,487.690209 C808.194088,500.296456 718.200435,508.16726 528.556125,511.302621 C531.830421,511.302621 548.72815,559.191965 579.249311,654.970654 C579.249311,659.89586 276.959639,675.017174 276.959639,670.091968 C227.205418,569.948833 203.965456,519.877266 207.239752,519.877266 Z" id="Path" fill="#FFFFFF" transform="translate(503.087730, 517.172226) rotate(113.000000) translate(-503.087730, -517.172226) "></path>
+            <g id="noun_Lightning_6178" transform="translate(302.000000, 193.000000)" fill="url(#linearGradient-3)">
+                <path d="M443.411345,208.9059 C432.528375,186.5766 409.88919,172.37829 385.040828,172.26111 L323.874625,171.98769 L355.200635,90.47598 C358.485077,82.70304 360.296733,74.15541 360.296733,65.18463 C360.296733,29.18433 331.108216,0 295.057562,0 L295.024978,0 L161.190511,0 C133.7941,0 109.317192,17.08875 99.9070068,42.78372 L3.97394985,304.68102 C-3.3313254,324.62115 -0.450922492,346.86582 11.6767468,364.29309 C23.8109328,381.73338 43.6870162,392.1624 64.9316168,392.27307 L112.771069,392.49441 L52.6084451,564.26727 C42.0382787,594.4281 54.9153741,627.79185 83.022111,643.06431 C92.875435,648.40902 103.582453,651 114.17217,651 C133.7941,651 153.031542,642.15942 165.765269,625.76724 L436.308089,277.41063 C451.537731,257.796 454.294315,231.22869 443.411345,208.9059 Z M114.204753,585.80886 L204.611607,327.76548 L65.263971,327.08844 L161.197028,65.19114 L295.031495,65.19114 L229.081999,236.7687 L384.754091,237.44574 L114.204753,585.80886 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>
