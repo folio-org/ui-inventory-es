@@ -22,7 +22,7 @@ import {
   IfPermission,
   CalloutContext,
 } from '@folio/stripes/core';
-import { SearchAndSort } from '@folio/stripes/smart-components';
+import { SearchAndSortES } from '@folio/stripes/smart-components';
 import {
   Button,
   Icon,
@@ -495,7 +495,18 @@ class InstancesList extends React.Component {
         </AppIcon>
       ),
       'relation': r => formatters.relationsFormatter(r, data.instanceRelationshipTypes),
-      'publishers': r => r?.publication?.map(p => (p ? `${p.publisher} ${p.dateOfPublication ? `(${p.dateOfPublication})` : ''}` : '')).join(', '),
+      'publishers': r => {
+        let publishers;
+
+        if (r?.publishers) {
+          publishers = r.publishers.map(p => {
+            return p
+              ? `${p.publisher} ${p.dateOfPublication ? `(${p.dateOfPublication})` : ''}`
+              : '';
+          });
+        }
+        return publishers?.join(', ');
+      },
       'publication date': r => r?.publication?.map(p => p.dateOfPublication).join(', '),
       'contributors': r => formatters.contributorsFormatter(r, data.contributorTypes),
     };
@@ -518,7 +529,7 @@ class InstancesList extends React.Component {
     return (
       <>
         <div data-test-inventory-instances>
-          <SearchAndSort
+          <SearchAndSortES
             actionMenu={this.getActionMenu}
             packageInfo={packageInfo}
             objectName="inventory"
