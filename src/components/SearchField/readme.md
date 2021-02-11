@@ -15,6 +15,22 @@ Universal search field component.
   />
 ```
 
+## Usage with ElasticQueryField component
+The component supports adding a boolean value, witch replaces a TextField component with the ElasticQueryField.
+
+```
+  import { SearchField } from '@folio/stripes/components';
+
+  <SearchField
+    onChange={...}
+    value={...}
+    onClear={...}
+    placeholder="Search for something"
+
+    isAdvancedSearch={true}
+  />
+```
+
 ## Usage with searchable indexes
 The component supports adding an array of searchable indexes which adds a select field to the component.
 
@@ -55,6 +71,14 @@ loading | boolean | Adds a loading state to icon (on fetch etc.)
 onChange | function | On change handler for the input field
 onClear | function | On clear search field callback
 clearSearchId | string | Adds id to the clear search icon
+
+### With ElasticQueryField component
+Additional props for replacing the TextField component with the ElasticQueryField
+
+Name | type | Description
+-- | -- | --
+isAdvancedSearch | boolean | Replaces the TextField component with the ElasticQueryField
+searchButtonRef | object | Supplies a ref to the search button
 
 ### With searchable indexes
 Additional props for adding searchable indexes/fields.
