@@ -22,7 +22,6 @@ import {
   IfPermission,
   CalloutContext,
 } from '@folio/stripes/core';
-import { SearchAndSortES } from '@folio/stripes/smart-components';
 import {
   Button,
   Icon,
@@ -54,6 +53,7 @@ import {
 import ErrorModal from '../ErrorModal';
 import CheckboxColumn from './CheckboxColumn';
 import SelectedRecordsModal from '../SelectedRecordsModal';
+import SearchAndSort from '../SearchAndSort';
 
 import { buildQuery } from '../../routes/buildManifestObject';
 
@@ -529,7 +529,7 @@ class InstancesList extends React.Component {
     return (
       <>
         <div data-test-inventory-instances>
-          <SearchAndSortES
+          <SearchAndSort
             actionMenu={this.getActionMenu}
             packageInfo={packageInfo}
             objectName="inventory"

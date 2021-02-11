@@ -137,8 +137,11 @@
     "@folio/stripes": "^6.0.0",
     "@folio/stripes-cli": "^1.20.0",
     "@folio/stripes-components": "^9.0.0",
+    "@folio/stripes-connect": "^6.0.0",
     "@folio/stripes-core": "^7.0.0",
+    "@folio/stripes-util": "^3.0.0",
     "@folio/stripes-smart-components": "^6.0.0",
+    "@storybook/react": "^5.3.19",
     "@testing-library/jest-dom": "^5.11.1",
     "@testing-library/react": "^11.0.2",
     "@testing-library/user-event": "^12.1.10",
@@ -161,10 +164,12 @@
     "react-intl": "^5.8.0",
     "react-router-dom": "^5.0.1",
     "regenerator-runtime": "^0.13.3",
-    "sinon": "^7.0.0"
+    "sinon": "^7.0.0",
+    "storybook-readme": "^5.0.8"
   },
   "dependencies": {
     "@folio/react-intl-safe-html": "^2.0.0",
+    "classnames": "^2.2.6",
     "file-saver": "^2.0.0",
     "final-form": "^4.18.2",
     "final-form-arrays": "^3.0.1",
