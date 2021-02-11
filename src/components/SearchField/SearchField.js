@@ -38,6 +38,10 @@ const propTypes = {
     placeholder: PropTypes.string,
     value: PropTypes.string,
   })),
+  searchableIndexesES: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string,
+    value: PropTypes.string,
+  })),
   searchableIndexesPlaceholder: PropTypes.string,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   selectedIndex: PropTypes.string,
@@ -56,6 +60,7 @@ const SearchField = (props) => {
     loading,
     clearSearchId,
     searchableIndexes,
+    searchableIndexesES,
     onChangeIndex,
     selectedIndex,
     searchableIndexesPlaceholder,
@@ -116,6 +121,7 @@ const SearchField = (props) => {
           <ElasticQueryField
             onChange={onChange}
             searchButtonRef={searchButtonRef}
+            searchOptions={searchableIndexesES}
             value={value}
           />
         )

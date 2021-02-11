@@ -199,6 +199,7 @@ class SearchAndSort extends React.Component {
     resultCountMessageKey: PropTypes.string, // URL path to parse for detail views
     resultsFormatter: PropTypes.shape({}),
     searchableIndexes: PropTypes.arrayOf(PropTypes.object),
+    searchableIndexesES: PropTypes.arrayOf(PropTypes.object),
     searchableIndexesPlaceholder: PropTypes.string,
     selectedIndex: PropTypes.string, // whether to auto-show the details record when a search returns a single row
     showSingleResult: PropTypes.bool,
@@ -993,6 +994,7 @@ class SearchAndSort extends React.Component {
       renderNavigation,
       disableFilters,
       searchableIndexes,
+      searchableIndexesES,
       selectedIndex,
     } = this.props;
     const {
@@ -1022,6 +1024,7 @@ class SearchAndSort extends React.Component {
               ariaLabel={ariaLabel}
               className={css.searchField}
               searchableIndexes={searchableIndexes}
+              searchableIndexesES={searchableIndexesES}
               searchButtonRef={this.searchButtonRef}
               selectedIndex={queryIndex}
               value={searchTerm}

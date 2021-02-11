@@ -1,0 +1,14 @@
+.multiSelectSearchWrapper {
+  position: relative;
+}
+
+.optionMenu {
+  position: absolute;
+  width: 100%;
+  composes: multiSelectMenu from '../../../../stripes-components/lib/MultiSelection/MultiSelect.css';
+}
+
+.optionList {
+  max-height: 168px;
+  composes: multiSelectOptionList from '../../../../stripes-components/lib/MultiSelection/MultiSelect.css';
+}
