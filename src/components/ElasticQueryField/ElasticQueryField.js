@@ -2,15 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextArea from '@folio/stripes-components/lib/TextArea';
 
-const defaultStyle = {
-  height: '20px',
-  resize: 'none',
-};
-
 const propTypes = {
   onChange: PropTypes.func,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  style: PropTypes.object,
   value: PropTypes.string,
 };
 
@@ -18,7 +12,6 @@ const ElasticQueryField = props => {
   const {
     onChange,
     searchButtonRef = {},
-    style = defaultStyle,
     value = '',
   } = props;
 
@@ -40,7 +33,6 @@ const ElasticQueryField = props => {
 
   return (
     <TextArea
-      style={style}
       marginBottom0
       value={value}
       onChange={handleSearchTermsChange}
