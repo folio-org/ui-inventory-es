@@ -5,10 +5,6 @@ import ListItem from './ListItem';
 import css from './ElasticQueryField.css';
 
 const UNSELECTED_SUGGESTION_INDEX = -1;
-const defaultStyle = {
-  height: '20px',
-  resize: 'none',
-};
 
 const propTypes = {
   onChange: PropTypes.func,
@@ -17,7 +13,6 @@ const propTypes = {
     label: PropTypes.string,
     value: PropTypes.string,
   })),
-  style: PropTypes.object,
   value: PropTypes.string,
 };
 
@@ -26,7 +21,6 @@ const ElasticQueryField = props => {
     onChange,
     searchButtonRef = {},
     searchOptions,
-    style = defaultStyle,
     value = '',
   } = props;
 
@@ -104,7 +98,6 @@ const ElasticQueryField = props => {
   return (
     <div className={css.multiSelectSearchWrapper}>
       <TextArea
-        style={style}
         marginBottom0
         value={value}
         onChange={handleSearchTermsChange}
