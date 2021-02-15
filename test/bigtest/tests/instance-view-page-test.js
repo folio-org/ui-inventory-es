@@ -9,7 +9,7 @@ import ItemViewPage from '../interactors/item-view-page';
 import HoldingsViewPage from '../interactors/holdings-view-page';
 import ItemCreatePage from '../interactors/item-create-page';
 
-import translation from '../../../translations/ui-inventory/en';
+import translation from '../../../translations/ui-inventory-es/en';
 
 const headersMap = {
   BARCODE: InstanceViewPage.itemsList.headers(0),

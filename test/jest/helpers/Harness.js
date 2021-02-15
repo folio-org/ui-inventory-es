@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 
-import translations from '../../../translations/ui-inventory/en';
+import translations from '../../../translations/ui-inventory-es/en';
 import prefixKeys from './prefixKeys';
 import mockOffsetSize from './mockOffsetSize';
 

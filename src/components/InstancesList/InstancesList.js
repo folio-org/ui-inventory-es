@@ -22,7 +22,6 @@ import {
   IfPermission,
   CalloutContext,
 } from '@folio/stripes/core';
-import { SearchAndSort } from '@folio/stripes/smart-components';
 import {
   Button,
   Icon,
@@ -54,6 +53,7 @@ import {
 import ErrorModal from '../ErrorModal';
 import CheckboxColumn from './CheckboxColumn';
 import SelectedRecordsModal from '../SelectedRecordsModal';
+import SearchAndSort from '../SearchAndSort';
 
 import { buildQuery } from '../../routes/buildManifestObject';
 
@@ -495,7 +495,18 @@ class InstancesList extends React.Component {
         </AppIcon>
       ),
       'relation': r => formatters.relationsFormatter(r, data.instanceRelationshipTypes),
-      'publishers': r => r?.publication?.map(p => (p ? `${p.publisher} ${p.dateOfPublication ? `(${p.dateOfPublication})` : ''}` : '')).join(', '),
+      'publishers': r => {
+        let publishers;
+
+        if (r?.publishers) {
+          publishers = r.publishers.map(p => {
+            return p
+              ? `${p.publisher} ${p.dateOfPublication ? `(${p.dateOfPublication})` : ''}`
+              : '';
+          });
+        }
+        return publishers?.join(', ');
+      },
       'publication date': r => r?.publication?.map(p => p.dateOfPublication).join(', '),
       'contributors': r => formatters.contributorsFormatter(r, data.contributorTypes),
     };
