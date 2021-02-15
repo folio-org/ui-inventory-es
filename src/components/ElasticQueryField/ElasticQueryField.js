@@ -80,19 +80,19 @@ const ElasticQueryField = props => {
     return (
       suggestions?.length
         ? (
-            <div className={css.optionMenu}>
-              <ul className={css.optionList}>
-                {suggestions.map(({ label }, index) => (
-                  <ListItem
-                    key={label}
-                    value={label}
-                    isSelected={selectedSuggestionIndex === index}
-                    isArrowUp={isArrowUp}
-                  />
-                ))}
-              </ul>
-            </div>
-          )
+          <div className={css.optionMenu}>
+            <ul className={css.optionList}>
+              {suggestions.map(({ label }, index) => (
+                <ListItem
+                  key={label}
+                  value={label}
+                  isSelected={selectedSuggestionIndex === index}
+                  isArrowUp={isArrowUp}
+                />
+              ))}
+            </ul>
+          </div>
+        )
         : null
     );
   };
