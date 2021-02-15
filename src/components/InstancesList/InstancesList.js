@@ -88,6 +88,7 @@ class InstancesList extends React.Component {
     }).isRequired,
     renderFilters: PropTypes.func.isRequired,
     searchableIndexes: PropTypes.arrayOf(PropTypes.object).isRequired,
+    searchableIndexesES: PropTypes.arrayOf(PropTypes.object).isRequired,
   };
 
   static contextType = CalloutContext;
@@ -459,6 +460,7 @@ class InstancesList extends React.Component {
       parentMutator,
       renderFilters,
       searchableIndexes,
+      searchableIndexesES,
       match: {
         path,
       }
@@ -526,6 +528,12 @@ class InstancesList extends React.Component {
       return { ...index, label };
     });
 
+    const formattedSearchableIndexesES = searchableIndexesES.map(index => {
+      const label = intl.formatMessage({ id: index.label });
+
+      return { ...index, label };
+    });
+
     return (
       <>
         <div data-test-inventory-instances>
@@ -536,6 +544,7 @@ class InstancesList extends React.Component {
             maxSortKeys={1}
             renderNavigation={this.renderNavigation}
             searchableIndexes={formattedSearchableIndexes}
+            searchableIndexesES={formattedSearchableIndexesES}
             selectedIndex={get(data.query, 'qindex')}
             searchableIndexesPlaceholder={null}
             initialResultCount={INITIAL_RESULT_COUNT}
