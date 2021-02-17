@@ -608,5 +608,10 @@
   "moveItems.modal.message.items": "{count, number} {count, plural, one {item} other {items}} will be moved to {targetName}",
 
   "filter.tags": "Tags",
-  "showTags": "Show tags"
+  "showTags": "Show tags",
+  "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
+  "callNumber": "Call Number",
+  "equality": "=",
+  "and": "AND",
+  "or": "OR"
 }

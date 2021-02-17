@@ -604,5 +604,10 @@
     "instances.showSelectedRecords": "Show selected records",
     "instances.selectedRecords": "Selected records",
     "saveAndClose": "Save & close",
-    "communicationProblem": "Server communication problem. Please try again"
+    "communicationProblem": "Server communication problem. Please try again",
+    "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
+    "callNumber": "Call Number",
+    "equality": "=",
+    "and": "AND",
+    "or": "OR"
 }

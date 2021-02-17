@@ -1,23 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
+import { FormattedMessage } from 'react-intl';
 import classNames from 'classnames';
 import TextArea from '@folio/stripes-components/lib/TextArea';
 import { Highlighter } from '@folio/stripes-components';
+import { operators, booleanOperators } from './elasticConfig';
 import css from './ElasticQueryField.css';
 
-const operators = ['='];
-const booleanOperators = ['AND', 'OR'];
 const UNSELECTED_OPTION_INDEX = -1;
+const SPACE = ' ';
+const OPEN_BRACKET = '(';
+const CLOSE_BRACKET = ')';
 
 const propTypes = {
   onChange: PropTypes.func,
-  onSetIsSearchByKeyword: PropTypes.func,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   searchOptions: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     value: PropTypes.string,
   })),
+  setIsSearchByKeyword: PropTypes.func,
   terms: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     value: PropTypes.string,
@@ -29,7 +31,7 @@ const ElasticQueryField = props => {
   const {
     value,
     onChange,
-    onSetIsSearchByKeyword,
+    setIsSearchByKeyword,
     searchButtonRef = {},
     searchOptions,
     terms = [],
@@ -50,8 +52,10 @@ const ElasticQueryField = props => {
   const optionsContainerRef = useRef();
   const optionRef = useRef();
 
-  const isTypedValueNotBracket = typedValue !== '(' && typedValue !== ')';
-  const typedValueWithoutOpenBracket = typedValue[0] === '(' ? typedValue.slice(1) : typedValue;
+  const isTypedValueNotBracket = typedValue !== OPEN_BRACKET && typedValue !== CLOSE_BRACKET;
+  const typedValueWithoutOpenBracket = typedValue[0] === OPEN_BRACKET
+    ? typedValue.slice(1)
+    : typedValue;
 
   const resetFocusedOptionIndex = () => {
     setFocusedOptionIndex(UNSELECTED_OPTION_INDEX);
@@ -64,20 +68,20 @@ const ElasticQueryField = props => {
   };
 
   const addQuotes = valueToInsert => {
-    if (valueToInsert.includes(' ')) {
-      if (valueToInsert.startsWith('(')) {
+    if (valueToInsert.includes(SPACE)) {
+      if (valueToInsert.startsWith(OPEN_BRACKET)) {
         return `("${valueToInsert.slice(1)}"`;
       }
-      if (valueToInsert.endsWith(')') && !valueToInsert.includes('(')) {
-        return `"${valueToInsert.slice(0, -1)}")`;
+      if (valueToInsert.endsWith(CLOSE_BRACKET) && !valueToInsert.includes(OPEN_BRACKET)) {
+        return `"${valueToInsert.slice(0, -1)}"${CLOSE_BRACKET}`;
       }
       return `"${valueToInsert}"`;
     }
 
-    if (valueToInsert.startsWith('(')) {
+    if (valueToInsert.startsWith(OPEN_BRACKET)) {
       return `(${valueToInsert.slice(1)}`;
     }
-    if (valueToInsert.endsWith(')')) {
+    if (valueToInsert.endsWith(CLOSE_BRACKET)) {
       return `${valueToInsert.slice(0, -1)})`;
     }
     return `${valueToInsert}`;
@@ -85,8 +89,7 @@ const ElasticQueryField = props => {
 
   const isValueFromOptions = (val) => {
     return options.some(option => {
-      const offer = option.label || option;
-      return offer.toLowerCase() === val.toLowerCase();
+      return option.label.toLowerCase() === val.toLowerCase();
     });
   };
 
@@ -99,10 +102,15 @@ const ElasticQueryField = props => {
 
   const processEnteredSearchOption = (valueToInsert, isOptionSelected) => {
     if (isOptionSelected) {
-      setEnteredSearchOption(typedValue[0] === '(' ? `(${valueToInsert}` : valueToInsert);
+      const searchOptionValue = typedValue[0] === OPEN_BRACKET
+        ? `${OPEN_BRACKET}${valueToInsert}`
+        : valueToInsert;
+      setEnteredSearchOption(searchOptionValue);
       resetFocusedOptionIndex();
     } else {
-      const valueWithoutOpenBracket = valueToInsert.startsWith('(') ? valueToInsert.slice(1) : valueToInsert;
+      const valueWithoutOpenBracket = valueToInsert.startsWith(OPEN_BRACKET)
+        ? valueToInsert.slice(1)
+        : valueToInsert;
       if (isValueFromOptions(valueWithoutOpenBracket)) {
         setEnteredSearchOption(valueToInsert);
       } else {
@@ -140,16 +148,18 @@ const ElasticQueryField = props => {
       setEnteredTerm(valueToInsert);
       resetFocusedOptionIndex();
     } else if (options.length) {
-      const valueWithoutClosedBracket = valueToInsert.endsWith(')') ? valueToInsert.slice(0, -1) : valueToInsert;
+      const valueWithoutClosedBracket = valueToInsert.endsWith(CLOSE_BRACKET)
+        ? valueToInsert.slice(0, -1)
+        : valueToInsert;
       if (isValueFromOptions(valueWithoutClosedBracket)) {
         setEnteredTerm(valueToInsert);
       } else {
         onChange(prevValue);
       }
     } else {
-      if (valueToInsert.startsWith('(')) {
+      if (valueToInsert.startsWith(OPEN_BRACKET)) {
         setIsOpenBracketAfterEquality(true);
-      } else if (valueToInsert.endsWith(')')) {
+      } else if (valueToInsert.endsWith(CLOSE_BRACKET)) {
         setIsOpenBracketAfterEquality(false);
       }
       setEnteredTerm(valueToInsert);
@@ -206,9 +216,9 @@ const ElasticQueryField = props => {
     onChange(val);
 
     if (!searchOption) {
-      onSetIsSearchByKeyword(true);
+      setIsSearchByKeyword(true);
     } else {
-      onSetIsSearchByKeyword(false);
+      setIsSearchByKeyword(false);
     }
   };
 
@@ -265,8 +275,9 @@ const ElasticQueryField = props => {
         event.preventDefault();
         const isOptionSelected = focusedOptionIndex !== UNSELECTED_OPTION_INDEX;
         const selectedOption = options[focusedOptionIndex];
-        const selectedValue = selectedOption?.label || selectedOption;
-        const valueToInsert = isOptionSelected ? selectedValue : typedValue;
+        const valueToInsert = isOptionSelected
+          ? selectedOption.label
+          : typedValue;
 
         handleValueToInsert(valueToInsert, isOptionSelected);
 
@@ -331,8 +342,7 @@ const ElasticQueryField = props => {
 
     if (typedValue && isTypedValueNotBracket) {
       const filteredOptions = suggestions.filter(suggestion => {
-        const valueToOpt = suggestion.label || suggestion;
-        return valueToOpt.toLowerCase().includes(typedValueWithoutOpenBracket.toLowerCase());
+        return suggestion.label.toLowerCase().includes(typedValueWithoutOpenBracket.toLowerCase());
       });
       setOptions(filteredOptions);
     } else {
@@ -347,6 +357,10 @@ const ElasticQueryField = props => {
     }
   };
 
+  const handleMouseDown = (event) => {
+    event.preventDefault();
+  };
+
   const renderOptions = () => {
     return (
       options?.length
@@ -358,10 +372,9 @@ const ElasticQueryField = props => {
               id="listboxId"
               className={css.optionList}
               ref={optionsContainerRef}
-              onMouseDown={event => { event.preventDefault(); }}
+              onMouseDown={handleMouseDown}
             >
               {options.map((option, index) => {
-                const valueToOpt = option.label || option;
                 const searchWords = isTypedValueNotBracket && typedValueWithoutOpenBracket
                   ? [typedValueWithoutOpenBracket]
                   : [];
@@ -372,15 +385,15 @@ const ElasticQueryField = props => {
                     role="option"
                     id={`list-item-${index}`}
                     aria-selected={isFocused}
-                    key={valueToOpt}
+                    key={option.label}
                     ref={(element) => handleOptionRef(element, isFocused)}
                     className={classNames(css.option, isFocused && css.optionCursor)}
-                    onClick={() => handleValueToInsert(valueToOpt)}
-                    onKeyDown={noop}
+                    onClick={() => handleValueToInsert(option.label)}
+                    onKeyDown={() => null}
                   >
                     <Highlighter
                       searchWords={searchWords}
-                      text={valueToOpt}
+                      text={<FormattedMessage id={`ui-inventory-es.${option.label}`} />}
                     />
                   </li>
                 );
@@ -436,7 +449,7 @@ const ElasticQueryField = props => {
         id="info"
         className={css.info}
       >
-        When autocomplete results are available use up and down arrows to review and enter to select.
+        <FormattedMessage id="ui-inventory-es.elasticOptionsInfo" />
       </p>
       {isOpen && renderOptions()}
     </div>

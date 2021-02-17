@@ -100,15 +100,15 @@ export const instanceIndexes = [
 ];
 
 export const instanceIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'Title (all)', value: 'Title' },
-  { label: 'Contributors', value: 'Contributors' },
-  { label: 'Identifiers (all)', value: 'Identifier' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Subject', value: 'Subject' },
-  { label: 'Instance UUID', value: 'UUID' },
-  { label: 'Instance HRID', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
+  { label: 'ui-inventory-es.title', value: 'Title' },
+  { label: 'ui-inventory-es.contributor', value: 'Contributor' },
+  { label: 'ui-inventory-es.identifierAll', value: 'Identifier' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
+  { label: 'ui-inventory-es.subject', value: 'Subject' },
+  { label: 'ui-inventory-es.instanceId', value: 'UUID' },
+  { label: 'ui-inventory-es.instanceHrid', value: 'HRID' },
 ];
 
 export const instanceSortMap = {
@@ -137,11 +137,11 @@ export const holdingIndexes = [
 ];
 
 export const holdingIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Call Number', value: 'Call Number' },
-  { label: 'Holdings HRID', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number' },
+  { label: 'ui-inventory-es.holdingsHrid', value: 'HRID' },
 ];
 
 export const holdingSortMap = {};
@@ -192,12 +192,12 @@ export const itemIndexes = [
 ];
 
 export const itemIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'Barcode', value: 'Barcode' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Call Number', value: 'Call Number' },
-  { label: 'Item HRID', value: 'Item HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
+  { label: 'ui-inventory-es.barcode', value: 'Barcode' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number' },
+  { label: 'ui-inventory-es.itemHrid', value: 'Item HRID' },
 ];
 
 export const itemFilterConfig = [

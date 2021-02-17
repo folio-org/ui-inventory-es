@@ -421,7 +421,7 @@ class SearchAndSort extends React.Component {
     defer(() => onFilterChange(filter));
   };
 
-  onSetIsSearchByKeyword = (value) => {
+  setIsSearchByKeyword = (value) => {
     this.setState({ isSearchByKeyword: value });
   };
 
@@ -1031,12 +1031,12 @@ class SearchAndSort extends React.Component {
               searchableIndexesES={searchableIndexesES}
               searchButtonRef={this.searchButtonRef}
               selectedIndex={queryIndex}
+              setIsSearchByKeyword={this.setIsSearchByKeyword}
               value={searchTerm}
               loading={source.pending()}
               marginBottom0
               onChangeIndex={this.onChangeIndex}
               onChange={this.onChangeSearch}
-              onSetIsSearchByKeyword={this.onSetIsSearchByKeyword}
               onClear={this.onClearSearchQuery}
             />
           )}
