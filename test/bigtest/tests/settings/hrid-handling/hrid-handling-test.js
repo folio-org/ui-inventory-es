@@ -7,7 +7,7 @@ import { expect } from 'chai';
 
 import setupApplication from '../../../helpers/setup-application';
 import HRIDHandlingInteractor from '../../../interactors/settings/hrid-handling/hrid-handling';
-import translation from '../../../../../translations/ui-inventory/en';
+import translation from '../../../../../translations/ui-inventory-es/en';
 
 const START_WITH_MAX_LENGTH = 11;
 const ASSIGN_PREFIX_MAX_LENGTH = 10;

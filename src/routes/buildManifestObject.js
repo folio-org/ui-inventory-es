@@ -25,7 +25,7 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
     queryTemplate = getIsbnIssnTemplate(queryTemplate, identifierTypes, queryIndex);
   }
 
-  if (queryIndex === 'querySearch' && queryValue.match('sortby')) {
+  if (queryIndex === 'advancedSearch' && queryValue.match('sortby')) {
     query.sort = '';
   } else if (!query.sort) {
     // Default sort for filtering/searching instances/holdings/items should be by title (UIIN-1046)
@@ -35,7 +35,7 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
   resourceData.query = { ...query, qindex: '' };
 
   // makeQueryFunction escapes quote and backslash characters by default,
-  // but when submitting a raw CQL query (i.e. when queryIndex === 'querySearch')
+  // but when submitting a raw CQL query (i.e. when queryIndex === 'advancedSearch')
   // we assume the user knows what they are doing and wants to run the CQL as-is.
   return makeQueryFunction(
     CQL_FIND_ALL,
@@ -44,7 +44,7 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
     filters,
     2,
     null,
-    queryIndex !== 'querySearch',
+    queryIndex !== 'advancedSearch',
   )(queryParams, pathComponents, resourceData, logger, props);
 }
 

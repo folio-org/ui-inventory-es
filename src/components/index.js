@@ -13,3 +13,5 @@ export { default as TitlesView } from './TitlesView';
 export { default as ModalContent } from './ModalContent';
 export { default as CheckboxFacet } from './CheckboxFacet';
 export { PaneLoading, ViewLoading } from './Loading';
+export { default as SearchAndSort } from './SearchAndSort';
+export { default as SearchField } from './SearchField';

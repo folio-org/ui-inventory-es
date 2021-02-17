@@ -6,7 +6,7 @@ import HoldingsViewPage from '../interactors/holdings-view-page';
 import HoldingsEditPage from '../interactors/holdings-edit-page';
 import HoldingsCreatePage from '../interactors/holdings-create-page';
 
-import translation from '../../../translations/ui-inventory/en';
+import translation from '../../../translations/ui-inventory-es/en';
 
 describe('HoldingsViewPage', () => {
   setupApplication();

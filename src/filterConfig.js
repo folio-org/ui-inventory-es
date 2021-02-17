@@ -96,7 +96,19 @@ export const instanceIndexes = [
   // { label: 'ui-inventory.barcode', value: 'item.barcode', queryTemplate: 'item.barcode=="%{query.query}"' },
   { label: 'ui-inventory.instanceHrid', value: 'hrid', queryTemplate: 'hrid=="%{query.query}"' },
   { label: 'ui-inventory.instanceId', value: 'id', queryTemplate: 'id="%{query.query}"' },
-  { label: 'ui-inventory.querySearch', value: 'querySearch', queryTemplate: '%{query.query}' },
+  { label: 'ui-inventory-es.advancedSearch', value: 'advancedSearch', queryTemplate: '%{query.query}' },
+];
+
+export const instanceIndexesES = [
+  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
+  { label: 'Title (all)', value: 'Title' },
+  { label: 'Contributors', value: 'Contributors' },
+  { label: 'Identifiers (all)', value: 'Identifier' },
+  { label: 'ISSN', value: 'ISSN' },
+  { label: 'ISBN', value: 'ISBN' },
+  { label: 'Subject', value: 'Subject' },
+  { label: 'Instance UUID', value: 'UUID' },
+  { label: 'Instance HRID', value: 'HRID' },
 ];
 
 export const instanceSortMap = {
@@ -121,7 +133,15 @@ export const holdingIndexes = [
     value: 'callNumberNormalized',
     queryTemplate: 'holdingsRecords.fullCallNumberNormalized="%{query.query}" OR holdingsRecords.callNumberAndSuffixNormalized="%{query.query}"' },
   { label: 'ui-inventory.holdingsHrid', value: 'hrid', queryTemplate: 'holdingsRecords.hrid=="%{query.query}"' },
-  { label: 'ui-inventory.querySearch', value: 'querySearch', queryTemplate: '%{query.query}' },
+  { label: 'ui-inventory-es.advancedSearch', value: 'advancedSearch', queryTemplate: '%{query.query}' },
+];
+
+export const holdingIndexesES = [
+  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
+  { label: 'ISSN', value: 'ISSN' },
+  { label: 'ISBN', value: 'ISBN' },
+  { label: 'Call Number', value: 'Call Number' },
+  { label: 'Holdings HRID', value: 'HRID' },
 ];
 
 export const holdingSortMap = {};
@@ -168,8 +188,16 @@ export const itemIndexes = [
     value: 'itemCallNumberNorm',
     queryTemplate: 'item.fullCallNumberNormalized="%{query.query}" OR item.callNumberAndSuffixNormalized="%{query.query}"' },
   { label: 'ui-inventory.itemHrid', value: 'hrid', queryTemplate: 'item.hrid=="%{query.query}"' },
-  { label: 'ui-inventory.querySearch', value: 'querySearch', queryTemplate: '%{query.query}' },
+  { label: 'ui-inventory-es.advancedSearch', value: 'advancedSearch', queryTemplate: '%{query.query}' },
+];
 
+export const itemIndexesES = [
+  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
+  { label: 'Barcode', value: 'Barcode' },
+  { label: 'ISSN', value: 'ISSN' },
+  { label: 'ISBN', value: 'ISBN' },
+  { label: 'Call Number', value: 'Call Number' },
+  { label: 'Item HRID', value: 'Item HRID' },
 ];
 
 export const itemFilterConfig = [
@@ -235,4 +263,17 @@ const config = {
   }
 };
 
+const configES = {
+  instances: {
+    indexesES: instanceIndexesES,
+  },
+  holdings: {
+    indexesES: holdingIndexesES,
+  },
+  items: {
+    indexesES: itemIndexesES,
+  },
+};
+
 export const getFilterConfig = (segment = 'instances') => config[segment];
+export const getFilterConfigES = (segment = 'instances') => configES[segment];

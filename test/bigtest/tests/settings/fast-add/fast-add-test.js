@@ -7,7 +7,7 @@ import { expect } from 'chai';
 
 import setupApplication from '../../../helpers/setup-application';
 import FastAddSettings from '../../../interactors/settings/fast-add/fast-add';
-import translation from '../../../../../translations/ui-inventory/en';
+import translation from '../../../../../translations/ui-inventory-es/en';
 
 describe('Settings page for Fast add', () => {
   setupApplication();

@@ -4,7 +4,7 @@ buildNPM {
   runLint = true
   runSonarqube = true
   runRegression = 'none'
-  runTest = 'none'
+  runTest = false
   runTestOptions = ''
 }
 
