@@ -6,6 +6,7 @@ import CheckboxFacetList from './CheckboxFacetList';
 import { accentFold } from '../../utils';
 
 const SHOW_OPTIONS_COUNT = 5;
+const SHOW_OPTIONS_INCREMENT = 5;
 
 export default class CheckboxFacet extends React.Component {
   static propTypes = {
@@ -34,7 +35,7 @@ export default class CheckboxFacet extends React.Component {
 
   onMoreClick = (totalOptions) => {
     this.setState(({ more }) => {
-      let visibleOptionsCount = more + 10;
+      let visibleOptionsCount = more + SHOW_OPTIONS_INCREMENT;
       const showingAll = visibleOptionsCount >= totalOptions;
       if (showingAll) visibleOptionsCount = totalOptions;
 
