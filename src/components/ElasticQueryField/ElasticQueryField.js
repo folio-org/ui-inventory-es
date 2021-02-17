@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 import classNames from 'classnames';
 import TextArea from '@folio/stripes-components/lib/TextArea';
 import { Highlighter } from '@folio/stripes-components';
@@ -13,6 +13,7 @@ const OPEN_BRACKET = '(';
 const CLOSE_BRACKET = ')';
 
 const propTypes = {
+  intl: PropTypes.object,
   onChange: PropTypes.func,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   searchOptions: PropTypes.arrayOf(PropTypes.shape({
@@ -29,6 +30,7 @@ const propTypes = {
 
 const ElasticQueryField = props => {
   const {
+    intl,
     value,
     onChange,
     setIsSearchByKeyword,
@@ -327,17 +329,24 @@ const ElasticQueryField = props => {
     resetFocusedOptionIndex();
   };
 
+  const formatOptions = (suggestions) => {
+    return suggestions.map(suggestion => {
+      const label = intl.formatMessage({ id: suggestion.label });
+      return { ...suggestion, label };
+    });
+  };
+
   const processOptions = () => {
     let suggestions;
 
     if (!searchOption) {
       suggestions = searchOptions;
     } else if (!operator) {
-      suggestions = operators;
+      suggestions = formatOptions(operators);
     } else if (!term) {
       suggestions = terms;
     } else {
-      suggestions = booleanOperators;
+      suggestions = formatOptions(booleanOperators);
     }
 
     if (typedValue && isTypedValueNotBracket) {
@@ -393,7 +402,7 @@ const ElasticQueryField = props => {
                   >
                     <Highlighter
                       searchWords={searchWords}
-                      text={<FormattedMessage id={`ui-inventory-es.${option.label}`} />}
+                      text={option.label}
                     />
                   </li>
                 );
@@ -458,4 +467,4 @@ const ElasticQueryField = props => {
 
 ElasticQueryField.propTypes = propTypes;
 
-export default ElasticQueryField;
+export default injectIntl(ElasticQueryField);
