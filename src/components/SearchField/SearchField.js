@@ -9,10 +9,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useIntl } from 'react-intl';
 
-import TextField from '@folio/stripes-components/lib/TextField';
 import Select from '@folio/stripes-components/lib/Select';
 import TextFieldIcon from '@folio/stripes-components/lib/TextField/TextFieldIcon';
 
+import TextField from '../TextField';
 import ElasticQueryField from '../ElasticQueryField';
 import css from './SearchField.css';
 
@@ -30,6 +30,7 @@ const propTypes = {
   onChange: PropTypes.func,
   onChangeIndex: PropTypes.func,
   onClear: PropTypes.func,
+  onSetIsSearchByKeyword: PropTypes.func,
   placeholder: PropTypes.string,
   searchableIndexes: PropTypes.arrayOf(PropTypes.shape({
     disabled: PropTypes.bool,
@@ -57,6 +58,7 @@ const SearchField = (props) => {
     value,
     onChange,
     onClear,
+    onSetIsSearchByKeyword,
     loading,
     clearSearchId,
     searchableIndexes,
@@ -120,6 +122,7 @@ const SearchField = (props) => {
         ? (
           <ElasticQueryField
             onChange={onChange}
+            onSetIsSearchByKeyword={onSetIsSearchByKeyword}
             searchButtonRef={searchButtonRef}
             searchOptions={searchableIndexesES}
             value={value}

@@ -1,0 +1,88 @@
+@import '@folio/stripes-components/lib/variables.css';
+
+.textField {
+  position: relative;
+  width: 100%;
+
+  & input {
+    padding: var(--input-vertical-padding) var(--input-horizontal-padding);
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height);
+  }
+}
+
+.inputGroup {
+  display: flex;
+
+  & input {
+    margin: 0;
+    height: auto;
+    width: 100%;
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    min-width: 0; /* keep FF from inserting its own min-width so textfield can get smaller if necessary */
+  }
+}
+
+.startControls,
+.endControls {
+  pointer-events: none;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex: 0;
+}
+
+.startControls {
+  justify-content: flex-start;
+  padding: 0 0 0 var(--input-horizontal-padding);
+}
+
+[dir="rtl"] .startControls {
+  padding: 0 var(--input-horizontal-padding) 0 0;
+}
+
+.endControls {
+  justify-content: flex-end;
+  padding: 0 var(--input-horizontal-padding) 0 0;
+}
+
+[dir="rtl"] .endControls {
+  padding: 0 0 0 var(--input-horizontal-padding);
+}
+
+.controlGroup {
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+}
+
+.warningIcon {
+  fill: var(--error);
+}
+
+.errorIcon {
+  fill: var(--error);
+}
+
+.successIcon {
+  fill: var(--success);
+}
+
+.loadingIcon {
+  fill: var(--secondary);
+}
+
+/**
+ * Text Field Icon
+ */
+.textFieldIcon {
+  color: var(--color-icon);
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 0.25rem;
+}

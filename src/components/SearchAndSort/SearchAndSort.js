@@ -245,6 +245,7 @@ class SearchAndSort extends React.Component {
       filterPaneIsVisible: true,
       locallyChangedSearchTerm: '',
       locallyChangedQueryIndex: '',
+      isSearchByKeyword: false,
     };
 
     this.handleFilterChange = handleFilterChange.bind(this);
@@ -420,9 +421,11 @@ class SearchAndSort extends React.Component {
     defer(() => onFilterChange(filter));
   };
 
-  onChangeSearch = (e) => {
-    const query = e.target.value;
+  onSetIsSearchByKeyword = (value) => {
+    this.setState({ isSearchByKeyword: value });
+  };
 
+  onChangeSearch = (query) => {
     if (query) {
       this.setState({ locallyChangedSearchTerm: query });
     } else {
@@ -446,10 +449,11 @@ class SearchAndSort extends React.Component {
     const {
       locallyChangedSearchTerm,
       locallyChangedQueryIndex,
+      isSearchByKeyword,
     } = this.state;
 
     this.performSearch({
-      query: locallyChangedSearchTerm,
+      query: isSearchByKeyword ? `keyword all "${locallyChangedSearchTerm}"` : locallyChangedSearchTerm,
       qindex: locallyChangedQueryIndex,
     });
   };
@@ -1032,6 +1036,7 @@ class SearchAndSort extends React.Component {
               marginBottom0
               onChangeIndex={this.onChangeIndex}
               onChange={this.onChangeSearch}
+              onSetIsSearchByKeyword={this.onSetIsSearchByKeyword}
               onClear={this.onClearSearchQuery}
             />
           )}
