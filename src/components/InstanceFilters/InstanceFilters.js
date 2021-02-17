@@ -9,18 +9,16 @@ import {
   languageOptions,
 } from '@folio/stripes/components';
 import {
-  CheckboxFilter,
-  MultiSelectionFilter,
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
 
 import {
-  filterItemsBy,
   retrieveDatesFromDateRangeFilterString,
   makeDateRangeFilterString,
 } from '../../utils';
 import { DATE_FORMAT } from '../../constants';
 import TagsFilter from '../TagsFilter';
+import CheckboxFacet from '../CheckboxFacet';
 
 const InstanceFilters = props => {
   const {
@@ -112,12 +110,12 @@ const InstanceFilters = props => {
         displayClearButton={effectiveLocation.length > 0}
         onClearFilter={() => onClear('effectiveLocation')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="effectiveLocation"
           dataOptions={effectiveLocationOptions}
           selectedValues={effectiveLocation}
-          filter={filterItemsBy('label')}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -130,11 +128,12 @@ const InstanceFilters = props => {
         displayClearButton={language.length > 0}
         onClearFilter={() => onClear('language')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="language"
           dataOptions={langOptions}
           selectedValues={language}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -146,12 +145,12 @@ const InstanceFilters = props => {
         displayClearButton={resource.length > 0}
         onClearFilter={() => onClear('resource')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="resource"
           dataOptions={resourceTypeOptions}
           selectedValues={resource}
-          filter={filterItemsBy('label')}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -163,12 +162,12 @@ const InstanceFilters = props => {
         displayClearButton={format.length > 0}
         onClearFilter={() => onClear('format')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="format"
           dataOptions={instanceFormatOptions}
           selectedValues={format}
-          filter={filterItemsBy('label')}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -180,12 +179,12 @@ const InstanceFilters = props => {
         displayClearButton={mode.length > 0}
         onClearFilter={() => onClear('mode')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="mode"
           dataOptions={modeOfIssuanceOptions}
           selectedValues={mode}
-          filter={filterItemsBy('label')}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -197,12 +196,12 @@ const InstanceFilters = props => {
         displayClearButton={mode.length > 0}
         onClearFilter={() => onClear('natureOfContent')}
       >
-        <MultiSelectionFilter
+        <CheckboxFacet
           name="natureOfContent"
           dataOptions={natureOfContentOptions}
           selectedValues={natureOfContent}
-          filter={filterItemsBy('label')}
           onChange={onChange}
+          isFilterable
         />
       </Accordion>
       <Accordion
@@ -214,8 +213,7 @@ const InstanceFilters = props => {
         displayClearButton={staffSuppress.length > 0}
         onClearFilter={() => onClear('staffSuppress')}
       >
-        <CheckboxFilter
-          data-test-filter-instance-staff-suppress
+        <CheckboxFacet
           name="staffSuppress"
           dataOptions={suppressedOptions}
           selectedValues={staffSuppress}
@@ -231,7 +229,7 @@ const InstanceFilters = props => {
         displayClearButton={discoverySuppress.length > 0}
         onClearFilter={() => onClear('discoverySuppress')}
       >
-        <CheckboxFilter
+        <CheckboxFacet
           data-test-filter-instance-discovery-suppress
           name="discoverySuppress"
           dataOptions={suppressedOptions}
@@ -282,7 +280,7 @@ const InstanceFilters = props => {
         displayClearButton={source.length > 0}
         onClearFilter={() => onClear('source')}
       >
-        <CheckboxFilter
+        <CheckboxFacet
           data-test-filter-instance-source
           name="source"
           dataOptions={sourceOptions}

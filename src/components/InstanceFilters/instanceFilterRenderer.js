@@ -19,19 +19,19 @@ const instanceFilterRenderer = data => onChange => {
   const activeFilters = getCurrentFilters(get(query, 'filters', ''));
 
   return (
-    <InstanceFilters
-      activeFilters={activeFilters}
-      data={{
-        locations,
-        resourceTypes: instanceTypes,
-        instanceFormats,
-        modesOfIssuance,
-        tagsRecords: tags,
-        natureOfContentTerms
-      }}
-      onChange={onChange}
-      onClear={(name) => onChange({ name, values: [] })}
-    />
+      <InstanceFilters
+        activeFilters={activeFilters}
+        data={{
+          locations,
+          resourceTypes: instanceTypes,
+          instanceFormats,
+          modesOfIssuance,
+          tagsRecords: tags,
+          natureOfContentTerms
+        }}
+        onChange={onChange}
+        onClear={(name) => onChange({ name, values: [] })}
+      />
   );
 };
 

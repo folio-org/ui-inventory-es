@@ -491,7 +491,7 @@ class InstancesList extends React.Component {
           iconKey="instance"
           iconAlignment="baseline"
         >
-          {title.src}
+          {title}
         </AppIcon>
       ),
       'relation': r => formatters.relationsFormatter(r, data.instanceRelationshipTypes),
