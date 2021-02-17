@@ -6,13 +6,9 @@ import {
   Accordion,
   FilterAccordionHeader,
 } from '@folio/stripes/components';
-import {
-  CheckboxFilter,
-  MultiSelectionFilter,
-} from '@folio/stripes/smart-components';
 
-import { filterItemsBy } from '../../utils';
 import TagsFilter from '../TagsFilter';
+import CheckboxFacet from '../CheckboxFacet';
 
 class ItemFilters extends React.Component {
   static propTypes = {
@@ -88,12 +84,12 @@ class ItemFilters extends React.Component {
           displayClearButton={!isEmpty(itemStatus)}
           onClearFilter={() => onClear('itemStatus')}
         >
-          <MultiSelectionFilter
-            data-test-filter-item-status
+          <CheckboxFacet
             name="itemStatus"
             dataOptions={itemStatusesOptions}
             selectedValues={itemStatus}
             onChange={onChange}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -105,12 +101,12 @@ class ItemFilters extends React.Component {
           displayClearButton={effectiveLocation.length > 0}
           onClearFilter={() => onClear('effectiveLocation')}
         >
-          <MultiSelectionFilter
+          <CheckboxFacet
             name="effectiveLocation"
             dataOptions={locationOptions}
             selectedValues={effectiveLocation}
             onChange={onChange}
-            filter={filterItemsBy('label')}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -122,12 +118,12 @@ class ItemFilters extends React.Component {
           displayClearButton={holdingsPermanentLocation.length > 0}
           onClearFilter={() => onClear('holdingsPermanentLocation')}
         >
-          <MultiSelectionFilter
+          <CheckboxFacet
             name="holdingsPermanentLocation"
             dataOptions={locationOptions}
             selectedValues={holdingsPermanentLocation}
             onChange={onChange}
-            filter={filterItemsBy('label')}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -140,13 +136,13 @@ class ItemFilters extends React.Component {
           displayClearButton={!isEmpty(materialType)}
           onClearFilter={() => onClear('materialType')}
         >
-          <MultiSelectionFilter
+          <CheckboxFacet
             name="materialType"
             id="materialTypeFilter"
             dataOptions={materialTypesOptions}
             selectedValues={materialType}
-            filter={filterItemsBy('label')}
             onChange={onChange}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -158,7 +154,7 @@ class ItemFilters extends React.Component {
           displayClearButton={discoverySuppress.length > 0}
           onClearFilter={() => onClear('discoverySuppress')}
         >
-          <CheckboxFilter
+          <CheckboxFacet
             data-test-filter-item-discovery-suppress
             name="discoverySuppress"
             dataOptions={suppressedOptions}

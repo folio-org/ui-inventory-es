@@ -8,9 +8,8 @@ import {
   FilterAccordionHeader,
   filterState,
 } from '@folio/stripes/components';
-import {
-  MultiSelectionFilter,
-} from '@folio/stripes/smart-components';
+
+import CheckboxFacet from '../CheckboxFacet';
 
 const FILTER_NAME = 'tags';
 
@@ -34,11 +33,12 @@ function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
       label={intl.formatMessage({ id: 'ui-inventory.filter.tags' })}
       onClearFilter={onClearFilter}
     >
-      <MultiSelectionFilter
+      <CheckboxFacet
         dataOptions={tagsOptions}
         name={FILTER_NAME}
         onChange={onChange}
         selectedValues={selectedValues}
+        isFilterable
       />
     </Accordion>
   );
