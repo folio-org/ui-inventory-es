@@ -20,10 +20,6 @@ export default class CheckboxFacet extends React.Component {
     onChange: PropTypes.func.isRequired,
     selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     isFilterable: PropTypes.bool,
-    showMore: PropTypes.bool.isRequired,
-    searchPlaceholder: PropTypes.string,
-    className: PropTypes.string,
-    label: PropTypes.string.isRequired,
   };
 
   static defaultProps = {
@@ -72,7 +68,7 @@ export default class CheckboxFacet extends React.Component {
       dataOptions,
       selectedValues,
       isFilterable,
-      searchPlaceholder,
+      name,
     } = this.props;
 
     const {
@@ -83,11 +79,11 @@ export default class CheckboxFacet extends React.Component {
     let filteredOptions = dataOptions;
 
     if (searchTerm.trim()) {
-      filteredOptions = filteredOptions.filter(option =>
-        accentFold(option.label)
+      filteredOptions = filteredOptions.filter(option => {
+        return accentFold(option.label)
           .toLowerCase()
-          .includes(accentFold(searchTerm).toLowerCase())
-      );
+          .includes(accentFold(searchTerm).toLowerCase());
+      });
     }
 
     return (
@@ -97,7 +93,6 @@ export default class CheckboxFacet extends React.Component {
         selectedValues={selectedValues}
         showMore={filteredOptions.length > more}
         showSearch={isFilterable}
-        searchPlaceholder={searchPlaceholder}
         onMoreClick={() => this.onMoreClick(filteredOptions.length)}
         onSearch={this.onFacetSearch}
         onChange={this.onFasetChange}

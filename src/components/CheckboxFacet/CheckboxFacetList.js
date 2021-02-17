@@ -33,8 +33,8 @@ function CheckboxFacetList({
         </div>
       )}
       <div>
-        {dataOptions.length < 1 && 
-            <FormattedMessage id="ui-inventory-es.noMatchingOptions" />
+        {dataOptions.length < 1 &&
+          <FormattedMessage id="ui-inventory-es.noMatchingOptions" />
         }
 
         {dataOptions.map(({ count, value, label, disabled, readOnly }) => {
@@ -70,7 +70,7 @@ function CheckboxFacetList({
             >
               <Icon
                 aria-label={label}
-                iconClassName	={css.moreIcon}
+                iconClassName={css.moreIcon}
                 icon="plus-sign"
                 size="small"
               />
