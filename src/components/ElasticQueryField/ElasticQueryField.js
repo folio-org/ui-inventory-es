@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, injectIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import classNames from 'classnames';
 import TextArea from '@folio/stripes-components/lib/TextArea';
 import { Highlighter } from '@folio/stripes-components';
@@ -13,7 +13,6 @@ const OPEN_BRACKET = '(';
 const CLOSE_BRACKET = ')';
 
 const propTypes = {
-  intl: PropTypes.object,
   onChange: PropTypes.func,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   searchOptions: PropTypes.arrayOf(PropTypes.shape({
@@ -26,38 +25,45 @@ const propTypes = {
     value: PropTypes.string,
   })),
   value: PropTypes.string,
+  warning: PropTypes.string,
 };
 
 const ElasticQueryField = props => {
   const {
-    intl,
     value,
     onChange,
     setIsSearchByKeyword,
     searchButtonRef = {},
     searchOptions,
     terms = [],
+    warning,
   } = props;
 
+  const intl = useIntl();
   const [searchOption, setSearchOption] = useState('');
   const [operator, setOperator] = useState('');
   const [term, setTerm] = useState('');
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [focusedOptionIndex, setFocusedOptionIndex] = useState(UNSELECTED_OPTION_INDEX);
   const [typedValue, setTypedValue] = useState('');
   const [prevValue, setPrevValue] = useState('');
   const [isOpenBracketAfterEquality, setIsOpenBracketAfterEquality] = useState(false);
   const [selectedOptionId, setSelectedOptionId] = useState('');
+  const [isWarning, setIsWarning] = useState(false);
 
   const textareaRef = useRef();
   const optionsContainerRef = useRef();
   const optionRef = useRef();
 
   const isTypedValueNotBracket = typedValue !== OPEN_BRACKET && typedValue !== CLOSE_BRACKET;
+  const curValueWithoutLastEnteredValue = value.slice(0, prevValue.length);
   const typedValueWithoutOpenBracket = typedValue[0] === OPEN_BRACKET
     ? typedValue.slice(1)
     : typedValue;
+
+  const warningMessage = isWarning
+    && (warning || intl.formatMessage({ id: 'ui-inventory-es.elasticWarning' }));
 
   const resetFocusedOptionIndex = () => {
     setFocusedOptionIndex(UNSELECTED_OPTION_INDEX);
@@ -72,7 +78,7 @@ const ElasticQueryField = props => {
   const addQuotes = valueToInsert => {
     if (valueToInsert.includes(SPACE)) {
       if (valueToInsert.startsWith(OPEN_BRACKET)) {
-        return `("${valueToInsert.slice(1)}"`;
+        return `${OPEN_BRACKET}"${valueToInsert.slice(1)}"`;
       }
       if (valueToInsert.endsWith(CLOSE_BRACKET) && !valueToInsert.includes(OPEN_BRACKET)) {
         return `"${valueToInsert.slice(0, -1)}"${CLOSE_BRACKET}`;
@@ -81,10 +87,10 @@ const ElasticQueryField = props => {
     }
 
     if (valueToInsert.startsWith(OPEN_BRACKET)) {
-      return `(${valueToInsert.slice(1)}`;
+      return `${OPEN_BRACKET}${valueToInsert.slice(1)}`;
     }
     if (valueToInsert.endsWith(CLOSE_BRACKET)) {
-      return `${valueToInsert.slice(0, -1)})`;
+      return `${valueToInsert.slice(0, -1)}${CLOSE_BRACKET}`;
     }
     return `${valueToInsert}`;
   };
@@ -97,7 +103,7 @@ const ElasticQueryField = props => {
 
   const setEnteredSearchOption = (valueToInsert) => {
     const desiredValueView = addQuotes(valueToInsert);
-    onChange(`${prevValue}${desiredValueView} `);
+    onChange(`${curValueWithoutLastEnteredValue}${desiredValueView} `);
     setSearchOption(valueToInsert);
     setPrevValue(prevVal => `${prevVal}${desiredValueView} `);
   };
@@ -107,22 +113,26 @@ const ElasticQueryField = props => {
       const searchOptionValue = typedValue[0] === OPEN_BRACKET
         ? `${OPEN_BRACKET}${valueToInsert}`
         : valueToInsert;
+
       setEnteredSearchOption(searchOptionValue);
       resetFocusedOptionIndex();
+      setIsWarning(false);
     } else {
       const valueWithoutOpenBracket = valueToInsert.startsWith(OPEN_BRACKET)
         ? valueToInsert.slice(1)
         : valueToInsert;
+
       if (isValueFromOptions(valueWithoutOpenBracket)) {
         setEnteredSearchOption(valueToInsert);
+        setIsWarning(false);
       } else {
-        onChange(prevValue);
+        setIsWarning(true);
       }
     }
   };
 
   const setEnteredOperator = (valueToInsert) => {
-    onChange(`${prevValue}${valueToInsert} `);
+    onChange(`${curValueWithoutLastEnteredValue}${valueToInsert} `);
     setOperator(valueToInsert);
     setPrevValue(prevVal => `${prevVal}${valueToInsert} `);
   };
@@ -131,16 +141,18 @@ const ElasticQueryField = props => {
     if (isOptionSelected) {
       setEnteredOperator(valueToInsert);
       resetFocusedOptionIndex();
+      setIsWarning(false);
     } else if (isValueFromOptions(valueToInsert)) {
+      setIsWarning(false);
       setEnteredOperator(valueToInsert);
     } else {
-      onChange(prevValue);
+      setIsWarning(true);
     }
   };
 
   const setEnteredTerm = (valueToInsert) => {
     const desiredValueView = addQuotes(valueToInsert);
-    onChange(`${prevValue}${desiredValueView} `);
+    onChange(`${curValueWithoutLastEnteredValue}${desiredValueView} `);
     setTerm(valueToInsert);
     setPrevValue(prevVal => `${prevVal}${desiredValueView} `);
   };
@@ -149,14 +161,16 @@ const ElasticQueryField = props => {
     if (isOptionSelected) {
       setEnteredTerm(valueToInsert);
       resetFocusedOptionIndex();
+      setIsWarning(false);
     } else if (options.length) {
       const valueWithoutClosedBracket = valueToInsert.endsWith(CLOSE_BRACKET)
         ? valueToInsert.slice(0, -1)
         : valueToInsert;
       if (isValueFromOptions(valueWithoutClosedBracket)) {
         setEnteredTerm(valueToInsert);
+        setIsWarning(false);
       } else {
-        onChange(prevValue);
+        setIsWarning(true);
       }
     } else {
       if (valueToInsert.startsWith(OPEN_BRACKET)) {
@@ -169,7 +183,7 @@ const ElasticQueryField = props => {
   };
 
   const setEnteredBooleanOperator = (valueToInsert) => {
-    onChange(`${prevValue}${valueToInsert} `);
+    onChange(`${curValueWithoutLastEnteredValue}${valueToInsert} `);
     setPrevValue(prevVal => `${prevVal}${valueToInsert} `);
   };
 
@@ -178,15 +192,17 @@ const ElasticQueryField = props => {
       setEnteredBooleanOperator(valueToInsert);
       resetFocusedOptionIndex();
       resetStructure();
+      setIsWarning(false);
     } else if (isValueFromOptions(valueToInsert)) {
       setEnteredBooleanOperator(valueToInsert);
+      setIsWarning(false);
       if (isOpenBracketAfterEquality) {
         setTerm('');
       } else {
         resetStructure();
       }
     } else {
-      onChange(prevValue);
+      setIsWarning(true);
     }
   };
 
@@ -194,7 +210,8 @@ const ElasticQueryField = props => {
     const properties = [valueToInsert, isOptionSelected];
 
     if (!searchOption) {
-      const isValueForKeywordSearch = !prevValue && !isValueFromOptions(valueToInsert);
+      const isValueForKeywordSearch = !curValueWithoutLastEnteredValue && !isValueFromOptions(valueToInsert);
+
       if (isValueForKeywordSearch) {
         searchButtonRef.current.click();
       } else {
@@ -212,7 +229,7 @@ const ElasticQueryField = props => {
 
   const handleChange = event => {
     const val = event.target.value;
-    const typedVal = val.slice(prevValue.length);
+    const typedVal = val.slice(curValueWithoutLastEnteredValue.length);
     setTypedValue(typedVal);
     resetFocusedOptionIndex();
     onChange(val);
@@ -280,12 +297,13 @@ const ElasticQueryField = props => {
         const valueToInsert = isOptionSelected
           ? selectedOption.label
           : typedValue;
+        const isStructureFull = searchOption && operator && term;
+        const canSend = !valueToInsert && isStructureFull && searchButtonRef.current;
 
-        handleValueToInsert(valueToInsert, isOptionSelected);
-
-        if (!valueToInsert && searchButtonRef.current) {
+        if (canSend) {
           searchButtonRef.current.click();
-          closeOptions();
+        } else {
+          handleValueToInsert(valueToInsert, isOptionSelected);
         }
         break;
       }
@@ -337,10 +355,17 @@ const ElasticQueryField = props => {
   };
 
   const processOptions = () => {
-    let suggestions;
+    let suggestions = [];
 
     if (!searchOption) {
-      suggestions = searchOptions;
+      const isValueForKeywordSearch = !curValueWithoutLastEnteredValue
+        && !searchOptions.some(option => {
+          return option.label.toLowerCase().includes(value.toLowerCase());
+        });
+
+      if (!isValueForKeywordSearch) {
+        suggestions = searchOptions;
+      }
     } else if (!operator) {
       suggestions = formatOptions(operators);
     } else if (!term) {
@@ -431,7 +456,6 @@ const ElasticQueryField = props => {
     }
   }, [value]);
 
-
   return (
     <div
       className={css.multiSelectSearchWrapper}
@@ -452,6 +476,7 @@ const ElasticQueryField = props => {
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        warning={warningMessage}
       />
       <p
         role="alert"
@@ -467,4 +492,4 @@ const ElasticQueryField = props => {
 
 ElasticQueryField.propTypes = propTypes;
 
-export default injectIntl(ElasticQueryField);
+export default ElasticQueryField;

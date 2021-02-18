@@ -613,5 +613,6 @@
   "callNumber": "Call Number",
   "equality": "=",
   "and": "AND",
-  "or": "OR"
+  "or": "OR",
+  "elasticWarning": "The entered value in not one of the suggested"
 }
