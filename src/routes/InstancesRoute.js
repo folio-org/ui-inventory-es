@@ -8,7 +8,6 @@ import withLocation from '../withLocation';
 import { InstancesView } from '../views';
 import {
   getFilterConfig,
-  getFilterConfigES,
 } from '../filterConfig';
 import { buildManifestObject } from './buildManifestObject';
 import { DataContext } from '../contexts';
@@ -43,8 +42,7 @@ class InstancesRoute extends React.Component {
       getParams,
     } = this.props;
     const { segment } = getParams(this.props);
-    const { indexes, renderer } = getFilterConfig(segment);
-    const { indexesES } = getFilterConfigES(segment);
+    const { indexes, renderer, indexesES, operators, booleanOperators } = getFilterConfig(segment);
     const { query } = resources;
 
     return (
@@ -62,6 +60,8 @@ class InstancesRoute extends React.Component {
             segment={segment}
             searchableIndexes={indexes}
             searchableIndexesES={indexesES}
+            operators={operators}
+            booleanOperators={booleanOperators}
           />
         )}
       </DataContext.Consumer>

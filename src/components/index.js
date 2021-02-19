@@ -14,4 +14,3 @@ export { default as ModalContent } from './ModalContent';
 export { PaneLoading, ViewLoading } from './Loading';
 export { default as SearchAndSort } from './SearchAndSort';
 export { default as SearchField } from './SearchField';
-export { default as TextField } from './TextField';
