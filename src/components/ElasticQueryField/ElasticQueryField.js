@@ -4,7 +4,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import classNames from 'classnames';
 import TextArea from '@folio/stripes-components/lib/TextArea';
 import { Highlighter } from '@folio/stripes-components';
-import { operators, booleanOperators } from './elasticConfig';
 import css from './ElasticQueryField.css';
 
 const UNSELECTED_OPTION_INDEX = -1;
@@ -13,25 +12,34 @@ const OPEN_BRACKET = '(';
 const CLOSE_BRACKET = ')';
 
 const propTypes = {
-  onChange: PropTypes.func,
+  booleanOperators: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+  })).isRequired,
+  onChange: PropTypes.func.isRequired,
+  operators: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    queryTemplate: PropTypes.string.isRequired,
+  })).isRequired,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   searchOptions: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string,
+    label: PropTypes.string.isRequired,
     value: PropTypes.string,
-  })),
-  setIsSearchByKeyword: PropTypes.func,
+  })).isRequired,
+  setIsSearchByKeyword: PropTypes.func.isRequired,
   terms: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     value: PropTypes.string,
   })),
-  value: PropTypes.string,
+  value: PropTypes.string.isRequired,
   warning: PropTypes.string,
 };
 
 const ElasticQueryField = props => {
   const {
+    booleanOperators,
     value,
     onChange,
+    operators,
     setIsSearchByKeyword,
     searchButtonRef = {},
     searchOptions,
@@ -97,7 +105,7 @@ const ElasticQueryField = props => {
 
   const isValueFromOptions = (val) => {
     return options.some(option => {
-      return option.label.toLowerCase() === val.toLowerCase();
+      return option.label.toLowerCase() === val.toLowerCase().trim();
     });
   };
 
@@ -303,7 +311,7 @@ const ElasticQueryField = props => {
         if (canSend) {
           searchButtonRef.current.click();
         } else {
-          handleValueToInsert(valueToInsert, isOptionSelected);
+          handleValueToInsert(valueToInsert.trim(), isOptionSelected);
         }
         break;
       }
@@ -347,36 +355,29 @@ const ElasticQueryField = props => {
     resetFocusedOptionIndex();
   };
 
-  const formatOptions = (suggestions) => {
-    return suggestions.map(suggestion => {
-      const label = intl.formatMessage({ id: suggestion.label });
-      return { ...suggestion, label };
-    });
-  };
-
   const processOptions = () => {
     let suggestions = [];
 
     if (!searchOption) {
       const isValueForKeywordSearch = !curValueWithoutLastEnteredValue
         && !searchOptions.some(option => {
-          return option.label.toLowerCase().includes(value.toLowerCase());
+          return option.label.toLowerCase().includes(value.toLowerCase().trim());
         });
 
       if (!isValueForKeywordSearch) {
         suggestions = searchOptions;
       }
     } else if (!operator) {
-      suggestions = formatOptions(operators);
+      suggestions = operators;
     } else if (!term) {
       suggestions = terms;
     } else {
-      suggestions = formatOptions(booleanOperators);
+      suggestions = booleanOperators;
     }
 
     if (typedValue && isTypedValueNotBracket) {
       const filteredOptions = suggestions.filter(suggestion => {
-        return suggestion.label.toLowerCase().includes(typedValueWithoutOpenBracket.toLowerCase());
+        return suggestion.label.toLowerCase().includes(typedValueWithoutOpenBracket.toLowerCase().trim());
       });
       setOptions(filteredOptions);
     } else {

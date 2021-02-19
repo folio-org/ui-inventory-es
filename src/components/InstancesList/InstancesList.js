@@ -69,7 +69,9 @@ class InstancesList extends React.Component {
   };
 
   static propTypes = {
+    booleanOperators: PropTypes.arrayOf(PropTypes.object),
     data: PropTypes.object,
+    operators: PropTypes.arrayOf(PropTypes.object),
     parentResources: PropTypes.object,
     parentMutator: PropTypes.object,
     showSingleResult: PropTypes.bool,
@@ -452,6 +454,8 @@ class InstancesList extends React.Component {
       showSingleResult,
       browseOnly,
       onSelectRow,
+      operators,
+      booleanOperators,
       disableRecordCreation,
       visibleColumns,
       intl,
@@ -528,11 +532,19 @@ class InstancesList extends React.Component {
       return { ...index, label };
     });
 
-    const formattedSearchableIndexesES = searchableIndexesES.map(index => {
-      const label = intl.formatMessage({ id: index.label });
+    const AdvancedSearchSuggestions =
+      [operators, booleanOperators, searchableIndexesES].map(suggestions => {
+        return suggestions.map(suggestion => {
+          const label = intl.formatMessage({ id: suggestion.label });
+          return { ...suggestion, label };
+        });
+      });
 
-      return { ...index, label };
-    });
+    const [
+      formattedOperators,
+      formattedBooleanOperators,
+      formattedSearchableIndexesES
+    ] = AdvancedSearchSuggestions;
 
     return (
       <>
@@ -545,6 +557,8 @@ class InstancesList extends React.Component {
             renderNavigation={this.renderNavigation}
             searchableIndexes={formattedSearchableIndexes}
             searchableIndexesES={formattedSearchableIndexesES}
+            operators={formattedOperators}
+            booleanOperators={formattedBooleanOperators}
             selectedIndex={get(data.query, 'qindex')}
             searchableIndexesPlaceholder={null}
             initialResultCount={INITIAL_RESULT_COUNT}

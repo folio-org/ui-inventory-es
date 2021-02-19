@@ -100,15 +100,15 @@ export const instanceIndexes = [
 ];
 
 export const instanceIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
-  { label: 'ui-inventory-es.title', value: 'Title' },
-  { label: 'ui-inventory-es.contributor', value: 'Contributor' },
-  { label: 'ui-inventory-es.identifierAll', value: 'Identifier' },
-  { label: 'ui-inventory-es.issn', value: 'ISSN' },
-  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
-  { label: 'ui-inventory-es.subject', value: 'Subject' },
-  { label: 'ui-inventory-es.instanceId', value: 'UUID' },
-  { label: 'ui-inventory-es.instanceHrid', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.title', value: 'Title', queryTemplate: 'title all' },
+  { label: 'ui-inventory-es.contributor', value: 'Contributor', queryTemplate: 'contributors=' },
+  { label: 'ui-inventory-es.identifierAll', value: 'Identifier', queryTemplate: 'identifiers.value==' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.subject', value: 'Subject', queryTemplate: 'subjects all' },
+  { label: 'ui-inventory-es.instanceId', value: 'UUID', queryTemplate: 'id==' },
+  { label: 'ui-inventory-es.instanceHrid', value: 'HRID', queryTemplate: 'hrid==' },
 ];
 
 export const instanceSortMap = {
@@ -137,11 +137,11 @@ export const holdingIndexes = [
 ];
 
 export const holdingIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
-  { label: 'ui-inventory-es.issn', value: 'ISSN' },
-  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
-  { label: 'ui-inventory-es.callNumber', value: 'Call Number' },
-  { label: 'ui-inventory-es.holdingsHrid', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: '--' },
+  { label: 'ui-inventory-es.holdingsHrid', value: 'HRID', queryTemplate: 'holdingsRecords.hrid==' },
 ];
 
 export const holdingSortMap = {};
@@ -192,12 +192,12 @@ export const itemIndexes = [
 ];
 
 export const itemIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword' },
-  { label: 'ui-inventory-es.barcode', value: 'Barcode' },
-  { label: 'ui-inventory-es.issn', value: 'ISSN' },
-  { label: 'ui-inventory-es.isbn', value: 'ISBN' },
-  { label: 'ui-inventory-es.callNumber', value: 'Call Number' },
-  { label: 'ui-inventory-es.itemHrid', value: 'Item HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.barcode', value: 'Barcode', queryTemplate: '--' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: '--' },
+  { label: 'ui-inventory-es.itemHrid', value: 'Item HRID', queryTemplate: 'item.hrid==' },
 ];
 
 export const itemFilterConfig = [
@@ -236,6 +236,15 @@ export const itemFilterConfig = [
   },
 ];
 
+export const operators = [
+  { label: 'ui-inventory-es.equality', queryTemplate: '' },
+];
+
+export const booleanOperators = [
+  { label: 'ui-inventory-es.and' },
+  { label: 'ui-inventory-es.or' },
+];
+
 export const itemSortMap = {
   Title: 'title',
   publishers: 'publication',
@@ -248,32 +257,28 @@ const config = {
     indexes: instanceIndexes,
     sortMap: instanceSortMap,
     renderer: instanceFilterRenderer,
+    indexesES: instanceIndexesES,
+    operators,
+    booleanOperators,
   },
   holdings: {
     filters: holdingFilterConfig,
     indexes: holdingIndexes,
     sortMap: holdingSortMap,
     renderer: holdingsRecordFilterRenderer,
+    indexesES: holdingIndexesES,
+    operators,
+    booleanOperators,
   },
   items: {
     filters: itemFilterConfig,
     indexes: itemIndexes,
     sortMap: itemSortMap,
     renderer: itemFilterRenderer,
+    indexesES: itemIndexesES,
+    operators,
+    booleanOperators,
   }
 };
 
-const configES = {
-  instances: {
-    indexesES: instanceIndexesES,
-  },
-  holdings: {
-    indexesES: holdingIndexesES,
-  },
-  items: {
-    indexesES: itemIndexesES,
-  },
-};
-
 export const getFilterConfig = (segment = 'instances') => config[segment];
-export const getFilterConfigES = (segment = 'instances') => configES[segment];
