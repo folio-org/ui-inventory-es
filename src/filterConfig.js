@@ -236,11 +236,11 @@ export const itemFilterConfig = [
   },
 ];
 
-export const operators = [
+const operators = [
   { label: 'ui-inventory-es.equality', queryTemplate: '' },
 ];
 
-export const booleanOperators = [
+const booleanOperators = [
   { label: 'ui-inventory-es.and' },
   { label: 'ui-inventory-es.or' },
 ];

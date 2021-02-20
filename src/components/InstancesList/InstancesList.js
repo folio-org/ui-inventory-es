@@ -71,13 +71,13 @@ class InstancesList extends React.Component {
   static propTypes = {
     booleanOperators: PropTypes.arrayOf(PropTypes.object),
     data: PropTypes.object,
-    operators: PropTypes.arrayOf(PropTypes.object),
     parentResources: PropTypes.object,
     parentMutator: PropTypes.object,
     showSingleResult: PropTypes.bool,
     browseOnly: PropTypes.bool,
     disableRecordCreation: PropTypes.bool,
     onSelectRow: PropTypes.func,
+    operators: PropTypes.arrayOf(PropTypes.object),
     visibleColumns: PropTypes.arrayOf(PropTypes.string),
     updateLocation: PropTypes.func.isRequired,
     goTo: PropTypes.func.isRequired,
@@ -532,7 +532,7 @@ class InstancesList extends React.Component {
       return { ...index, label };
     });
 
-    const AdvancedSearchSuggestions =
+    const advancedSearchSuggestions =
       [operators, booleanOperators, searchableIndexesES].map(suggestions => {
         return suggestions.map(suggestion => {
           const label = intl.formatMessage({ id: suggestion.label });
@@ -544,7 +544,7 @@ class InstancesList extends React.Component {
       formattedOperators,
       formattedBooleanOperators,
       formattedSearchableIndexesES
-    ] = AdvancedSearchSuggestions;
+    ] = advancedSearchSuggestions;
 
     return (
       <>

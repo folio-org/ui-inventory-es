@@ -6,15 +6,9 @@ import {
   Accordion,
   FilterAccordionHeader,
 } from '@folio/stripes/components';
-import {
-  CheckboxFilter,
-  MultiSelectionFilter,
-} from '@folio/stripes/smart-components';
-import {
-  filterItemsBy,
-} from '../../utils';
 
 import TagsFilter from '../TagsFilter';
+import CheckboxFacet from '../CheckboxFacet';
 
 export default class HoldingsRecordFilters extends React.Component {
   static propTypes = {
@@ -74,12 +68,12 @@ export default class HoldingsRecordFilters extends React.Component {
           displayClearButton={effectiveLocation.length > 0}
           onClearFilter={() => onClear('effectiveLocation')}
         >
-          <MultiSelectionFilter
+          <CheckboxFacet
             name="effectiveLocation"
             dataOptions={locationOptions}
             selectedValues={effectiveLocation}
-            filter={filterItemsBy('label')}
             onChange={onChange}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -91,12 +85,12 @@ export default class HoldingsRecordFilters extends React.Component {
           displayClearButton={holdingsPermanentLocation.length > 0}
           onClearFilter={() => onClear('holdingsPermanentLocation')}
         >
-          <MultiSelectionFilter
+          <CheckboxFacet
             name="holdingsPermanentLocation"
             dataOptions={locationOptions}
             selectedValues={holdingsPermanentLocation}
-            filter={filterItemsBy('label')}
             onChange={onChange}
+            isFilterable
           />
         </Accordion>
         <Accordion
@@ -109,7 +103,7 @@ export default class HoldingsRecordFilters extends React.Component {
           displayClearButton={discoverySuppress.length > 0}
           onClearFilter={() => onClear('discoverySuppress')}
         >
-          <CheckboxFilter
+          <CheckboxFacet
             data-test-filter-holdings-discovery-suppress
             name="discoverySuppress"
             dataOptions={suppressedOptions}

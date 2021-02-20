@@ -105,7 +105,7 @@ const ElasticQueryField = props => {
 
   const isValueFromOptions = (val) => {
     return options.some(option => {
-      return option.label.toLowerCase() === val.toLowerCase().trim();
+      return option.label.toLowerCase() === val.toLowerCase();
     });
   };
 
@@ -361,7 +361,8 @@ const ElasticQueryField = props => {
     if (!searchOption) {
       const isValueForKeywordSearch = !curValueWithoutLastEnteredValue
         && !searchOptions.some(option => {
-          return option.label.toLowerCase().includes(value.toLowerCase().trim());
+          return option.label.toLowerCase()
+            .includes(value.toLowerCase().trim());
         });
 
       if (!isValueForKeywordSearch) {
@@ -377,7 +378,8 @@ const ElasticQueryField = props => {
 
     if (typedValue && isTypedValueNotBracket) {
       const filteredOptions = suggestions.filter(suggestion => {
-        return suggestion.label.toLowerCase().includes(typedValueWithoutOpenBracket.toLowerCase().trim());
+        return suggestion.label.toLowerCase()
+          .includes(typedValueWithoutOpenBracket.toLowerCase().trim());
       });
       setOptions(filteredOptions);
     } else {

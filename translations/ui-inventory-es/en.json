@@ -609,6 +609,11 @@
 
   "filter.tags": "Tags",
   "showTags": "Show tags",
+
+  "showMoreOptions": "Show more options",
+  "more": "More",
+  "noMatchingOptions": "No matching options",
+
   "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
   "callNumber": "Call Number",
   "equality": "=",
