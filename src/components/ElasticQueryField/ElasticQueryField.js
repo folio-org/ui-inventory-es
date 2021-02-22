@@ -23,7 +23,7 @@ const propTypes = {
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   searchOptions: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string,
   })).isRequired,
   setIsSearchByKeyword: PropTypes.func.isRequired,
   terms: PropTypes.arrayOf(PropTypes.shape({
@@ -65,8 +65,7 @@ const ElasticQueryField = props => {
   const optionRef = useRef();
 
   const isTypedValueNotBracket = typedValue !== OPEN_BRACKET && typedValue !== CLOSE_BRACKET;
-  const curValueWithoutLastEnteredValue = value.slice(0, prevValue.length);
-  const typedValueWithoutOpenBracket = typedValue[0] === OPEN_BRACKET
+  const typedValueWithoutOpenBracket = typedValue.startsWith(OPEN_BRACKET)
     ? typedValue.slice(1)
     : typedValue;
 
@@ -105,82 +104,103 @@ const ElasticQueryField = props => {
 
   const isValueFromOptions = (val) => {
     return options.some(option => {
-      return option.label.toLowerCase() === val.toLowerCase();
+      return option.label.toLowerCase() === val.trim().toLowerCase();
     });
   };
 
-  const setEnteredSearchOption = (valueToInsert) => {
-    const desiredValueView = addQuotes(valueToInsert);
-    onChange(`${curValueWithoutLastEnteredValue}${desiredValueView} `);
-    setSearchOption(valueToInsert);
-    setPrevValue(prevVal => `${prevVal}${desiredValueView} `);
+  const isSomeOptionIncludesValue = (val) => {
+    return options.some(option => {
+      return option.label.includes(val.toLowerCase());
+    });
   };
 
-  const processEnteredSearchOption = (valueToInsert, isOptionSelected) => {
-    if (isOptionSelected) {
-      const searchOptionValue = typedValue[0] === OPEN_BRACKET
+  const openOptions = () => {
+    setIsOpen(true);
+  };
+
+  const closeOptions = () => {
+    setIsOpen(false);
+  };
+
+  const setEnteredSearchOption = (valueToInsert, isEnterClick) => {
+    const desiredValueView = addQuotes(valueToInsert);
+    const char = isEnterClick ? SPACE : '';
+    onChange(`${prevValue}${desiredValueView}${char}`);
+    setSearchOption(valueToInsert);
+    setPrevValue(prevVal => `${prevVal}${desiredValueView}${SPACE}`);
+    setTypedValue('');
+    setIsWarning(false);
+  };
+
+  const processEnteredSearchOption = (valueToInsert, isOptionSelected, isEnterClick) => {
+    const isValueForKeywordSearch = !prevValue && !isValueFromOptions(valueToInsert);
+
+    if (isValueForKeywordSearch && isEnterClick) {
+      searchButtonRef.current.click();
+      closeOptions();
+    } else if (isOptionSelected) {
+      const searchOptionValue = typedValue.startsWith(OPEN_BRACKET)
         ? `${OPEN_BRACKET}${valueToInsert}`
         : valueToInsert;
 
-      setEnteredSearchOption(searchOptionValue);
+      setEnteredSearchOption(searchOptionValue, isEnterClick);
       resetFocusedOptionIndex();
-      setIsWarning(false);
     } else {
       const valueWithoutOpenBracket = valueToInsert.startsWith(OPEN_BRACKET)
         ? valueToInsert.slice(1)
         : valueToInsert;
 
       if (isValueFromOptions(valueWithoutOpenBracket)) {
-        setEnteredSearchOption(valueToInsert);
-        setIsWarning(false);
-      } else {
+        setEnteredSearchOption(valueToInsert, isEnterClick);
+      } else if (!isSomeOptionIncludesValue(valueWithoutOpenBracket)) {
         setIsWarning(true);
       }
     }
   };
 
-  const setEnteredOperator = (valueToInsert) => {
-    onChange(`${curValueWithoutLastEnteredValue}${valueToInsert} `);
+  const setEnteredOperator = (valueToInsert, isEnterClick) => {
+    const char = isEnterClick ? SPACE : '';
+    onChange(`${prevValue}${valueToInsert}${char}`);
     setOperator(valueToInsert);
-    setPrevValue(prevVal => `${prevVal}${valueToInsert} `);
+    setPrevValue(prevVal => `${prevVal}${valueToInsert}${SPACE}`);
+    setTypedValue('');
+    setIsWarning(false);
   };
 
-  const processEnteredOperator = (valueToInsert, isOptionSelected) => {
+  const processEnteredOperator = (valueToInsert, isOptionSelected, isEnterClick) => {
     if (isOptionSelected) {
-      setEnteredOperator(valueToInsert);
+      setEnteredOperator(valueToInsert, isEnterClick);
       resetFocusedOptionIndex();
-      setIsWarning(false);
     } else if (isValueFromOptions(valueToInsert)) {
-      setIsWarning(false);
-      setEnteredOperator(valueToInsert);
-    } else {
+      setEnteredOperator(valueToInsert, isEnterClick);
+    } else if (!isSomeOptionIncludesValue(valueToInsert)) {
       setIsWarning(true);
     }
   };
 
   const setEnteredTerm = (valueToInsert) => {
     const desiredValueView = addQuotes(valueToInsert);
-    onChange(`${curValueWithoutLastEnteredValue}${desiredValueView} `);
+    onChange(`${prevValue}${desiredValueView}${SPACE}`);
     setTerm(valueToInsert);
-    setPrevValue(prevVal => `${prevVal}${desiredValueView} `);
+    setPrevValue(prevVal => `${prevVal}${desiredValueView}${SPACE}`);
+    setTypedValue('');
+    setIsWarning(false);
   };
 
-  const processEnteredTerm = (valueToInsert, isOptionSelected) => {
+  const processEnteredTerm = (valueToInsert, isOptionSelected, isEnterClick) => {
     if (isOptionSelected) {
       setEnteredTerm(valueToInsert);
       resetFocusedOptionIndex();
-      setIsWarning(false);
     } else if (options.length) {
       const valueWithoutClosedBracket = valueToInsert.endsWith(CLOSE_BRACKET)
         ? valueToInsert.slice(0, -1)
         : valueToInsert;
       if (isValueFromOptions(valueWithoutClosedBracket)) {
         setEnteredTerm(valueToInsert);
-        setIsWarning(false);
-      } else {
+      } else if (!isSomeOptionIncludesValue(valueWithoutClosedBracket)) {
         setIsWarning(true);
       }
-    } else {
+    } else if (isEnterClick) {
       if (valueToInsert.startsWith(OPEN_BRACKET)) {
         setIsOpenBracketAfterEquality(true);
       } else if (valueToInsert.endsWith(CLOSE_BRACKET)) {
@@ -190,54 +210,52 @@ const ElasticQueryField = props => {
     }
   };
 
-  const setEnteredBooleanOperator = (valueToInsert) => {
-    onChange(`${curValueWithoutLastEnteredValue}${valueToInsert} `);
-    setPrevValue(prevVal => `${prevVal}${valueToInsert} `);
+  const processStructure = () => {
+    if (isOpenBracketAfterEquality) {
+      setTerm('');
+    } else {
+      resetStructure();
+    }
   };
 
-  const processEnteredBooleanOperator = (valueToInsert, isOptionSelected) => {
+  const setEnteredBooleanOperator = (valueToInsert, isEnterClick) => {
+    const char = isEnterClick ? SPACE : '';
+    onChange(`${prevValue}${valueToInsert}${char}`);
+    setPrevValue(prevVal => `${prevVal}${valueToInsert}${SPACE}`);
+    setTypedValue('');
+    setIsWarning(false);
+  };
+
+  const processEnteredBooleanOperator = (valueToInsert, isOptionSelected, isEnterClick) => {
     if (isOptionSelected) {
-      setEnteredBooleanOperator(valueToInsert);
+      setEnteredBooleanOperator(valueToInsert, isEnterClick);
       resetFocusedOptionIndex();
-      resetStructure();
-      setIsWarning(false);
+      processStructure();
     } else if (isValueFromOptions(valueToInsert)) {
-      setEnteredBooleanOperator(valueToInsert);
-      setIsWarning(false);
-      if (isOpenBracketAfterEquality) {
-        setTerm('');
-      } else {
-        resetStructure();
-      }
+      setEnteredBooleanOperator(valueToInsert, isEnterClick);
+      processStructure();
     } else {
       setIsWarning(true);
     }
   };
 
-  const handleValueToInsert = (valueToInsert, isOptionSelected) => {
-    const properties = [valueToInsert, isOptionSelected];
+  const handleValueToInsert = (valueToInsert, isOptionSelected, isEnterClick) => {
+    const args = [valueToInsert, isOptionSelected, isEnterClick];
 
     if (!searchOption) {
-      const isValueForKeywordSearch = !curValueWithoutLastEnteredValue && !isValueFromOptions(valueToInsert);
-
-      if (isValueForKeywordSearch) {
-        searchButtonRef.current.click();
-      } else {
-        processEnteredSearchOption(...properties);
-      }
+      processEnteredSearchOption(...args);
     } else if (!operator) {
-      processEnteredOperator(...properties);
+      processEnteredOperator(...args);
     } else if (!term) {
-      processEnteredTerm(...properties);
+      processEnteredTerm(...args);
     } else {
-      processEnteredBooleanOperator(...properties);
+      processEnteredBooleanOperator(...args);
     }
-    setTypedValue('');
   };
 
   const handleChange = event => {
     const val = event.target.value;
-    const typedVal = val.slice(curValueWithoutLastEnteredValue.length);
+    const typedVal = val.slice(prevValue.length);
     setTypedValue(typedVal);
     resetFocusedOptionIndex();
     onChange(val);
@@ -286,18 +304,13 @@ const ElasticQueryField = props => {
     }
   };
 
-  const openOptions = () => {
-    setIsOpen(true);
-  };
-
-  const closeOptions = () => {
-    setIsOpen(false);
-  };
-
-  const handleKeyDown = event => {
+  const handleKeyDown = (event) => {
     const lastOptionIndex = options.length - 1;
 
     switch (event.keyCode) {
+      case 32: // space
+        handleValueToInsert(typedValue);
+        break;
       case 13: { // enter
         event.preventDefault();
         const isOptionSelected = focusedOptionIndex !== UNSELECTED_OPTION_INDEX;
@@ -307,11 +320,13 @@ const ElasticQueryField = props => {
           : typedValue;
         const isStructureFull = searchOption && operator && term;
         const canSend = !valueToInsert && isStructureFull && searchButtonRef.current;
+        const isEnterClick = true;
 
         if (canSend) {
           searchButtonRef.current.click();
+          closeOptions();
         } else {
-          handleValueToInsert(valueToInsert.trim(), isOptionSelected);
+          handleValueToInsert(valueToInsert.trim(), isOptionSelected, isEnterClick);
         }
         break;
       }
@@ -355,17 +370,25 @@ const ElasticQueryField = props => {
     resetFocusedOptionIndex();
   };
 
+  const getValueToHighlight = () => {
+    const isOperator = operators.some(oper => oper.label === typedValueWithoutOpenBracket.trim());
+    const isBoolOperator = booleanOperators.some(boolOper => boolOper.label === typedValueWithoutOpenBracket.trim());
+    return isOperator || isBoolOperator
+      ? typedValueWithoutOpenBracket.trim()
+      : typedValueWithoutOpenBracket;
+  };
+
   const processOptions = () => {
     let suggestions = [];
 
     if (!searchOption) {
-      const isValueForKeywordSearch = !curValueWithoutLastEnteredValue
+      const isValueForKeywordSearch = !prevValue
         && !searchOptions.some(option => {
           return option.label.toLowerCase()
-            .includes(value.toLowerCase().trim());
+            .includes(typedValueWithoutOpenBracket.toLowerCase().trim());
         });
 
-      if (!isValueForKeywordSearch) {
+      if (!isValueForKeywordSearch && isTypedValueNotBracket) {
         suggestions = searchOptions;
       }
     } else if (!operator) {
@@ -376,10 +399,10 @@ const ElasticQueryField = props => {
       suggestions = booleanOperators;
     }
 
-    if (typedValue && isTypedValueNotBracket) {
+    if (typedValue !== SPACE && isTypedValueNotBracket) {
       const filteredOptions = suggestions.filter(suggestion => {
         return suggestion.label.toLowerCase()
-          .includes(typedValueWithoutOpenBracket.toLowerCase().trim());
+          .includes(getValueToHighlight().toLowerCase());
       });
       setOptions(filteredOptions);
     } else {
@@ -398,6 +421,16 @@ const ElasticQueryField = props => {
     event.preventDefault();
   };
 
+  const getSearchWords = () => {
+    const isValidSearchWords =
+      isTypedValueNotBracket
+      && typedValue !== SPACE
+      && typedValueWithoutOpenBracket;
+    return isValidSearchWords
+      ? [getValueToHighlight()]
+      : [];
+  };
+
   const renderOptions = () => {
     return (
       options?.length
@@ -412,11 +445,7 @@ const ElasticQueryField = props => {
               onMouseDown={handleMouseDown}
             >
               {options.map((option, index) => {
-                const searchWords = isTypedValueNotBracket && typedValueWithoutOpenBracket
-                  ? [typedValueWithoutOpenBracket]
-                  : [];
                 const isFocused = focusedOptionIndex === index;
-
                 return (
                   <li
                     role="option"
@@ -429,7 +458,7 @@ const ElasticQueryField = props => {
                     onKeyDown={() => null}
                   >
                     <Highlighter
-                      searchWords={searchWords}
+                      searchWords={getSearchWords()}
                       text={option.label}
                     />
                   </li>
@@ -456,6 +485,7 @@ const ElasticQueryField = props => {
       closeOptions();
       resetFocusedOptionIndex();
       resetStructure();
+      setIsWarning('');
     }
   }, [value]);
 
