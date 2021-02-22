@@ -55,7 +55,7 @@ import makeConnectedSource from './ConnectedSource';
 import { NoResultsMessage, ResetButton, CollapseFilterPaneButton, ExpandFilterPaneButton } from './components';
 
 import buildUrl from './buildUrl';
-import cp from '../ElasticQueryField/cqlParser';
+import getElasticQuery from '../ElasticQueryField/getElasticQuery';
 
 import css from './SearchAndSort.css';
 
@@ -242,6 +242,7 @@ class SearchAndSort extends React.Component {
     const {
       viewRecordComponent,
       stripes,
+      searchableIndexes,
     } = this.props;
 
     this.state = {
@@ -270,6 +271,7 @@ class SearchAndSort extends React.Component {
 
     this.log = logger.log.bind(logger);
     this.searchButtonRef = React.createRef();
+    this.advancedSearch = searchableIndexes.find(index => index.value === 'advancedSearch')?.value;
   }
 
   componentDidMount() {
@@ -448,52 +450,6 @@ class SearchAndSort extends React.Component {
     }
   }
 
-  createRegexpForAdvancedSearch = (templates) => {
-    let string = '';
-
-    for (const searchOption in templates) {
-      if (Object.prototype.hasOwnProperty.call(templates, searchOption)) {
-        string += `${searchOption}|`.replace(/[()]/g, m => `\\${m}`);
-      }
-    }
-
-    return new RegExp(`${string}`.replace(/\|$/, ''), 'gi');
-  };
-
-  getAdvancedSearchTemplates = () => {
-    const {
-      searchableIndexesES,
-      operators,
-    } = this.props;
-
-    const indexTemplates = searchableIndexesES.reduce((accum, { label, queryTemplate }) => {
-      accum[label.toLowerCase()] = queryTemplate;
-      return accum;
-    }, {});
-
-    const operatorTemplates = operators.reduce((accum, { label, queryTemplate }) => {
-      accum[label.toLowerCase()] = queryTemplate;
-      return accum;
-    }, {});
-
-    return { ...indexTemplates, ...operatorTemplates };
-  };
-
-  replaceLabelsWithTemplates = () => {
-    const templates = this.getAdvancedSearchTemplates();
-    const regExp = this.createRegexpForAdvancedSearch(templates);
-
-    return cp.toString().replace(regExp, m => templates[m.toLowerCase()]);
-  };
-
-  getAdvancedSearchQuery = (locallyChangedSearchTerm) => {
-    if (this.state.isSearchByKeyword) {
-      return `keyword all "${locallyChangedSearchTerm}"`;
-    }
-    cp.parse(locallyChangedSearchTerm);
-    return this.replaceLabelsWithTemplates();
-  };
-
   onSubmitSearch = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -501,10 +457,16 @@ class SearchAndSort extends React.Component {
     const {
       locallyChangedSearchTerm,
       locallyChangedQueryIndex,
+      isSearchByKeyword,
     } = this.state;
 
-    const query = locallyChangedQueryIndex === 'advancedSearch'
-      ? this.getAdvancedSearchQuery(locallyChangedSearchTerm)
+    const {
+      operators,
+      searchableIndexesES,
+    } = this.props;
+
+    const query = locallyChangedQueryIndex === this.advancedSearch
+      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators)
       : locallyChangedSearchTerm;
 
     this.performSearch({
@@ -1080,7 +1042,7 @@ class SearchAndSort extends React.Component {
           {ariaLabel => (
             <SearchField
               id={`input-${objectName}-search`}
-              isAdvancedSearch={queryIndex === 'advancedSearch'}
+              isAdvancedSearch={queryIndex === this.advancedSearch}
               autoFocus
               ariaLabel={ariaLabel}
               className={css.searchField}

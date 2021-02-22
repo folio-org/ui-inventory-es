@@ -100,7 +100,7 @@ export const instanceIndexes = [
 ];
 
 export const instanceIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.search.all', value: 'all', queryTemplate: 'keyword all' },
   { label: 'ui-inventory-es.title', value: 'Title', queryTemplate: 'title all' },
   { label: 'ui-inventory-es.contributor', value: 'Contributor', queryTemplate: 'contributors=' },
   { label: 'ui-inventory-es.identifierAll', value: 'Identifier', queryTemplate: 'identifiers.value==' },
@@ -137,7 +137,7 @@ export const holdingIndexes = [
 ];
 
 export const holdingIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.search.all', value: 'all', queryTemplate: 'keyword all' },
   { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
   { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: '--' },
@@ -192,7 +192,7 @@ export const itemIndexes = [
 ];
 
 export const itemIndexesES = [
-  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.search.all', value: 'all', queryTemplate: 'keyword all' },
   { label: 'ui-inventory-es.barcode', value: 'Barcode', queryTemplate: '--' },
   { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
