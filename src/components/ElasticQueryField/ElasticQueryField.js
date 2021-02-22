@@ -110,7 +110,8 @@ const ElasticQueryField = props => {
 
   const isSomeOptionIncludesValue = (val) => {
     return options.some(option => {
-      return option.label.includes(val.toLowerCase());
+      return option.label.toLowerCase()
+        .includes(val.toLowerCase());
     });
   };
 
@@ -120,6 +121,11 @@ const ElasticQueryField = props => {
 
   const closeOptions = () => {
     setIsOpen(false);
+  };
+
+  const processSend = () => {
+    searchButtonRef.current.click();
+    closeOptions();
   };
 
   const setEnteredSearchOption = (valueToInsert, isEnterClick) => {
@@ -136,8 +142,7 @@ const ElasticQueryField = props => {
     const isValueForKeywordSearch = !prevValue && !isValueFromOptions(valueToInsert);
 
     if (isValueForKeywordSearch && isEnterClick) {
-      searchButtonRef.current.click();
-      closeOptions();
+      processSend();
     } else if (isOptionSelected) {
       const searchOptionValue = typedValue.startsWith(OPEN_BRACKET)
         ? `${OPEN_BRACKET}${valueToInsert}`
@@ -152,7 +157,9 @@ const ElasticQueryField = props => {
 
       if (isValueFromOptions(valueWithoutOpenBracket)) {
         setEnteredSearchOption(valueToInsert, isEnterClick);
-      } else if (!isSomeOptionIncludesValue(valueWithoutOpenBracket)) {
+      } else if (!isEnterClick && prevValue && !isSomeOptionIncludesValue(`${valueWithoutOpenBracket} `)) {
+        setIsWarning(true);
+      } else if (isEnterClick) {
         setIsWarning(true);
       }
     }
@@ -323,8 +330,7 @@ const ElasticQueryField = props => {
         const isEnterClick = true;
 
         if (canSend) {
-          searchButtonRef.current.click();
-          closeOptions();
+          processSend();
         } else {
           handleValueToInsert(valueToInsert.trim(), isOptionSelected, isEnterClick);
         }
@@ -470,6 +476,15 @@ const ElasticQueryField = props => {
         : null
     );
   };
+
+  useEffect(() => {
+    if (
+      !typedValueWithoutOpenBracket
+      || (isWarning && !typedValueWithoutOpenBracket.endsWith(SPACE))
+    ) {
+      setIsWarning(false);
+    }
+  }, [typedValueWithoutOpenBracket]);
 
   useEffect(() => {
     textareaRef.current.focus();
