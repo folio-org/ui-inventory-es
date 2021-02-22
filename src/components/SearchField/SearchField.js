@@ -9,8 +9,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useIntl } from 'react-intl';
 
-import TextField from '@folio/stripes-components/lib/TextField';
 import Select from '@folio/stripes-components/lib/Select';
+import TextField from '@folio/stripes-components/lib/TextField';
 import TextFieldIcon from '@folio/stripes-components/lib/TextField/TextFieldIcon';
 
 import ElasticQueryField from '../ElasticQueryField';
@@ -19,6 +19,7 @@ import css from './SearchField.css';
 // Accepts the same props as TextField
 const propTypes = {
   ariaLabel: PropTypes.string,
+  booleanOperators: PropTypes.arrayOf(PropTypes.object),
   className: PropTypes.string,
   clearSearchId: PropTypes.string,
   disabled: PropTypes.bool,
@@ -30,6 +31,7 @@ const propTypes = {
   onChange: PropTypes.func,
   onChangeIndex: PropTypes.func,
   onClear: PropTypes.func,
+  operators: PropTypes.arrayOf(PropTypes.object),
   placeholder: PropTypes.string,
   searchableIndexes: PropTypes.arrayOf(PropTypes.shape({
     disabled: PropTypes.bool,
@@ -45,6 +47,7 @@ const propTypes = {
   searchableIndexesPlaceholder: PropTypes.string,
   searchButtonRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   selectedIndex: PropTypes.string,
+  setIsSearchByKeyword: PropTypes.func,
   value: PropTypes.string,
 };
 
@@ -57,10 +60,13 @@ const SearchField = (props) => {
     value,
     onChange,
     onClear,
+    setIsSearchByKeyword,
     loading,
     clearSearchId,
     searchableIndexes,
     searchableIndexesES,
+    operators,
+    booleanOperators,
     onChangeIndex,
     selectedIndex,
     searchableIndexesPlaceholder,
@@ -119,9 +125,12 @@ const SearchField = (props) => {
       {isAdvancedSearch
         ? (
           <ElasticQueryField
+            booleanOperators={booleanOperators}
             onChange={onChange}
+            operators={operators}
             searchButtonRef={searchButtonRef}
             searchOptions={searchableIndexesES}
+            setIsSearchByKeyword={setIsSearchByKeyword}
             value={value}
           />
         )

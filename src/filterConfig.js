@@ -100,15 +100,15 @@ export const instanceIndexes = [
 ];
 
 export const instanceIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'Title (all)', value: 'Title' },
-  { label: 'Contributors', value: 'Contributors' },
-  { label: 'Identifiers (all)', value: 'Identifier' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Subject', value: 'Subject' },
-  { label: 'Instance UUID', value: 'UUID' },
-  { label: 'Instance HRID', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.title', value: 'Title', queryTemplate: 'title all' },
+  { label: 'ui-inventory-es.contributor', value: 'Contributor', queryTemplate: 'contributors=' },
+  { label: 'ui-inventory-es.identifierAll', value: 'Identifier', queryTemplate: 'identifiers.value==' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.subject', value: 'Subject', queryTemplate: 'subjects all' },
+  { label: 'ui-inventory-es.instanceId', value: 'UUID', queryTemplate: 'id==' },
+  { label: 'ui-inventory-es.instanceHrid', value: 'HRID', queryTemplate: 'hrid==' },
 ];
 
 export const instanceSortMap = {
@@ -137,11 +137,11 @@ export const holdingIndexes = [
 ];
 
 export const holdingIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Call Number', value: 'Call Number' },
-  { label: 'Holdings HRID', value: 'HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: '--' },
+  { label: 'ui-inventory-es.holdingsHrid', value: 'HRID', queryTemplate: 'holdingsRecords.hrid==' },
 ];
 
 export const holdingSortMap = {};
@@ -192,12 +192,12 @@ export const itemIndexes = [
 ];
 
 export const itemIndexesES = [
-  { label: 'Keyword (title, contributor, identifier)', value: 'Keyword' },
-  { label: 'Barcode', value: 'Barcode' },
-  { label: 'ISSN', value: 'ISSN' },
-  { label: 'ISBN', value: 'ISBN' },
-  { label: 'Call Number', value: 'Call Number' },
-  { label: 'Item HRID', value: 'Item HRID' },
+  { label: 'ui-inventory-es.search.all', value: 'Keyword', queryTemplate: 'keyword all' },
+  { label: 'ui-inventory-es.barcode', value: 'Barcode', queryTemplate: '--' },
+  { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
+  { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: '--' },
+  { label: 'ui-inventory-es.itemHrid', value: 'Item HRID', queryTemplate: 'item.hrid==' },
 ];
 
 export const itemFilterConfig = [
@@ -236,6 +236,15 @@ export const itemFilterConfig = [
   },
 ];
 
+const operators = [
+  { label: 'ui-inventory-es.equality', queryTemplate: '' },
+];
+
+const booleanOperators = [
+  { label: 'ui-inventory-es.and' },
+  { label: 'ui-inventory-es.or' },
+];
+
 export const itemSortMap = {
   Title: 'title',
   publishers: 'publication',
@@ -248,32 +257,28 @@ const config = {
     indexes: instanceIndexes,
     sortMap: instanceSortMap,
     renderer: instanceFilterRenderer,
+    indexesES: instanceIndexesES,
+    operators,
+    booleanOperators,
   },
   holdings: {
     filters: holdingFilterConfig,
     indexes: holdingIndexes,
     sortMap: holdingSortMap,
     renderer: holdingsRecordFilterRenderer,
+    indexesES: holdingIndexesES,
+    operators,
+    booleanOperators,
   },
   items: {
     filters: itemFilterConfig,
     indexes: itemIndexes,
     sortMap: itemSortMap,
     renderer: itemFilterRenderer,
+    indexesES: itemIndexesES,
+    operators,
+    booleanOperators,
   }
 };
 
-const configES = {
-  instances: {
-    indexesES: instanceIndexesES,
-  },
-  holdings: {
-    indexesES: holdingIndexesES,
-  },
-  items: {
-    indexesES: itemIndexesES,
-  },
-};
-
 export const getFilterConfig = (segment = 'instances') => config[segment];
-export const getFilterConfigES = (segment = 'instances') => configES[segment];

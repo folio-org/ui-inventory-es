@@ -44,6 +44,7 @@ import {
   IntlConsumer,
 } from '@folio/stripes-core';
 import Tags from '@folio/stripes-smart-components/lib/Tags';
+import isEvent from 'redux-form/lib/events/isEvent';
 import SearchField from '../SearchField';
 
 import {
@@ -80,6 +81,7 @@ class SearchAndSort extends React.Component {
     apolloQuery: PropTypes.object, // machine-readable
     apolloResource: PropTypes.string,
     basePath: PropTypes.string,
+    booleanOperators: PropTypes.arrayOf(PropTypes.object),
     browseOnly: PropTypes.bool,
     columnMapping: PropTypes.object,
     columnWidths: PropTypes.object,
@@ -143,6 +145,7 @@ class SearchAndSort extends React.Component {
     onFilterChange: PropTypes.func,
     onResetAll: PropTypes.func,
     onSelectRow: PropTypes.func,
+    operators: PropTypes.arrayOf(PropTypes.object),
     packageInfo: PropTypes.shape({ // values pulled from the provider's package.json config object
       initialFilters: PropTypes.string, // default filters
       moduleName: PropTypes.string, // machine-readable, for HTML ids and translation keys
@@ -245,6 +248,7 @@ class SearchAndSort extends React.Component {
       filterPaneIsVisible: true,
       locallyChangedSearchTerm: '',
       locallyChangedQueryIndex: '',
+      isSearchByKeyword: false,
     };
 
     this.handleFilterChange = handleFilterChange.bind(this);
@@ -420,8 +424,12 @@ class SearchAndSort extends React.Component {
     defer(() => onFilterChange(filter));
   };
 
+  setIsSearchByKeyword = (value) => {
+    this.setState({ isSearchByKeyword: value });
+  };
+
   onChangeSearch = (e) => {
-    const query = e.target.value;
+    const query = isEvent(e) ? e.target.value : e;
 
     if (query) {
       this.setState({ locallyChangedSearchTerm: query });
@@ -446,10 +454,11 @@ class SearchAndSort extends React.Component {
     const {
       locallyChangedSearchTerm,
       locallyChangedQueryIndex,
+      isSearchByKeyword,
     } = this.state;
 
     this.performSearch({
-      query: locallyChangedSearchTerm,
+      query: isSearchByKeyword ? `keyword all "${locallyChangedSearchTerm}"` : locallyChangedSearchTerm,
       qindex: locallyChangedQueryIndex,
     });
   };
@@ -995,6 +1004,8 @@ class SearchAndSort extends React.Component {
       disableFilters,
       searchableIndexes,
       searchableIndexesES,
+      operators,
+      booleanOperators,
       selectedIndex,
     } = this.props;
     const {
@@ -1025,8 +1036,11 @@ class SearchAndSort extends React.Component {
               className={css.searchField}
               searchableIndexes={searchableIndexes}
               searchableIndexesES={searchableIndexesES}
+              operators={operators}
+              booleanOperators={booleanOperators}
               searchButtonRef={this.searchButtonRef}
               selectedIndex={queryIndex}
+              setIsSearchByKeyword={this.setIsSearchByKeyword}
               value={searchTerm}
               loading={source.pending()}
               marginBottom0

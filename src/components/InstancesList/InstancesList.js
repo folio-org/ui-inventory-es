@@ -69,6 +69,7 @@ class InstancesList extends React.Component {
   };
 
   static propTypes = {
+    booleanOperators: PropTypes.arrayOf(PropTypes.object),
     data: PropTypes.object,
     parentResources: PropTypes.object,
     parentMutator: PropTypes.object,
@@ -76,6 +77,7 @@ class InstancesList extends React.Component {
     browseOnly: PropTypes.bool,
     disableRecordCreation: PropTypes.bool,
     onSelectRow: PropTypes.func,
+    operators: PropTypes.arrayOf(PropTypes.object),
     visibleColumns: PropTypes.arrayOf(PropTypes.string),
     updateLocation: PropTypes.func.isRequired,
     goTo: PropTypes.func.isRequired,
@@ -452,6 +454,8 @@ class InstancesList extends React.Component {
       showSingleResult,
       browseOnly,
       onSelectRow,
+      operators,
+      booleanOperators,
       disableRecordCreation,
       visibleColumns,
       intl,
@@ -528,11 +532,19 @@ class InstancesList extends React.Component {
       return { ...index, label };
     });
 
-    const formattedSearchableIndexesES = searchableIndexesES.map(index => {
-      const label = intl.formatMessage({ id: index.label });
+    const advancedSearchSuggestions =
+      [operators, booleanOperators, searchableIndexesES].map(suggestions => {
+        return suggestions.map(suggestion => {
+          const label = intl.formatMessage({ id: suggestion.label });
+          return { ...suggestion, label };
+        });
+      });
 
-      return { ...index, label };
-    });
+    const [
+      formattedOperators,
+      formattedBooleanOperators,
+      formattedSearchableIndexesES
+    ] = advancedSearchSuggestions;
 
     return (
       <>
@@ -545,6 +557,8 @@ class InstancesList extends React.Component {
             renderNavigation={this.renderNavigation}
             searchableIndexes={formattedSearchableIndexes}
             searchableIndexesES={formattedSearchableIndexesES}
+            operators={formattedOperators}
+            booleanOperators={formattedBooleanOperators}
             selectedIndex={get(data.query, 'qindex')}
             searchableIndexesPlaceholder={null}
             initialResultCount={INITIAL_RESULT_COUNT}

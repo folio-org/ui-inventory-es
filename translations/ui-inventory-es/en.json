@@ -612,5 +612,12 @@
 
   "showMoreOptions": "Show more options",
   "more": "More",
-  "noMatchingOptions": "No matching options"
+  "noMatchingOptions": "No matching options",
+
+  "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
+  "callNumber": "Call Number",
+  "equality": "=",
+  "and": "AND",
+  "or": "OR",
+  "elasticWarning": "The entered value in not one of the suggested"
 }
