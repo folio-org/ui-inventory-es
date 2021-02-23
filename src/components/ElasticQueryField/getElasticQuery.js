@@ -1,5 +1,8 @@
-import cp from './cqlParser';
+import cqlParser from './cqlParser';
 
+// The regExp will look like:
+// /keyword \(title, contributor, identifier\)|title \(all\)|contributor|
+// identifier \(all\)|issn|isbn|subject|instance uuid|instance hrid|=/gi
 const createRegexpToElasticSearch = (templates) => {
   let string = '';
 
@@ -12,6 +15,19 @@ const createRegexpToElasticSearch = (templates) => {
   return new RegExp(`${string}`.replace(/\|$/, ''), 'gi');
 };
 
+// The templates will look like:
+// {
+//   =: ""
+//   contributor: "contributors="
+//   identifier (all): "identifiers.value=="
+//   instance hrid: "hrid=="
+//   instance uuid: "id=="
+//   isbn: "isbn=="
+//   issn: "issn=="
+//   keyword (title, contributor, identifier): "keyword all"
+//   subject: "subjects all"
+//   title (all): "title all"
+// }
 const getElasticTemplates = (searchOptions, operators) => {
   const indexTemplates = searchOptions.reduce((accum, { label, queryTemplate }) => {
     accum[label.toLowerCase()] = queryTemplate;
@@ -26,7 +42,7 @@ const getElasticTemplates = (searchOptions, operators) => {
   return { ...indexTemplates, ...operatorTemplates };
 };
 
-const replaceLabelsWithTemplates = (searchOptions, operators) => {
+const replaceLabelsWithTemplates = (cp, searchOptions, operators) => {
   const templates = getElasticTemplates(searchOptions, operators);
   const regExp = createRegexpToElasticSearch(templates);
 
@@ -35,13 +51,21 @@ const replaceLabelsWithTemplates = (searchOptions, operators) => {
     .replace(/ {2}/g, ' ');
 };
 
-const getElasticQuery = (value, isSearchByKeyword, searchOptions, operators) => {
+// For example:
+// value: "Title (all)" = (Ukraine or "Los Angeles")
+// return: title all "Ukraine" OR title all "Los Angeles"
+// or
+// value: Ukraine
+// return: keyword all "Ukraine"
+const getElasticQuery = (value, isSearchByKeyword, searchOptions, operators, intl) => {
   if (isSearchByKeyword) {
     const keywordAll = searchOptions.find(option => option.value === 'all')?.queryTemplate;
     return `${keywordAll} "${value}"`;
   }
+
+  const cp = cqlParser(intl);
   cp.parse(value);
-  return replaceLabelsWithTemplates(searchOptions, operators);
+  return replaceLabelsWithTemplates(cp, searchOptions, operators);
 };
 
 export default getElasticQuery;

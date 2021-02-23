@@ -119,6 +119,7 @@ class SearchAndSort extends React.Component {
     }).isRequired,
     initialFilters: PropTypes.string,
     initialResultCount: PropTypes.number.isRequired,
+    intl: PropTypes.object,
     location: PropTypes.shape({ // provided by withRouter
       pathname: PropTypes.string.isRequired,
       search: PropTypes.string.isRequired,
@@ -242,7 +243,6 @@ class SearchAndSort extends React.Component {
     const {
       viewRecordComponent,
       stripes,
-      searchableIndexes,
     } = this.props;
 
     this.state = {
@@ -271,7 +271,6 @@ class SearchAndSort extends React.Component {
 
     this.log = logger.log.bind(logger);
     this.searchButtonRef = React.createRef();
-    this.advancedSearch = searchableIndexes.find(index => index.value === 'advancedSearch')?.value;
   }
 
   componentDidMount() {
@@ -463,10 +462,11 @@ class SearchAndSort extends React.Component {
     const {
       operators,
       searchableIndexesES,
+      intl,
     } = this.props;
 
-    const query = locallyChangedQueryIndex === this.advancedSearch
-      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators)
+    const query = locallyChangedQueryIndex === 'advancedSearch'
+      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators, intl)
       : locallyChangedSearchTerm;
 
     this.performSearch({
@@ -1042,7 +1042,7 @@ class SearchAndSort extends React.Component {
           {ariaLabel => (
             <SearchField
               id={`input-${objectName}-search`}
-              isAdvancedSearch={queryIndex === this.advancedSearch}
+              isAdvancedSearch={queryIndex === 'advancedSearch'}
               autoFocus
               ariaLabel={ariaLabel}
               className={css.searchField}
