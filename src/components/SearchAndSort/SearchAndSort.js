@@ -1192,6 +1192,14 @@ class SearchAndSort extends React.Component {
     const source = makeConnectedSource(this.props, stripes.logger);
     const moduleName = this.getModuleName();
 
+    const getFilterPaneSub = (
+      <div className={css.delimiter}>
+        <span>
+          <FormattedMessage id="ui-inventory-es.POC" />
+        </span>
+      </div>
+    );
+
     return (
       <Paneset data-test-search-and-sort>
         <SRStatus ref={(ref) => { this.SRStatus = ref; }} />
@@ -1203,6 +1211,7 @@ class SearchAndSort extends React.Component {
             id="pane-filter"
             defaultWidth="320px"
             paneTitle={<FormattedMessage id="stripes-smart-components.searchAndFilter" />}
+            paneSub={getFilterPaneSub}
             onClose={this.toggleFilterPane}
             lastMenu={
               <PaneMenu>
