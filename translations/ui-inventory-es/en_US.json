@@ -629,6 +629,5 @@
     "parser.invalidSearchClause": "Invalid search clause",
     "parser.missingCloseParenthesis": "Missing closing parenthesis",
     "parser.strOrQuotedExpression": "Expecting string or a quoted expression",
-
     "POC": "Proof of concept"
 }
