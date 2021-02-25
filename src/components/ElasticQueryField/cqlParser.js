@@ -1,8 +1,8 @@
 const cqlParser = (intl) => {
-  const AND = intl.formatMessage({ id: 'ui-inventory-es.and' });
-  const OR = intl.formatMessage({ id: 'ui-inventory-es.or' });
-  const NOT = intl.formatMessage({ id: 'ui-inventory-es.not' });
-  const PROX = intl.formatMessage({ id: 'ui-inventory-es.prox' });
+  const AND = intl.formatMessage({ id: 'ui-inventory-es.and' }).toLowerCase();
+  const OR = intl.formatMessage({ id: 'ui-inventory-es.or' }).toLowerCase();
+  const NOT = intl.formatMessage({ id: 'ui-inventory-es.not' }).toLowerCase();
+  const PROX = intl.formatMessage({ id: 'ui-inventory-es.prox' }).toLowerCase();
 
   // CQLBoolean
   const CQLBoolean = function CQLBoolean() {
