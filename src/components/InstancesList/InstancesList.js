@@ -559,6 +559,7 @@ class InstancesList extends React.Component {
             searchableIndexesES={formattedSearchableIndexesES}
             operators={formattedOperators}
             booleanOperators={formattedBooleanOperators}
+            intl={intl}
             selectedIndex={get(data.query, 'qindex')}
             searchableIndexesPlaceholder={null}
             initialResultCount={INITIAL_RESULT_COUNT}
