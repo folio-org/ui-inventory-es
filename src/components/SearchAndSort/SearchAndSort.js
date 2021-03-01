@@ -55,6 +55,7 @@ import makeConnectedSource from './ConnectedSource';
 import { NoResultsMessage, ResetButton, CollapseFilterPaneButton, ExpandFilterPaneButton } from './components';
 
 import buildUrl from './buildUrl';
+import getElasticQuery from '../ElasticQueryField/getElasticQuery';
 
 import css from './SearchAndSort.css';
 
@@ -118,6 +119,7 @@ class SearchAndSort extends React.Component {
     }).isRequired,
     initialFilters: PropTypes.string,
     initialResultCount: PropTypes.number.isRequired,
+    intl: PropTypes.object,
     location: PropTypes.shape({ // provided by withRouter
       pathname: PropTypes.string.isRequired,
       search: PropTypes.string.isRequired,
@@ -457,8 +459,18 @@ class SearchAndSort extends React.Component {
       isSearchByKeyword,
     } = this.state;
 
+    const {
+      operators,
+      searchableIndexesES,
+      intl,
+    } = this.props;
+
+    const query = locallyChangedQueryIndex === 'advancedSearch'
+      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators, intl)
+      : locallyChangedSearchTerm;
+
     this.performSearch({
-      query: isSearchByKeyword ? `keyword all "${locallyChangedSearchTerm}"` : locallyChangedSearchTerm,
+      query,
       qindex: locallyChangedQueryIndex,
     });
   };
@@ -1192,6 +1204,14 @@ class SearchAndSort extends React.Component {
     const source = makeConnectedSource(this.props, stripes.logger);
     const moduleName = this.getModuleName();
 
+    const getFilterPaneSub = (
+      <div className={css.delimiter}>
+        <span>
+          <FormattedMessage id="ui-inventory-es.POC" />
+        </span>
+      </div>
+    );
+
     return (
       <Paneset data-test-search-and-sort>
         <SRStatus ref={(ref) => { this.SRStatus = ref; }} />
@@ -1203,6 +1223,7 @@ class SearchAndSort extends React.Component {
             id="pane-filter"
             defaultWidth="320px"
             paneTitle={<FormattedMessage id="stripes-smart-components.searchAndFilter" />}
+            paneSub={getFilterPaneSub}
             onClose={this.toggleFilterPane}
             lastMenu={
               <PaneMenu>
