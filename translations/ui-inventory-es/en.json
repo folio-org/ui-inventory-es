@@ -1,6 +1,5 @@
 {
   "meta.title": "Inventory ES",
-  "inventory.label": "Inventory ES",
   "instances.columns.title": "Title",
   "instances.columns.contributors": "Contributors",
   "instances.columns.publishers": "Publishers",
