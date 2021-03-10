@@ -20,8 +20,14 @@ function CheckboxFacetList({
   onMoreClick,
   onSearch,
   onChange,
+  onFetch = () => null,
   fieldName,
 }) {
+  const handleTextFieldFocus = () => {
+    console.log('focus')
+    onFetch({ focusedFacet: fieldName });
+  };
+
   return (
     <div className={css.facetSearchContainer}>
       {showSearch && (
@@ -29,6 +35,7 @@ function CheckboxFacetList({
           <TextField
             type="search"
             onChange={(e) => onSearch(e.target.value)}
+            onFocus={handleTextFieldFocus}
           />
         </div>
       )}

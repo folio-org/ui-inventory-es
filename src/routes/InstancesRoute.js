@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import { flowRight } from 'lodash';
 
@@ -11,6 +11,9 @@ import {
 } from '../filterConfig';
 import { buildManifestObject } from './buildManifestObject';
 import { DataContext } from '../contexts';
+import { buildQuery } from './buildManifestObject';
+
+const DEFAULT_FILTERS_NUMBER = 5;
 
 class InstancesRoute extends React.Component {
   static propTypes = {
@@ -30,6 +33,61 @@ class InstancesRoute extends React.Component {
   };
 
   static manifest = Object.freeze(buildManifestObject());
+
+  fetchFacets = (data) => async ({ onMoreClickedFacet, focusedFacet, accordions, accordionsData, facetOpenedFirstTime } = {}) => {
+    const {
+      resources,
+      mutator,
+    } = this.props;
+    const {
+      reset,
+      GET,
+    } = mutator.facets;
+    const { query } = resources;
+
+    const params = {};
+    const cqlQuery = buildQuery(query, {}, { ...data, query }, { log: () => null }) || '';
+
+    if (cqlQuery) params.query = cqlQuery;
+    console.log('get')
+
+    if (facetOpenedFirstTime) {
+      params.facet = `facet=${facetOpenedFirstTime}:${DEFAULT_FILTERS_NUMBER}`;
+    } else if (onMoreClickedFacet || focusedFacet) {
+      params.facet = `facet=${focusedFacet || onMoreClickedFacet}:`;
+    } else {
+      let index = 0;
+
+      const facets = _.reduce(accordions, (accum, isFacetOpened, facetName) => {
+        if (isFacetOpened) {
+          const isFacetValue = accordionsData?.[facetName]?.value;
+          const isFilterSelected = accordionsData?.[facetName]?.isSelected;
+          const isNeedAllFilters =
+            facetName === onMoreClickedFacet ||
+            facetName === focusedFacet ||
+            isFacetValue ||
+            isFilterSelected;
+
+          const symbol = index
+            ? '&'
+            : '';
+
+          index++;
+          return `${accum}${symbol}facet=${facetName}:${isNeedAllFilters ? '' : DEFAULT_FILTERS_NUMBER}`;
+        }
+        return accum;
+      }, '');
+
+      if (facets) params.faset = facets;
+    }
+
+    try {
+      reset();
+      await GET({ params });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
 
   render() {
     const {
@@ -56,7 +114,7 @@ class InstancesRoute extends React.Component {
             showSingleResult={showSingleResult}
             onSelectRow={onSelectRow}
             disableRecordCreation={disableRecordCreation}
-            renderFilters={renderer({ ...data, query })}
+            renderFilters={renderer({ ...data, query, onFetchFacets: this.fetchFacets(data), parentResources: resources })}
             segment={segment}
             searchableIndexes={indexes}
             searchableIndexesES={indexesES}

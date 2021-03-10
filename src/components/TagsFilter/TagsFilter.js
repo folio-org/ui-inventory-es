@@ -13,7 +13,7 @@ import CheckboxFacet from '../CheckboxFacet';
 
 const FILTER_NAME = 'tags';
 
-function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
+function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords }) {
   const intl = useIntl();
   const onClearFilter = useCallback(() => onClear(FILTER_NAME), [onClear]);
   const location = useLocation();
@@ -22,7 +22,7 @@ function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
     .find((key) => key.startsWith(`${FILTER_NAME}.`));
 
   const tagsOptions = tagsRecords
-    .map(({ label }) => ({ label, value: label }))
+    .map(({ label, count }) => ({ label, value: label, count }))
     .sort((a, b) => a.label.localeCompare((b.label)));
 
   return (
@@ -37,6 +37,8 @@ function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
         dataOptions={tagsOptions}
         name={FILTER_NAME}
         onChange={onChange}
+        onSearch={onSearch}
+        onFetch={onFetch}
         selectedValues={selectedValues}
         isFilterable
       />

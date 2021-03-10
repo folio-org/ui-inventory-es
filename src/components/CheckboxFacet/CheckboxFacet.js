@@ -34,6 +34,11 @@ export default class CheckboxFacet extends React.Component {
   };
 
   onMoreClick = (totalOptions) => {
+    const {
+      onFetch,
+      name,
+    } = this.props;
+
     this.setState(({ more }) => {
       let visibleOptionsCount = more + SHOW_OPTIONS_INCREMENT;
       const showingAll = visibleOptionsCount >= totalOptions;
@@ -41,10 +46,18 @@ export default class CheckboxFacet extends React.Component {
 
       return { more: visibleOptionsCount };
     });
+    console.log('onMoreClick')
+    onFetch({ onMoreClickedFacet: name });
   };
 
   onFacetSearch = searchTerm => {
+    const {
+      onSearch,
+      name,
+    } = this.props;
+
     this.setState({ searchTerm });
+    onSearch({ name, value: searchTerm });
   };
 
   onFasetChange = (filterValue) => (e) => {
@@ -70,6 +83,7 @@ export default class CheckboxFacet extends React.Component {
       selectedValues,
       isFilterable,
       name,
+      onFetch,
     } = this.props;
 
     const {
@@ -97,6 +111,7 @@ export default class CheckboxFacet extends React.Component {
         onMoreClick={() => this.onMoreClick(filteredOptions.length)}
         onSearch={this.onFacetSearch}
         onChange={this.onFasetChange}
+        onFetch={onFetch}
       />
     );
   }
