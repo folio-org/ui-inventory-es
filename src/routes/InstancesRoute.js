@@ -1,6 +1,6 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { flowRight } from 'lodash';
+import { flowRight, reduce } from 'lodash';
 
 import { stripesConnect } from '@folio/stripes/core';
 
@@ -9,9 +9,11 @@ import { InstancesView } from '../views';
 import {
   getFilterConfig,
 } from '../filterConfig';
-import { buildManifestObject } from './buildManifestObject';
+import {
+  buildManifestObject,
+  buildQuery
+} from './buildManifestObject';
 import { DataContext } from '../contexts';
-import { buildQuery } from './buildManifestObject';
 
 const DEFAULT_FILTERS_NUMBER = 5;
 
@@ -49,16 +51,15 @@ class InstancesRoute extends React.Component {
     const cqlQuery = buildQuery(query, {}, { ...data, query }, { log: () => null }) || '';
 
     if (cqlQuery) params.query = cqlQuery;
-    console.log('get')
 
     if (facetOpenedFirstTime) {
       params.facet = `facet=${facetOpenedFirstTime}:${DEFAULT_FILTERS_NUMBER}`;
     } else if (onMoreClickedFacet || focusedFacet) {
-      params.facet = `facet=${focusedFacet || onMoreClickedFacet}:`;
+      params.facet = `facet=${focusedFacet || onMoreClickedFacet}`;
     } else {
       let index = 0;
 
-      const facets = _.reduce(accordions, (accum, isFacetOpened, facetName) => {
+      const facets = reduce(accordions, (accum, isFacetOpened, facetName) => {
         if (isFacetOpened) {
           const isFacetValue = accordionsData?.[facetName]?.value;
           const isFilterSelected = accordionsData?.[facetName]?.isSelected;
@@ -73,7 +74,7 @@ class InstancesRoute extends React.Component {
             : '';
 
           index++;
-          return `${accum}${symbol}facet=${facetName}:${isNeedAllFilters ? '' : DEFAULT_FILTERS_NUMBER}`;
+          return `${accum}${symbol}facet=${facetName}${isNeedAllFilters ? '' : `:${DEFAULT_FILTERS_NUMBER}`}`;
         }
         return accum;
       }, '');
@@ -114,7 +115,12 @@ class InstancesRoute extends React.Component {
             showSingleResult={showSingleResult}
             onSelectRow={onSelectRow}
             disableRecordCreation={disableRecordCreation}
-            renderFilters={renderer({ ...data, query, onFetchFacets: this.fetchFacets(data), parentResources: resources })}
+            renderFilters={renderer({
+              ...data,
+              query,
+              onFetchFacets: this.fetchFacets(data),
+              parentResources: resources,
+            })}
             segment={segment}
             searchableIndexes={indexes}
             searchableIndexesES={indexesES}

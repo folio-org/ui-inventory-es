@@ -20,11 +20,10 @@ function CheckboxFacetList({
   onMoreClick,
   onSearch,
   onChange,
-  onFetch = () => null,
+  onFetch,
   fieldName,
 }) {
   const handleTextFieldFocus = () => {
-    console.log('focus')
     onFetch({ focusedFacet: fieldName });
   };
 
@@ -102,9 +101,14 @@ CheckboxFacetList.propTypes = {
     count: PropTypes.number,
   })).isRequired,
   onChange: PropTypes.func.isRequired,
+  onFetch: PropTypes.func,
   selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   showMore: PropTypes.bool.isRequired,
   showSearch: PropTypes.bool,
+};
+
+CheckboxFacetList.defaultProps = {
+  onFetch: () => null,
 };
 
 export default CheckboxFacetList;

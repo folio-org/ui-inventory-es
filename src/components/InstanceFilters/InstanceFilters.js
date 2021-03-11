@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { defer } from 'lodash';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
+import _ from 'lodash';
 
-import { useStripes } from '@folio/stripes/core';
 import {
   Accordion,
   AccordionSet,
@@ -13,6 +12,7 @@ import {
 import {
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
+import { languageOptionsES } from '@folio/stripes-components/util/languages';
 
 import {
   retrieveDatesFromDateRangeFilterString,
@@ -57,9 +57,10 @@ const InstanceFilters = props => {
     facets: { records = {} },
   } = parentResources;
 
+  const intl = useIntl();
   const [accordions, setAccordions] = useState({
     effectiveLocation: true,
-    language: true,
+    language: false,
     resource: false,
     format: false,
     mode: false,
@@ -101,9 +102,6 @@ const InstanceFilters = props => {
 
   const [isTagsSelected, setIsTagsSelected] = useState(false);
   const [tagsInputValue, setTagsInputValue] = useState('');
-
-  // const [isAlreadyFetched, setIsAlreadyFetched] = useState(false);
-  const isAlreadyFetched = useRef(false);
 
   const prevAccordionsState = useRef(accordions);
 
@@ -166,6 +164,58 @@ const InstanceFilters = props => {
     onChange(filter);
   };
 
+  const getFacetOptions = (entries, facetData) => {
+    return entries.reduce((accum, entry) => {
+      if (!entry.totalRecords) return accum;
+
+      const {
+        name = '',
+        id,
+        label = '',
+      } = facetData.find(facet => facet.id === entry.id);
+
+      const option = {
+        label: name || label,
+        value: id,
+        count: entry.totalRecords,
+      };
+      accum.push(option);
+      return accum;
+    }, []);
+  };
+
+  const getSuppressedOptions = (suppressedOptionsRecords) => {
+    return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
+      if (!totalRecords) return accum;
+
+      const idPart = id === 'true' ? 'yes' : 'no';
+      const value = id === 'true' ? 'true' : 'false';
+
+      const option = {
+        label: <FormattedMessage id={`ui-inventory.${idPart}`} />,
+        value,
+        count: totalRecords,
+      };
+      accum.push(option);
+      return accum;
+    }, []);
+  };
+
+  const getSourceOptions = (sourceRecords) => {
+    return sourceRecords.reduce((accum, { id, totalRecords }) => {
+      if (!totalRecords) return accum;
+
+      const value = id === 'folio' ? 'FOLIO' : 'MARC';
+      const option = {
+        label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
+        value,
+        count: totalRecords,
+      };
+      accum.push(option);
+      return accum;
+    }, []);
+  };
+
   const effectiveLocationOptions = locations.map(({ name, id }) => ({
     label: name,
     value: id,
@@ -213,9 +263,7 @@ const InstanceFilters = props => {
     },
   ];
 
-  const intl = useIntl();
-  const stripes = useStripes();
-  const langOptions = languageOptions(intl, stripes.locale);
+  const langOptions = languageOptions(intl);
 
   const [facetsOptions, setFacetsOptions] = useState({
     effectiveLocationOptions,
@@ -243,26 +291,64 @@ const InstanceFilters = props => {
   };
 
   const handleFetchFacets = ({ onMoreClickedFacet, focusedFacet } = {}) => {
-    setTimeout(() => {
-      if (isAlreadyFetched.current) {
-        isAlreadyFetched.current = false;
-        return;
-      }
-
-      onFetchFacets({ onMoreClickedFacet, focusedFacet, accordions, accordionsData });
-    }, 300);
+    onFetchFacets({ onMoreClickedFacet, focusedFacet, accordions, accordionsData });
   };
 
   useEffect(() => {
-    const recordsNumber = Object.keys(records);
-    const facetsNumber = facetsOptions.length;
+    if (!_.isEmpty(records)) {
+      const recordsNames = {
+        'effectiveLocation': 'effectiveLocationOptions',
+        'languages': 'langOptions',
+        'instanceTypeId': 'resourceTypeOptions',
+        'instanceFormatId': 'instanceFormatOptions',
+        'modeOfIssuanceId': 'modeOfIssuanceOptions',
+        'natureOfContentTermIds': 'natureOfContentOptions',
+        'staffSuppress': 'suppressedOptions',
+        'discoverySuppress': 'suppressedOptions',
+        'source': 'sourceOptions',
+        'instanceTags': 'tagsRecords',
+      };
 
-    if (recordsNumber >= facetsNumber) {
-      setFacetsOptions(records);
-    } else {
-      setFacetsOptions(curFacetOptions => ({ ...curFacetOptions, ...records }));
+      const newRecords = _.reduce(recordsNames, (accum, facetName, recordName) => {
+        if (records[recordName]) {
+          switch (recordName) {
+            case 'effectiveLocation':
+              accum[facetName] = getFacetOptions(records[recordName].values, locations);
+              break;
+            case 'languages':
+              accum[facetName] = languageOptionsES(intl, records[recordName].values);
+              break;
+            case 'instanceTypeId':
+              accum[facetName] = getFacetOptions(records[recordName].values, resourceTypes);
+              break;
+            case 'instanceFormatId':
+              accum[facetName] = getFacetOptions(records[recordName].values, instanceFormats);
+              break;
+            case 'modeOfIssuanceId':
+              accum[facetName] = getFacetOptions(records[recordName].values, modesOfIssuance);
+              break;
+            case 'natureOfContentTermIds':
+              accum[facetName] = getFacetOptions(records[recordName].values, natureOfContentTerms);
+              break;
+            case 'staffSuppress':
+            case 'discoverySuppress':
+              accum[facetName] = getSuppressedOptions(records[recordName].values);
+              break;
+            case 'source':
+              accum[facetName] = getSourceOptions(records[recordName].values);
+              break;
+            case 'instanceTags':
+              accum[facetName] = getFacetOptions(records[recordName].values, tagsRecords);
+              break;
+            default:
+          }
+        }
+        return accum;
+      }, {});
+
+      setFacetsOptions(curFacetOptions => ({ ...curFacetOptions, ...newRecords }));
     }
-  }, [records])
+  }, [records]);
 
   useEffect(() => {
     let facetOpenedFirstTime = '';
@@ -282,7 +368,6 @@ const InstanceFilters = props => {
     if (isFacetOpenedFirstTime) {
       prevAccordionsState.current = accordions;
       onFetchFacets({ facetOpenedFirstTime });
-      isAlreadyFetched.current = true;
     }
   }, [
     accordions.effectiveLocation,

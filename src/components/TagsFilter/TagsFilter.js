@@ -27,6 +27,7 @@ function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tags
 
   return (
     <Accordion
+      id="tags"
       closedByDefault={!hasTagsSelected}
       displayClearButton={!!selectedValues?.length}
       header={FilterAccordionHeader}
@@ -50,6 +51,8 @@ TagsFilter.propTypes = {
   selectedValues: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,
+  onFetch: PropTypes.func,
+  onSearch: PropTypes.func,
   tagsRecords: PropTypes.arrayOf(PropTypes.object),
 };
 

@@ -102,7 +102,7 @@ export function buildManifestObject() {
     },
     facets: {
       type: 'okapi',
-      records: 'facetsData',
+      records: 'facets',
       path: 'search/instances/facets',
       fetch: false,
       accumulate: true,

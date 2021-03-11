@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import { get } from 'lodash';
 
 import InstanceFilters from './InstanceFilters';

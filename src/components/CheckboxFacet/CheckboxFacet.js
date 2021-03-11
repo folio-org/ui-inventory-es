@@ -19,6 +19,8 @@ export default class CheckboxFacet extends React.Component {
     })).isRequired,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
+    onFetch: PropTypes.func,
+    onSearch: PropTypes.func,
     selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     isFilterable: PropTypes.bool,
   };
@@ -46,7 +48,7 @@ export default class CheckboxFacet extends React.Component {
 
       return { more: visibleOptionsCount };
     });
-    console.log('onMoreClick')
+
     onFetch({ onMoreClickedFacet: name });
   };
 
