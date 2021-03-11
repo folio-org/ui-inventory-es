@@ -19,6 +19,24 @@ import {
   makeDateRangeFilterString,
 } from '../../utils';
 import { DATE_FORMAT } from '../../constants';
+import {
+  DISCOVERY_SUPPRESS,
+  EFFECTIVE_LOCATION,
+  INSTANCE_FORMAT_ID,
+  INSTANCE_TAGS,
+  INSTANCE_TYPE_ID,
+  LANGUAGES,
+  MODE_OF_ISSUANCE_ID,
+  NATURE_OF_CONTENT_TERM_IDS,
+  SOURCE,
+  STAFF_SUPPRESS,
+  LANGUAGE,
+  RESOURCE,
+  FORMAT,
+  MODE,
+  NATURE_OF_CONTENT,
+  TAGS,
+} from './constants';
 import TagsFilter from '../TagsFilter';
 import CheckboxFacet from '../CheckboxFacet';
 
@@ -73,48 +91,24 @@ const InstanceFilters = props => {
     tags: false,
   });
 
-  const [isLocationSelected, setIsLocationSelected] = useState(false);
-  const [locationInputValue, setLocationInputValue] = useState('');
-
-  const [isLanguageSelected, setIsLanguageSelected] = useState(false);
-  const [languageInputValue, setLanguageInputValue] = useState('');
-
-  const [isResourceSelected, setIsResourceSelected] = useState(false);
-  const [resourceInputValue, setResourceInputValue] = useState('');
-
-  const [isFormatSelected, setIsFormatSelected] = useState(false);
-  const [formatInputValue, setFormatInputValue] = useState('');
-
-  const [isModeSelected, setIsModeSelected] = useState(false);
-  const [modeInputValue, setModeInputValue] = useState('');
-
-  const [isNatureOfContentSelected, setIsNatureOfContentSelected] = useState(false);
-  const [natureOfContentInputValue, setNatureOfContentInputValue] = useState('');
-
-  const [isStaffSuppressSelected, setIsStaffSuppressSelected] = useState(false);
-  const [staffSuppressInputValue, setStaffSuppressInputValue] = useState('');
-
-  const [isDiscoverySuppressSelected, setIsDiscoverySuppressSelected] = useState(false);
-  const [discoverySuppressInputValue, setDiscoverySuppressInputValue] = useState('');
-
-  const [isSourceSelected, setIsSourceSelected] = useState(false);
-  const [sourceInputValue, setSourceInputValue] = useState('');
-
-  const [isTagsSelected, setIsTagsSelected] = useState(false);
-  const [tagsInputValue, setTagsInputValue] = useState('');
+  const [accordionsData, setAccordionsData] = useState({});
+  const [facetSettings, setFacetSettings] = useState({});
 
   const prevAccordionsState = useRef(accordions);
+  const prevFilters = useRef({});
 
-  const prevLocations = useRef(new Set());
-  const prevLanguages = useRef(new Set());
-  const prevResource = useRef(new Set());
-  const prevFormat = useRef(new Set());
-  const prevMode = useRef(new Set());
-  const prevNatureOfContent = useRef(new Set());
-  const prevStaffSuppress = useRef(new Set());
-  const prevDiscoverySuppress = useRef(new Set());
-  const prevSource = useRef(new Set());
-  const prevTags = useRef(new Set());
+  const selectedFacetFilters = {
+    [EFFECTIVE_LOCATION]: effectiveLocation,
+    [LANGUAGE]: language,
+    [RESOURCE]: resource,
+    [FORMAT]: format,
+    [MODE]: mode,
+    [NATURE_OF_CONTENT]: natureOfContent,
+    [STAFF_SUPPRESS]: staffSuppress,
+    [DISCOVERY_SUPPRESS]: discoverySuppress,
+    [SOURCE]: source,
+    [TAGS]: tags,
+  };
 
   const onToggleSection = ({ id }) => {
     setAccordions(curState => {
@@ -125,43 +119,50 @@ const InstanceFilters = props => {
   };
 
   const handleFilterSearch = (filter) => {
-    const { name, value } = filter;
+    const {
+      name,
+      value,
+    } = filter;
 
-    switch (name) {
-      case 'effectiveLocation':
-        if (!locationInputValue) setLocationInputValue(value);
-        break;
-      case 'language':
-        if (!languageInputValue) setLanguageInputValue(value);
-        break;
-      case 'resource':
-        if (!resourceInputValue) setResourceInputValue(value);
-        break;
-      case 'format':
-        if (!formatInputValue) setFormatInputValue(value);
-        break;
-      case 'mode':
-        if (!modeInputValue) setModeInputValue(value);
-        break;
-      case 'natureOfContent':
-        if (!natureOfContentInputValue) setNatureOfContentInputValue(value);
-        break;
-      case 'staffSuppress':
-        if (!staffSuppressInputValue) setStaffSuppressInputValue(value);
-        break;
-      case 'discoverySuppress':
-        if (!discoverySuppressInputValue) setDiscoverySuppressInputValue(value);
-        break;
-      case 'source':
-        if (!sourceInputValue) setSourceInputValue(value);
-        break;
-      case 'tags':
-        if (!tagsInputValue) setTagsInputValue(value);
-        break;
-      default:
-    }
+    setFacetSettings(prevFacetSettings => ({
+      ...prevFacetSettings,
+      [name]: {
+        ...prevFacetSettings[name],
+        value,
+      },
+    }));
 
     onChange(filter);
+  };
+
+  const processFilterChanges = (selectedFilters, facetName) => {
+    if (selectedFilters) {
+      const isFilterChanged = prevFilters.current[facetName]?.length !== selectedFilters.length;
+      if (isFilterChanged) {
+        prevFilters.current[facetName] = selectedFilters;
+
+        setAccordionsData(prevAccordionsData => ({
+          ...prevAccordionsData,
+          [facetName]: {
+            ...prevAccordionsData[facetName],
+            isSelected: true,
+          },
+        }));
+      }
+    } else {
+      const isLastFilterRemoved = prevFilters.current[facetName]?.length === 1 && selectedFilters === undefined;
+      if (isLastFilterRemoved) {
+        prevFilters.current[facetName] = [];
+
+        setAccordionsData(prevAccordionsData => ({
+          ...prevAccordionsData,
+          [facetName]: {
+            ...prevAccordionsData[facetName],
+            isSelected: false,
+          },
+        }));
+      }
+    }
   };
 
   const getFacetOptions = (entries, facetData) => {
@@ -277,68 +278,89 @@ const InstanceFilters = props => {
     tagsRecords,
   });
 
-  const accordionsData = {
-    effectiveLocation: { value: locationInputValue, isSelected: isLocationSelected },
-    language: { value: languageInputValue, isSelected: isLanguageSelected },
-    resource: { value: resourceInputValue, isSelected: isResourceSelected },
-    format: { value: formatInputValue, isSelected: isFormatSelected },
-    mode: { value: modeInputValue, isSelected: isModeSelected },
-    natureOfContent: { value: natureOfContentInputValue, isSelected: isNatureOfContentSelected },
-    staffSuppress: { value: staffSuppressInputValue, isSelected: isStaffSuppressSelected },
-    discoverySuppress: { value: discoverySuppressInputValue, isSelected: isDiscoverySuppressSelected },
-    source: { value: sourceInputValue, isSelected: isSourceSelected },
-    tags: { value: tagsInputValue, isSelected: isTagsSelected },
-  };
+  const handleFetchFacets = (property = {}) => {
+    const {
+      onMoreClickedFacet,
+      focusedFacet,
+      facetToOpen,
+    } = property;
 
-  const handleFetchFacets = ({ onMoreClickedFacet, focusedFacet } = {}) => {
-    onFetchFacets({ onMoreClickedFacet, focusedFacet, accordions, accordionsData });
+    if (facetToOpen) {
+      onFetchFacets({ facetToOpen });
+    } else if (onMoreClickedFacet) {
+      onFetchFacets({ onMoreClickedFacet });
+
+      setFacetSettings(prevFacetSettings => ({
+        ...prevFacetSettings,
+        [onMoreClickedFacet]: {
+          ...prevFacetSettings[onMoreClickedFacet],
+          isOnMoreClicked: true,
+        },
+      }));
+    } else if (focusedFacet) {
+      onFetchFacets({ focusedFacet });
+    } else {
+      const data = { ...accordionsData };
+
+      _.forEach(facetSettings, (settings, facetName) => {
+        data[facetName] = {
+          ...data[facetName],
+          ...settings,
+        };
+      });
+
+      onFetchFacets({
+        accordions,
+        accordionsData: data,
+      });
+    }
   };
 
   useEffect(() => {
     if (!_.isEmpty(records)) {
-      const recordsNames = {
-        'effectiveLocation': 'effectiveLocationOptions',
-        'languages': 'langOptions',
-        'instanceTypeId': 'resourceTypeOptions',
-        'instanceFormatId': 'instanceFormatOptions',
-        'modeOfIssuanceId': 'modeOfIssuanceOptions',
-        'natureOfContentTermIds': 'natureOfContentOptions',
-        'staffSuppress': 'suppressedOptions',
-        'discoverySuppress': 'suppressedOptions',
-        'source': 'sourceOptions',
-        'instanceTags': 'tagsRecords',
+      const recordsSettings = {
+        [EFFECTIVE_LOCATION]: 'effectiveLocationOptions',
+        [LANGUAGES]: 'langOptions',
+        [INSTANCE_TYPE_ID]: 'resourceTypeOptions',
+        [INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
+        [MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
+        [NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
+        [STAFF_SUPPRESS]: 'suppressedOptions',
+        [DISCOVERY_SUPPRESS]: 'suppressedOptions',
+        [SOURCE]: 'sourceOptions',
+        [INSTANCE_TAGS]: 'tagsRecords',
       };
 
-      const newRecords = _.reduce(recordsNames, (accum, facetName, recordName) => {
+      const newRecords = _.reduce(recordsSettings, (accum, name, recordName) => {
         if (records[recordName]) {
           switch (recordName) {
-            case 'effectiveLocation':
-              accum[facetName] = getFacetOptions(records[recordName].values, locations);
+            case EFFECTIVE_LOCATION:
+              accum[name] = getFacetOptions(records[recordName].values, locations);
               break;
-            case 'languages':
-              accum[facetName] = languageOptionsES(intl, records[recordName].values);
+            case LANGUAGES:
+              accum[name] = languageOptionsES(intl, records[recordName].values);
               break;
-            case 'instanceTypeId':
-              accum[facetName] = getFacetOptions(records[recordName].values, resourceTypes);
+            case INSTANCE_TYPE_ID:
+              accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
               break;
-            case 'instanceFormatId':
-              accum[facetName] = getFacetOptions(records[recordName].values, instanceFormats);
+            case INSTANCE_FORMAT_ID:
+              accum[name] = getFacetOptions(records[recordName].values, instanceFormats);
               break;
-            case 'modeOfIssuanceId':
-              accum[facetName] = getFacetOptions(records[recordName].values, modesOfIssuance);
+            case MODE_OF_ISSUANCE_ID:
+              accum[name] = getFacetOptions(records[recordName].values, modesOfIssuance);
               break;
-            case 'natureOfContentTermIds':
-              accum[facetName] = getFacetOptions(records[recordName].values, natureOfContentTerms);
+            case NATURE_OF_CONTENT_TERM_IDS:
+              accum[name] = getFacetOptions(records[recordName].values, natureOfContentTerms);
               break;
-            case 'staffSuppress':
-            case 'discoverySuppress':
-              accum[facetName] = getSuppressedOptions(records[recordName].values);
+            case STAFF_SUPPRESS:
+            case DISCOVERY_SUPPRESS:
+              accum[name] = getSuppressedOptions(records[recordName].values);
               break;
-            case 'source':
-              accum[facetName] = getSourceOptions(records[recordName].values);
+            case SOURCE:
+              accum[name] = getSourceOptions(records[recordName].values);
               break;
-            case 'instanceTags':
-              accum[facetName] = getFacetOptions(records[recordName].values, tagsRecords);
+            case INSTANCE_TAGS:
+              accum[name] = getFacetOptions(records[recordName].values, tagsRecords);
               break;
             default:
           }
@@ -346,250 +368,44 @@ const InstanceFilters = props => {
         return accum;
       }, {});
 
-      setFacetsOptions(curFacetOptions => ({ ...curFacetOptions, ...newRecords }));
+      setFacetsOptions(prevFacetOptions => ({ ...prevFacetOptions, ...newRecords }));
     }
   }, [records]);
 
   useEffect(() => {
-    let facetOpenedFirstTime = '';
+    let facetToOpen = '';
 
-    const isFacetOpenedFirstTime = _.some(prevAccordionsState.current, (prevFacetValue, facetName) => {
+    const isFacetOpened = _.some(prevAccordionsState.current, (prevFacetValue, facetName) => {
       const curFacetValue = accordions[facetName];
 
       if (curFacetValue !== prevFacetValue) {
         if (curFacetValue) {
-          facetOpenedFirstTime = facetName;
+          facetToOpen = facetName;
         }
         return curFacetValue;
       }
       return false;
     });
 
-    if (isFacetOpenedFirstTime) {
+    if (isFacetOpened) {
+      const isFilterSelected = !!selectedFacetFilters[facetToOpen]?.length;
+      if (isFilterSelected) {
+        handleFetchFacets();
+      } else {
+        handleFetchFacets({ facetToOpen });
+      }
       prevAccordionsState.current = accordions;
-      onFetchFacets({ facetOpenedFirstTime });
     }
-  }, [
-    accordions.effectiveLocation,
-    accordions.language,
-    accordions.resource,
-    accordions.format,
-    accordions.mode,
-    accordions.natureOfContent,
-    accordions.staffSuppress,
-    accordions.discoverySuppress,
-    accordions.createdDate,
-    accordions.updatedDate,
-    accordions.source,
-    accordions.tags,
-  ]);
+  }, [accordions]);
 
   useEffect(() => {
-    let isSomeFilterChanged = false;
+    handleFetchFacets();
+  }, [accordionsData]);
 
-    if (effectiveLocation) {
-      const isLocationChanged = prevLocations.current.size !== effectiveLocation.length;
-      if (isLocationChanged) {
-        setIsLocationSelected(true);
-        accordionsData.effectiveLocation.isSelected = true;
-        handleFetchFacets();
-        prevLocations.current = new Set(effectiveLocation);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastLocationRemoved = prevLocations.current.size === 1 && effectiveLocation === undefined;
-      if (isLastLocationRemoved) {
-        setIsLocationSelected(false);
-        accordionsData.effectiveLocation.isSelected = false;
-        handleFetchFacets();
-        prevLocations.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (language) {
-      const isLanguageChanged = prevLanguages.current.size !== language.length;
-      if (isLanguageChanged) {
-        setIsLanguageSelected(true);
-        accordionsData.language.isSelected = true;
-        handleFetchFacets();
-        prevLanguages.current = new Set(language);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastLanguageRemoved = prevLanguages.current.size === 1 && language === undefined;
-      if (isLastLanguageRemoved) {
-        setIsLanguageSelected(false);
-        accordionsData.language.isSelected = false;
-        handleFetchFacets();
-        prevLanguages.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (resource) {
-      const isResourceChanged = prevResource.current.size !== resource.length;
-      if (isResourceChanged) {
-        setIsResourceSelected(true);
-        accordionsData.resource.isSelected = true;
-        handleFetchFacets();
-        prevResource.current = new Set(resource);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastResourceRemoved = prevResource.current.size === 1 && resource === undefined;
-      if (isLastResourceRemoved) {
-        setIsResourceSelected(false);
-        accordionsData.resource.isSelected = false;
-        handleFetchFacets();
-        prevResource.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (format) {
-      const isFormatChanged = prevFormat.current.size !== format.length;
-      if (isFormatChanged) {
-        setIsFormatSelected(true);
-        accordionsData.format.isSelected = true;
-        handleFetchFacets();
-        prevFormat.current = new Set(format);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastFormatRemoved = prevFormat.current.size === 1 && format === undefined;
-      if (isLastFormatRemoved) {
-        setIsFormatSelected(false);
-        accordionsData.format.isSelected = false;
-        handleFetchFacets();
-        prevFormat.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (mode) {
-      const isModeChanged = prevMode.current.size !== mode.length;
-      if (isModeChanged) {
-        setIsModeSelected(true);
-        accordionsData.mode.isSelected = true;
-        handleFetchFacets();
-        prevMode.current = new Set(mode);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastModeRemoved = prevMode.current.size === 1 && mode === undefined;
-      if (isLastModeRemoved) {
-        setIsModeSelected(false);
-        accordionsData.mode.isSelected = false;
-        handleFetchFacets();
-        prevMode.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (natureOfContent) {
-      const isNatureOfContentChanged = prevNatureOfContent.current.size !== natureOfContent.length;
-      if (isNatureOfContentChanged) {
-        setIsNatureOfContentSelected(true);
-        accordionsData.natureOfContent.isSelected = true;
-        handleFetchFacets();
-        prevNatureOfContent.current = new Set(natureOfContent);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastNatureOfContentRemoved = prevNatureOfContent.current.size === 1 && natureOfContent === undefined;
-      if (isLastNatureOfContentRemoved) {
-        setIsNatureOfContentSelected(false);
-        accordionsData.natureOfContent.isSelected = false;
-        handleFetchFacets();
-        prevNatureOfContent.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (staffSuppress) {
-      const isStaffSuppressChanged = prevStaffSuppress.current.size !== staffSuppress.length;
-      if (isStaffSuppressChanged) {
-        setIsStaffSuppressSelected(true);
-        accordionsData.staffSuppress.isSelected = true;
-        handleFetchFacets();
-        prevStaffSuppress.current = new Set(staffSuppress);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastStaffSuppressRemoved = prevStaffSuppress.current.size === 1 && staffSuppress === undefined;
-      if (isLastStaffSuppressRemoved) {
-        setIsStaffSuppressSelected(false);
-        accordionsData.staffSuppress.isSelected = false;
-        handleFetchFacets();
-        prevStaffSuppress.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (discoverySuppress) {
-      const isDiscoverySuppressChanged = prevDiscoverySuppress.current.size !== discoverySuppress.length;
-      if (isDiscoverySuppressChanged) {
-        setIsDiscoverySuppressSelected(true);
-        accordionsData.discoverySuppress.isSelected = true;
-        handleFetchFacets();
-        prevDiscoverySuppress.current = new Set(discoverySuppress);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastDiscoverySuppressRemoved = prevDiscoverySuppress.current.size === 1 && discoverySuppress === undefined;
-      if (isLastDiscoverySuppressRemoved) {
-        setIsDiscoverySuppressSelected(false);
-        accordionsData.discoverySuppress.isSelected = false;
-        handleFetchFacets();
-        prevDiscoverySuppress.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (source) {
-      const isSourceChanged = prevSource.current.size !== source.length;
-      if (isSourceChanged) {
-        setIsSourceSelected(true);
-        accordionsData.source.isSelected = true;
-        handleFetchFacets();
-        prevSource.current = new Set(source);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastSourceRemoved = prevSource.current.size === 1 && source === undefined;
-      if (isLastSourceRemoved) {
-        setIsSourceSelected(false);
-        accordionsData.source.isSelected = false;
-        handleFetchFacets();
-        prevSource.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (tags) {
-      const isTagsChanged = prevTags.current.size !== tags.length;
-      if (isTagsChanged) {
-        setIsTagsSelected(true);
-        accordionsData.tags.isSelected = true;
-        handleFetchFacets();
-        prevTags.current = new Set(tags);
-        isSomeFilterChanged = true;
-      }
-    } else {
-      const isLastTagRemoved = prevTags.current.size === 1 && tags === undefined;
-      if (isLastTagRemoved) {
-        setIsTagsSelected(false);
-        accordionsData.tags.isSelected = false;
-        handleFetchFacets();
-        prevTags.current = new Set();
-        isSomeFilterChanged = true;
-      }
-    }
-
-    if (!isSomeFilterChanged) {
-      handleFetchFacets();
-    }
+  useEffect(() => {
+    _.forEach(selectedFacetFilters, (selectedFilters, facetName) => {
+      processFilterChanges(selectedFilters, facetName);
+    });
   }, [query, filters]);
 
   return (

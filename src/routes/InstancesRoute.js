@@ -36,7 +36,14 @@ class InstancesRoute extends React.Component {
 
   static manifest = Object.freeze(buildManifestObject());
 
-  fetchFacets = (data) => async ({ onMoreClickedFacet, focusedFacet, accordions, accordionsData, facetOpenedFirstTime } = {}) => {
+  fetchFacets = (data) => async (properties = {}) => {
+    const {
+      onMoreClickedFacet,
+      focusedFacet,
+      accordions,
+      accordionsData,
+      facetToOpen,
+    } = properties;
     const {
       resources,
       mutator,
@@ -52,8 +59,8 @@ class InstancesRoute extends React.Component {
 
     if (cqlQuery) params.query = cqlQuery;
 
-    if (facetOpenedFirstTime) {
-      params.facet = `facet=${facetOpenedFirstTime}:${DEFAULT_FILTERS_NUMBER}`;
+    if (facetToOpen) {
+      params.facet = `facet=${facetToOpen}:${DEFAULT_FILTERS_NUMBER}`;
     } else if (onMoreClickedFacet || focusedFacet) {
       params.facet = `facet=${focusedFacet || onMoreClickedFacet}`;
     } else {
@@ -63,9 +70,9 @@ class InstancesRoute extends React.Component {
         if (isFacetOpened) {
           const isFacetValue = accordionsData?.[facetName]?.value;
           const isFilterSelected = accordionsData?.[facetName]?.isSelected;
+          const isOnMoreClicked = accordionsData?.[facetName]?.isOnMoreClicked;
           const isNeedAllFilters =
-            facetName === onMoreClickedFacet ||
-            facetName === focusedFacet ||
+            isOnMoreClicked ||
             isFacetValue ||
             isFilterSelected;
 

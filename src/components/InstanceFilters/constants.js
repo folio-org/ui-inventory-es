@@ -1,0 +1,16 @@
+export const EFFECTIVE_LOCATION = 'effectiveLocation';
+export const LANGUAGE = 'language';
+export const RESOURCE = 'resource';
+export const FORMAT = 'format';
+export const MODE = 'mode';
+export const NATURE_OF_CONTENT = 'natureOfContent';
+export const TAGS = 'tags';
+export const LANGUAGES = 'languages';
+export const INSTANCE_TYPE_ID = 'instanceTypeId';
+export const INSTANCE_FORMAT_ID = 'instanceFormatId';
+export const MODE_OF_ISSUANCE_ID = 'modeOfIssuanceId';
+export const NATURE_OF_CONTENT_TERM_IDS = 'natureOfContentTermIds';
+export const STAFF_SUPPRESS = 'staffSuppress';
+export const DISCOVERY_SUPPRESS = 'discoverySuppress';
+export const SOURCE = 'source';
+export const INSTANCE_TAGS = 'instanceTags';
