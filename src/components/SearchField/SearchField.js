@@ -121,7 +121,6 @@ const SearchField = (props) => {
 
   return (
     <div className={rootStyles}>
-      {searchableIndexesDropdown}
       {isAdvancedSearch
         ? (
           <ElasticQueryField
@@ -135,24 +134,27 @@ const SearchField = (props) => {
           />
         )
         : (
-          <TextField
-            {...rest}
-            aria-label={rest['aria-label'] || ariaLabel}
-            clearFieldId={clearSearchId}
-            disabled={disabled}
-            focusedClass={css.isFocused}
-            id={id}
-            hasClearIcon={typeof onClear === 'function' && loading !== true}
-            inputClass={classNames(css.input, inputClass)}
-            loading={loading}
-            onChange={onChange}
-            onClearField={onClear}
-            placeholder={inputPlaceholder}
-            startControl={!hasSearchableIndexes ? searchIcon : null}
-            type="search"
-            value={value || ''}
-            readOnly={loading || rest.readOnly}
-          />
+          <>
+            {searchableIndexesDropdown}
+            <TextField
+              {...rest}
+              aria-label={rest['aria-label'] || ariaLabel}
+              clearFieldId={clearSearchId}
+              disabled={disabled}
+              focusedClass={css.isFocused}
+              id={id}
+              hasClearIcon={typeof onClear === 'function' && loading !== true}
+              inputClass={classNames(css.input, inputClass)}
+              loading={loading}
+              onChange={onChange}
+              onClearField={onClear}
+              placeholder={inputPlaceholder}
+              startControl={!hasSearchableIndexes ? searchIcon : null}
+              type="search"
+              value={value || ''}
+              readOnly={loading || rest.readOnly}
+            />
+          </>
         )
       }
     </div>
