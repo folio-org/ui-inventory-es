@@ -43,6 +43,8 @@ class InstancesRoute extends React.Component {
       accordions,
       accordionsData,
       facetToOpen,
+      isSelected,
+      isAllFiltersLoadedBefore,
     } = properties;
     const {
       resources,
@@ -60,7 +62,7 @@ class InstancesRoute extends React.Component {
     if (cqlQuery) params.query = cqlQuery;
 
     if (facetToOpen) {
-      params.facet = `facet=${facetToOpen}:${DEFAULT_FILTERS_NUMBER}`;
+      params.facet = `facet=${facetToOpen}${isSelected || isAllFiltersLoadedBefore ? '' : `:${DEFAULT_FILTERS_NUMBER}`}`;
     } else if (onMoreClickedFacet || focusedFacet) {
       params.facet = `facet=${focusedFacet || onMoreClickedFacet}`;
     } else {

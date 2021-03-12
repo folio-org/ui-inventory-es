@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -20,22 +21,8 @@ import {
 } from '../../utils';
 import { DATE_FORMAT } from '../../constants';
 import {
-  DISCOVERY_SUPPRESS,
-  EFFECTIVE_LOCATION,
-  INSTANCE_FORMAT_ID,
-  INSTANCE_TAGS,
-  INSTANCE_TYPE_ID,
-  LANGUAGES,
-  MODE_OF_ISSUANCE_ID,
-  NATURE_OF_CONTENT_TERM_IDS,
-  SOURCE,
-  STAFF_SUPPRESS,
-  LANGUAGE,
-  RESOURCE,
-  FORMAT,
-  MODE,
-  NATURE_OF_CONTENT,
-  TAGS,
+  FACETS,
+  IDs,
 } from './constants';
 import TagsFilter from '../TagsFilter';
 import CheckboxFacet from '../CheckboxFacet';
@@ -76,39 +63,30 @@ const InstanceFilters = props => {
   } = parentResources;
 
   const intl = useIntl();
+  const location = useLocation();
   const [accordions, setAccordions] = useState({
-    effectiveLocation: true,
-    language: false,
-    resource: false,
-    format: false,
-    mode: false,
-    natureOfContent: false,
-    staffSuppress: false,
-    discoverySuppress: false,
-    createdDate: false,
-    updatedDate: false,
-    source: false,
-    tags: false,
+    [FACETS.EFFECTIVE_LOCATION]: true,
+    [FACETS.LANGUAGE]: false,
+    [FACETS.RESOURCE]: false,
+    [FACETS.FORMAT]: false,
+    [FACETS.MODE]: false,
+    [FACETS.NATURE_OF_CONTENT]: false,
+    [FACETS.STAFF_SUPPRESS]: false,
+    [FACETS.DISCOVERY_SUPPRESS]: false,
+    [FACETS.CREATED_DATE]: false,
+    [FACETS.UPDATED_DATE]: false,
+    [FACETS.SOURCE]: false,
+    [FACETS.TAGS]: false,
   });
 
   const [accordionsData, setAccordionsData] = useState({});
   const [facetSettings, setFacetSettings] = useState({});
+  const [more, setMore] = useState({});
+  const [focusedFacets, setFocusedFacets] = useState({});
 
   const prevAccordionsState = useRef(accordions);
   const prevFilters = useRef({});
-
-  const selectedFacetFilters = {
-    [EFFECTIVE_LOCATION]: effectiveLocation,
-    [LANGUAGE]: language,
-    [RESOURCE]: resource,
-    [FORMAT]: format,
-    [MODE]: mode,
-    [NATURE_OF_CONTENT]: natureOfContent,
-    [STAFF_SUPPRESS]: staffSuppress,
-    [DISCOVERY_SUPPRESS]: discoverySuppress,
-    [SOURCE]: source,
-    [TAGS]: tags,
-  };
+  const prevUrl = useRef(location.search);
 
   const onToggleSection = ({ id }) => {
     setAccordions(curState => {
@@ -285,10 +263,34 @@ const InstanceFilters = props => {
       facetToOpen,
     } = property;
 
+    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
+    const isSelected = accordionsData[facetName]?.isSelected;
+    const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName];
+
     if (facetToOpen) {
-      onFetchFacets({ facetToOpen });
+      const isUrlChanged = prevUrl.current !== location.search;
+
+      if (
+        (isSelected && !isUrlChanged) ||
+        (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged)
+      ) {
+        return;
+      }
+
+      onFetchFacets({
+        facetToOpen,
+        isSelected,
+        isAllFiltersLoadedBefore,
+      });
     } else if (onMoreClickedFacet) {
+      if (isSelected || isAllFiltersLoadedBefore) return;
+
       onFetchFacets({ onMoreClickedFacet });
+
+      setMore(prevMore => ({
+        ...prevMore,
+        [onMoreClickedFacet]: true,
+      }));
 
       setFacetSettings(prevFacetSettings => ({
         ...prevFacetSettings,
@@ -298,13 +300,20 @@ const InstanceFilters = props => {
         },
       }));
     } else if (focusedFacet) {
+      if (isSelected || isAllFiltersLoadedBefore) return;
+
       onFetchFacets({ focusedFacet });
+
+      setFocusedFacets(prevFocusedFacets => ({
+        ...prevFocusedFacets,
+        [focusedFacet]: true,
+      }));
     } else {
       const data = { ...accordionsData };
 
-      _.forEach(facetSettings, (settings, facetName) => {
-        data[facetName] = {
-          ...data[facetName],
+      _.forEach(facetSettings, (settings, facet) => {
+        data[facet] = {
+          ...data[facet],
           ...settings,
         };
       });
@@ -319,47 +328,47 @@ const InstanceFilters = props => {
   useEffect(() => {
     if (!_.isEmpty(records)) {
       const recordsSettings = {
-        [EFFECTIVE_LOCATION]: 'effectiveLocationOptions',
-        [LANGUAGES]: 'langOptions',
-        [INSTANCE_TYPE_ID]: 'resourceTypeOptions',
-        [INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
-        [MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
-        [NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
-        [STAFF_SUPPRESS]: 'suppressedOptions',
-        [DISCOVERY_SUPPRESS]: 'suppressedOptions',
-        [SOURCE]: 'sourceOptions',
-        [INSTANCE_TAGS]: 'tagsRecords',
+        [IDs.EFFECTIVE_LOCATION_ID]: 'effectiveLocationOptions',
+        [IDs.LANGUAGES]: 'langOptions',
+        [IDs.INSTANCE_TYPE_ID]: 'resourceTypeOptions',
+        [IDs.INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
+        [IDs.MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
+        [IDs.NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
+        [IDs.STAFF_SUPPRESS]: 'suppressedOptions',
+        [IDs.DISCOVERY_SUPPRESS]: 'suppressedOptions',
+        [IDs.SOURCE]: 'sourceOptions',
+        [IDs.INSTANCE_TAGS]: 'tagsRecords',
       };
 
       const newRecords = _.reduce(recordsSettings, (accum, name, recordName) => {
         if (records[recordName]) {
           switch (recordName) {
-            case EFFECTIVE_LOCATION:
+            case IDs.EFFECTIVE_LOCATION_ID:
               accum[name] = getFacetOptions(records[recordName].values, locations);
               break;
-            case LANGUAGES:
+            case IDs.LANGUAGES:
               accum[name] = languageOptionsES(intl, records[recordName].values);
               break;
-            case INSTANCE_TYPE_ID:
+            case IDs.INSTANCE_TYPE_ID:
               accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
               break;
-            case INSTANCE_FORMAT_ID:
+            case IDs.INSTANCE_FORMAT_ID:
               accum[name] = getFacetOptions(records[recordName].values, instanceFormats);
               break;
-            case MODE_OF_ISSUANCE_ID:
+            case IDs.MODE_OF_ISSUANCE_ID:
               accum[name] = getFacetOptions(records[recordName].values, modesOfIssuance);
               break;
-            case NATURE_OF_CONTENT_TERM_IDS:
+            case IDs.NATURE_OF_CONTENT_TERM_IDS:
               accum[name] = getFacetOptions(records[recordName].values, natureOfContentTerms);
               break;
-            case STAFF_SUPPRESS:
-            case DISCOVERY_SUPPRESS:
+            case IDs.STAFF_SUPPRESS:
+            case IDs.DISCOVERY_SUPPRESS:
               accum[name] = getSuppressedOptions(records[recordName].values);
               break;
-            case SOURCE:
+            case IDs.SOURCE:
               accum[name] = getSourceOptions(records[recordName].values);
               break;
-            case INSTANCE_TAGS:
+            case IDs.INSTANCE_TAGS:
               accum[name] = getFacetOptions(records[recordName].values, tagsRecords);
               break;
             default:
@@ -387,14 +396,12 @@ const InstanceFilters = props => {
       return false;
     });
 
+    prevAccordionsState.current = accordions;
+
     if (isFacetOpened) {
-      const isFilterSelected = !!selectedFacetFilters[facetToOpen]?.length;
-      if (isFilterSelected) {
-        handleFetchFacets();
-      } else {
-        handleFetchFacets({ facetToOpen });
-      }
-      prevAccordionsState.current = accordions;
+      handleFetchFacets({ facetToOpen });
+    } else {
+      prevUrl.current = location.search;
     }
   }, [accordions]);
 
@@ -403,6 +410,19 @@ const InstanceFilters = props => {
   }, [accordionsData]);
 
   useEffect(() => {
+    const selectedFacetFilters = {
+      [FACETS.EFFECTIVE_LOCATION]: effectiveLocation,
+      [FACETS.LANGUAGE]: language,
+      [FACETS.RESOURCE]: resource,
+      [FACETS.FORMAT]: format,
+      [FACETS.MODE]: mode,
+      [FACETS.NATURE_OF_CONTENT]: natureOfContent,
+      [FACETS.STAFF_SUPPRESS]: staffSuppress,
+      [FACETS.DISCOVERY_SUPPRESS]: discoverySuppress,
+      [FACETS.SOURCE]: source,
+      [FACETS.TAGS]: tags,
+    };
+
     _.forEach(selectedFacetFilters, (selectedFilters, facetName) => {
       processFilterChanges(selectedFilters, facetName);
     });
