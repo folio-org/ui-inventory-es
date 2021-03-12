@@ -1042,7 +1042,7 @@ class SearchAndSort extends React.Component {
           {ariaLabel => (
             <SearchField
               id={`input-${objectName}-search`}
-              isAdvancedSearch={queryIndex === 'advancedSearch'}
+              isAdvancedSearch
               autoFocus
               ariaLabel={ariaLabel}
               className={css.searchField}
