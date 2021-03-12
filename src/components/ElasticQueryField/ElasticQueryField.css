@@ -2,6 +2,10 @@
   position: relative;
 }
 
+.multiSelectSearchWrapper textarea {
+  resize: vertical;
+}
+
 .optionMenu {
   position: absolute;
   width: 100%;

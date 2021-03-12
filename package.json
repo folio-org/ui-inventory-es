@@ -13,8 +13,7 @@
   "main": "src/index.js",
   "stripes": {
     "actsAs": [
-      "app",
-      "settings"
+      "app"
     ],
     "displayName": "ui-inventory-es.meta.title",
     "route": "/search",
