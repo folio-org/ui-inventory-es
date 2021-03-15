@@ -14,14 +14,14 @@ export const FACETS = {
 };
 
 export const IDs = {
-  EFFECTIVE_LOCATION_ID: 'effectiveLocationOptions',
-  LANGUAGES: 'langOptions',
-  INSTANCE_TYPE_ID: 'resourceTypeOptions',
-  INSTANCE_FORMAT_ID: 'instanceFormatOptions',
-  MODE_OF_ISSUANCE_ID: 'modeOfIssuanceOptions',
-  NATURE_OF_CONTENT_TERM_IDS: 'natureOfContentOptions',
-  STAFF_SUPPRESS: 'suppressedOptions',
-  DISCOVERY_SUPPRESS: 'suppressedOptions',
-  SOURCE: 'sourceOptions',
-  INSTANCE_TAGS: 'tagsRecords',
+  EFFECTIVE_LOCATION_ID: 'effectiveLocationId',
+  LANGUAGES: 'languages',
+  INSTANCE_TYPE_ID: 'instanceTypeId',
+  INSTANCE_FORMAT_ID: 'instanceFormatId',
+  MODE_OF_ISSUANCE_ID: 'modeOfIssuanceId',
+  NATURE_OF_CONTENT_TERM_IDS: 'natureOfContentTermIds',
+  STAFF_SUPPRESS: 'staffSuppress',
+  DISCOVERY_SUPPRESS: 'discoverySuppress',
+  SOURCE: 'source',
+  INSTANCE_TAGS: 'instanceTags',
 };

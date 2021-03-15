@@ -21,10 +21,7 @@ function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tags
   const hasTagsSelected = !!Object.keys(filterState(urlParams.get('filters')))
     .find((key) => key.startsWith(`${FILTER_NAME}.`));
 
-  const tagsOptions = tagsRecords
-    .map(({ label, count }) => ({ label, value: label, count }))
-    .sort((a, b) => a.label.localeCompare((b.label)));
-
+  const tagsOptions = tagsRecords.map(({ label, count }) => ({ label, value: label, count }));
   return (
     <Accordion
       id="tags"

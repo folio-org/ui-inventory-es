@@ -163,7 +163,7 @@ const InstanceFilters = props => {
       return accum;
     }, []);
 
-    return _.sortBy(options, ['count']);
+    return _.orderBy(options, ['count'], ['desc']);
   };
 
   const getSuppressedOptions = (suppressedOptionsRecords) => {
@@ -182,7 +182,7 @@ const InstanceFilters = props => {
       return accum;
     }, []);
 
-    return _.sortBy(options, ['count']);
+    return _.orderBy(options, ['count'], ['desc']);
   };
 
   const getSourceOptions = (sourceRecords) => {
@@ -199,7 +199,7 @@ const InstanceFilters = props => {
       return accum;
     }, []);
 
-    return _.sortBy(options, ['count']);
+    return _.orderBy(options, ['count'], ['desc']);
   };
 
   const effectiveLocationOptions = locations.map(({ name, id }) => ({
