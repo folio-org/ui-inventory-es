@@ -50,7 +50,7 @@ const InstanceFilters = props => {
       modesOfIssuance,
       natureOfContentTerms,
       tagsRecords,
-      query: { query = '', filters = '' },
+      query: { query, filters = '' },
       onFetchFacets,
       parentResources,
     },
@@ -65,7 +65,7 @@ const InstanceFilters = props => {
   const intl = useIntl();
   const location = useLocation();
   const [accordions, setAccordions] = useState({
-    [FACETS.EFFECTIVE_LOCATION]: true,
+    [FACETS.EFFECTIVE_LOCATION]: false,
     [FACETS.LANGUAGE]: false,
     [FACETS.RESOURCE]: false,
     [FACETS.FORMAT]: false,
@@ -87,6 +87,7 @@ const InstanceFilters = props => {
   const prevAccordionsState = useRef(accordions);
   const prevFilters = useRef({});
   const prevUrl = useRef(location.search);
+  const prevQuery = useRef('');
 
   const onToggleSection = ({ id }) => {
     setAccordions(curState => {
@@ -113,7 +114,7 @@ const InstanceFilters = props => {
     onChange(filter);
   };
 
-  const processFilterChanges = (selectedFilters, facetName) => {
+  const processFilterChange = (selectedFilters, facetName) => {
     if (selectedFilters) {
       const isFilterChanged = prevFilters.current[facetName]?.length !== selectedFilters.length;
       if (isFilterChanged) {
@@ -144,7 +145,7 @@ const InstanceFilters = props => {
   };
 
   const getFacetOptions = (entries, facetData) => {
-    return entries.reduce((accum, entry) => {
+    const options = entries.reduce((accum, entry) => {
       if (!entry.totalRecords) return accum;
 
       const {
@@ -161,10 +162,12 @@ const InstanceFilters = props => {
       accum.push(option);
       return accum;
     }, []);
+
+    return _.sortBy(options, ['count']);
   };
 
   const getSuppressedOptions = (suppressedOptionsRecords) => {
-    return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
+    const options = suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
       if (!totalRecords) return accum;
 
       const idPart = id === 'true' ? 'yes' : 'no';
@@ -178,10 +181,12 @@ const InstanceFilters = props => {
       accum.push(option);
       return accum;
     }, []);
+
+    return _.sortBy(options, ['count']);
   };
 
   const getSourceOptions = (sourceRecords) => {
-    return sourceRecords.reduce((accum, { id, totalRecords }) => {
+    const options = sourceRecords.reduce((accum, { id, totalRecords }) => {
       if (!totalRecords) return accum;
 
       const value = id === 'folio' ? 'FOLIO' : 'MARC';
@@ -193,6 +198,8 @@ const InstanceFilters = props => {
       accum.push(option);
       return accum;
     }, []);
+
+    return _.sortBy(options, ['count']);
   };
 
   const effectiveLocationOptions = locations.map(({ name, id }) => ({
@@ -269,10 +276,12 @@ const InstanceFilters = props => {
 
     if (facetToOpen) {
       const isUrlChanged = prevUrl.current !== location.search;
+      const isFacetOpenedBefore = prevAccordionsState.current[facetToOpen];
 
       if (
         (isSelected && !isUrlChanged) ||
-        (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged)
+        (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged) ||
+        (!isSelected && !isUrlChanged && isFacetOpenedBefore)
       ) {
         return;
       }
@@ -396,17 +405,25 @@ const InstanceFilters = props => {
       return false;
     });
 
-    prevAccordionsState.current = accordions;
-
     if (isFacetOpened) {
       handleFetchFacets({ facetToOpen });
     } else {
       prevUrl.current = location.search;
     }
+
+    prevAccordionsState.current = {
+      ...prevAccordionsState.current,
+      [facetToOpen]: isFacetOpened,
+    };
   }, [accordions]);
 
   useEffect(() => {
-    handleFetchFacets();
+    if (!_.isEmpty(accordionsData)) {
+      const isNoFilterSelected = _.every(accordionsData, value => !value?.isSelected);
+      if (!query && prevQuery.current && isNoFilterSelected) return;
+
+      handleFetchFacets();
+    }
   }, [accordionsData]);
 
   useEffect(() => {
@@ -424,9 +441,23 @@ const InstanceFilters = props => {
     };
 
     _.forEach(selectedFacetFilters, (selectedFilters, facetName) => {
-      processFilterChanges(selectedFilters, facetName);
+      processFilterChange(selectedFilters, facetName);
     });
-  }, [query, filters]);
+  }, [filters]);
+
+  useEffect(() => {
+    const isSomeFacetOpened = _.some(accordions, isFacetOpened => isFacetOpened);
+    const isValidQuery = (query && query !== prevQuery.current) || (query !== undefined && prevQuery.current);
+
+    if (isSomeFacetOpened) {
+      if (isValidQuery) {
+        prevQuery.current = query;
+        handleFetchFacets();
+      }
+    } else if (isValidQuery) {
+      prevQuery.current = query;
+    }
+  }, [query]);
 
   return (
     <AccordionSet accordionStatus={accordions} onToggle={onToggleSection}>

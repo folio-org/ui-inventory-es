@@ -76,6 +76,8 @@ const NO_PERMISSION_NODE = (
   </div>
 );
 
+const ADVANCED_SEARCH = 'advancedSearch';
+
 class SearchAndSort extends React.Component {
   static propTypes = {
     actionMenu: PropTypes.func, // parameter properties provided by caller
@@ -249,7 +251,7 @@ class SearchAndSort extends React.Component {
       selectedItem: this.initiallySelectedRecord,
       filterPaneIsVisible: true,
       locallyChangedSearchTerm: '',
-      locallyChangedQueryIndex: '',
+      locallyChangedQueryIndex: ADVANCED_SEARCH,
       isSearchByKeyword: false,
     };
 
@@ -329,7 +331,7 @@ class SearchAndSort extends React.Component {
     // Reset local qindex if the qindex is not present in the url.
     // This happens when the search segment changes.
     if (this.state.locallyChangedQueryIndex && !qindex) {
-      this.setState({ locallyChangedQueryIndex: '' });
+      this.setState({ locallyChangedQueryIndex: ADVANCED_SEARCH });
     }
   }
 
@@ -411,8 +413,14 @@ class SearchAndSort extends React.Component {
       },
       initialResultCount,
       onFilterChange,
+      intl,
+      searchableIndexesES,
+      operators,
     } = this.props;
-    const { locallyChangedSearchTerm } = this.state;
+    const {
+      locallyChangedSearchTerm,
+      isSearchByKeyword,
+    } = this.state;
 
     resultCount.replace(initialResultCount);
 
@@ -420,7 +428,11 @@ class SearchAndSort extends React.Component {
       resultOffset.replace(0);
     }
 
-    query.update({ query: locallyChangedSearchTerm });
+    const newQuery = locallyChangedSearchTerm
+      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators, intl)
+      : '';
+
+    query.update({ query: newQuery });
 
     // use next tick in order to wait for the resource query to update
     defer(() => onFilterChange(filter));
@@ -465,12 +477,8 @@ class SearchAndSort extends React.Component {
       intl,
     } = this.props;
 
-    const query = locallyChangedQueryIndex === 'advancedSearch'
-      ? getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators, intl)
-      : locallyChangedSearchTerm;
-
     this.performSearch({
-      query,
+      query: getElasticQuery(locallyChangedSearchTerm, isSearchByKeyword, searchableIndexesES, operators, intl),
       qindex: locallyChangedQueryIndex,
     });
   };
@@ -1042,7 +1050,7 @@ class SearchAndSort extends React.Component {
           {ariaLabel => (
             <SearchField
               id={`input-${objectName}-search`}
-              isAdvancedSearch={queryIndex === 'advancedSearch'}
+              isAdvancedSearch
               autoFocus
               ariaLabel={ariaLabel}
               className={css.searchField}
