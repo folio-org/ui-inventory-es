@@ -36,6 +36,31 @@ class InstancesRoute extends React.Component {
 
   static manifest = Object.freeze(buildManifestObject());
 
+  getFacets = (accordions, accordionsData) => {
+    let index = 0;
+
+    return reduce(accordions, (accum, isFacetOpened, facetName) => {
+      if (isFacetOpened) {
+        const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
+        const isFacetValue = accordionsData?.[facetName]?.value;
+        const isFilterSelected = accordionsData?.[facetName]?.isSelected;
+        const isOnMoreClicked = accordionsData?.[facetName]?.isOnMoreClicked;
+        const isNeedAllFilters =
+          isOnMoreClicked ||
+          isFacetValue ||
+          isFilterSelected;
+
+        const symbol = index
+          ? '&'
+          : '';
+
+        index++;
+        return `${accum}${symbol}facet=${facetName}${isNeedAllFilters ? '' : defaultFiltersNumber}`;
+      }
+      return accum;
+    }, '');
+  };
+
   fetchFacets = (data) => async (properties = {}) => {
     const {
       onMoreClickedFacet,
@@ -62,32 +87,12 @@ class InstancesRoute extends React.Component {
     if (cqlQuery) params.query = cqlQuery;
 
     if (facetToOpen) {
-      params.facet = `facet=${facetToOpen}${isSelected || isAllFiltersLoadedBefore ? '' : `:${DEFAULT_FILTERS_NUMBER}`}`;
+      const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
+      params.facet = `facet=${facetToOpen}${isSelected || isAllFiltersLoadedBefore ? '' : defaultFiltersNumber}`;
     } else if (onMoreClickedFacet || focusedFacet) {
       params.facet = `facet=${focusedFacet || onMoreClickedFacet}`;
     } else {
-      let index = 0;
-
-      const facets = reduce(accordions, (accum, isFacetOpened, facetName) => {
-        if (isFacetOpened) {
-          const isFacetValue = accordionsData?.[facetName]?.value;
-          const isFilterSelected = accordionsData?.[facetName]?.isSelected;
-          const isOnMoreClicked = accordionsData?.[facetName]?.isOnMoreClicked;
-          const isNeedAllFilters =
-            isOnMoreClicked ||
-            isFacetValue ||
-            isFilterSelected;
-
-          const symbol = index
-            ? '&'
-            : '';
-
-          index++;
-          return `${accum}${symbol}facet=${facetName}${isNeedAllFilters ? '' : `:${DEFAULT_FILTERS_NUMBER}`}`;
-        }
-        return accum;
-      }, '');
-
+      const facets = this.getFacets(accordions, accordionsData);
       if (facets) params.faset = facets;
     }
 

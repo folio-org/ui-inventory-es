@@ -263,6 +263,55 @@ const InstanceFilters = props => {
     tagsRecords,
   });
 
+  const processFacetOpening = (facetToOpen, isSelected, isAllFiltersLoadedBefore) => {
+    const isUrlChanged = prevUrl.current !== location.search;
+    const isFacetOpenedBefore = prevAccordionsState.current[facetToOpen];
+
+    if (
+      (isSelected && !isUrlChanged) ||
+      (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged) ||
+      (!isSelected && !isUrlChanged && isFacetOpenedBefore)
+    ) {
+      return;
+    }
+
+    onFetchFacets({
+      facetToOpen,
+      isSelected,
+      isAllFiltersLoadedBefore,
+    });
+  };
+
+  const processOmMoreClicking = (isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet) => {
+    if (isSelected || isAllFiltersLoadedBefore) return;
+
+    onFetchFacets({ onMoreClickedFacet });
+
+    setMore(prevMore => ({
+      ...prevMore,
+      [onMoreClickedFacet]: true,
+    }));
+
+    setFacetSettings(prevFacetSettings => ({
+      ...prevFacetSettings,
+      [onMoreClickedFacet]: {
+        ...prevFacetSettings[onMoreClickedFacet],
+        isOnMoreClicked: true,
+      },
+    }));
+  };
+
+  const processFacetFocusing = (isSelected, isAllFiltersLoadedBefore, focusedFacet) => {
+    if (isSelected || isAllFiltersLoadedBefore) return;
+
+    onFetchFacets({ focusedFacet });
+
+    setFocusedFacets(prevFocusedFacets => ({
+      ...prevFocusedFacets,
+      [focusedFacet]: true,
+    }));
+  };
+
   const handleFetchFacets = (property = {}) => {
     const {
       onMoreClickedFacet,
@@ -275,48 +324,11 @@ const InstanceFilters = props => {
     const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName];
 
     if (facetToOpen) {
-      const isUrlChanged = prevUrl.current !== location.search;
-      const isFacetOpenedBefore = prevAccordionsState.current[facetToOpen];
-
-      if (
-        (isSelected && !isUrlChanged) ||
-        (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged) ||
-        (!isSelected && !isUrlChanged && isFacetOpenedBefore)
-      ) {
-        return;
-      }
-
-      onFetchFacets({
-        facetToOpen,
-        isSelected,
-        isAllFiltersLoadedBefore,
-      });
+      processFacetOpening(facetToOpen, isSelected, isAllFiltersLoadedBefore);
     } else if (onMoreClickedFacet) {
-      if (isSelected || isAllFiltersLoadedBefore) return;
-
-      onFetchFacets({ onMoreClickedFacet });
-
-      setMore(prevMore => ({
-        ...prevMore,
-        [onMoreClickedFacet]: true,
-      }));
-
-      setFacetSettings(prevFacetSettings => ({
-        ...prevFacetSettings,
-        [onMoreClickedFacet]: {
-          ...prevFacetSettings[onMoreClickedFacet],
-          isOnMoreClicked: true,
-        },
-      }));
+      processOmMoreClicking(isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet);
     } else if (focusedFacet) {
-      if (isSelected || isAllFiltersLoadedBefore) return;
-
-      onFetchFacets({ focusedFacet });
-
-      setFocusedFacets(prevFocusedFacets => ({
-        ...prevFocusedFacets,
-        [focusedFacet]: true,
-      }));
+      processFacetFocusing(isSelected, isAllFiltersLoadedBefore, focusedFacet);
     } else {
       const data = { ...accordionsData };
 
