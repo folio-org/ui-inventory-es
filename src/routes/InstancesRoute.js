@@ -14,6 +14,10 @@ import {
   buildQuery
 } from './buildManifestObject';
 import { DataContext } from '../contexts';
+import {
+  FACETS,
+  FACETS_TO_REQUEST
+} from '../components/InstanceFilters/constants';
 
 const DEFAULT_FILTERS_NUMBER = 5;
 
@@ -40,7 +44,12 @@ class InstancesRoute extends React.Component {
     let index = 0;
 
     return reduce(accordions, (accum, isFacetOpened, facetName) => {
-      if (isFacetOpened) {
+      if (
+        isFacetOpened &&
+        facetName !== FACETS.UPDATED_DATE &&
+        facetName !== FACETS.CREATED_DATE
+      ) {
+        const facetNameToRequest = FACETS_TO_REQUEST[facetName];
         const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
         const isFacetValue = accordionsData?.[facetName]?.value;
         const isFilterSelected = accordionsData?.[facetName]?.isSelected;
@@ -51,11 +60,11 @@ class InstancesRoute extends React.Component {
           isFilterSelected;
 
         const symbol = index
-          ? '&'
+          ? ','
           : '';
 
         index++;
-        return `${accum}${symbol}facet=${facetName}${isNeedAllFilters ? '' : defaultFiltersNumber}`;
+        return `${accum}${symbol}${facetNameToRequest}${isNeedAllFilters ? '' : defaultFiltersNumber}`;
       }
       return accum;
     }, '');
@@ -81,19 +90,22 @@ class InstancesRoute extends React.Component {
     } = mutator.facets;
     const { query } = resources;
 
-    const params = {};
+    // temporary query value
+    const params = { query: 'id = *' };
     const cqlQuery = buildQuery(query, {}, { ...data, query }, { log: () => null }) || '';
+    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
+    const facetNameToRequest = FACETS_TO_REQUEST[facetName];
 
     if (cqlQuery) params.query = cqlQuery;
 
     if (facetToOpen) {
       const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
-      params.facet = `facet=${facetToOpen}${isSelected || isAllFiltersLoadedBefore ? '' : defaultFiltersNumber}`;
+      params.facet = `${facetNameToRequest}${isSelected || isAllFiltersLoadedBefore ? '' : defaultFiltersNumber}`;
     } else if (onMoreClickedFacet || focusedFacet) {
-      params.facet = `facet=${focusedFacet || onMoreClickedFacet}`;
+      params.facet = facetNameToRequest;
     } else {
       const facets = this.getFacets(accordions, accordionsData);
-      if (facets) params.faset = facets;
+      if (facets) params.facet = facets;
     }
 
     try {

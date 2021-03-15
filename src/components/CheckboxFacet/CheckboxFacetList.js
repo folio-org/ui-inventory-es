@@ -45,28 +45,12 @@ function CheckboxFacetList({
 
         {dataOptions.map(({ count, value, label, disabled, readOnly }) => {
           const name = typeof label === 'string' ? label : value;
-          const customLabel = (
-            <>
-              <span className={css.label}>
-                {label}
-                {readOnly && (
-                  <span className="sr-only">
-                    <FormattedMessage id="stripes-components.readonly" />
-                  </span>
-                )}
-              </span>
-              <span className={css.labelInfo}>
-                {count}
-              </span>
-            </>
-          );
-
           return (
             <Checkbox
               id={`clickable-filter-${fieldName}-${kebabCase(name)}`}
               data-test-checkbox-filter-data-option={value}
               key={value}
-              label={customLabel}
+              label={label}
               labelInfo={count}
               name={name}
               disabled={disabled}

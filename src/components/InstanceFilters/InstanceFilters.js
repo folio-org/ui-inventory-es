@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -13,7 +13,6 @@ import {
 import {
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
-import { languageOptionsES } from '@folio/stripes-components/util/languages';
 
 import {
   retrieveDatesFromDateRangeFilterString,
@@ -52,15 +51,13 @@ const InstanceFilters = props => {
       tagsRecords,
       query: { query, filters = '' },
       onFetchFacets,
-      parentResources,
+      parentResources: { facets },
     },
     onChange,
     onClear,
   } = props;
 
-  const {
-    facets: { records = {} },
-  } = parentResources;
+  const records = facets.records[0];
 
   const intl = useIntl();
   const location = useLocation();
@@ -88,6 +85,16 @@ const InstanceFilters = props => {
   const prevFilters = useRef({});
   const prevUrl = useRef(location.search);
   const prevQuery = useRef('');
+
+  const langOptions = useMemo(() => {
+    const facetDataMap = new Map();
+
+    languageOptions(intl).forEach(facet => {
+      facetDataMap.set(facet.value, facet);
+    });
+
+    return facetDataMap;
+  }, []);
 
   const onToggleSection = ({ id }) => {
     setAccordions(curState => {
@@ -145,7 +152,7 @@ const InstanceFilters = props => {
   };
 
   const getFacetOptions = (entries, facetData) => {
-    const options = entries.reduce((accum, entry) => {
+    return entries.reduce((accum, entry) => {
       if (!entry.totalRecords) return accum;
 
       const {
@@ -158,6 +165,20 @@ const InstanceFilters = props => {
         label: name || label,
         value: id,
         count: entry.totalRecords,
+      };
+      accum.push(option);
+      return accum;
+    }, []);
+  };
+
+  const getLanguages = (entries, facetData) => {
+    const options = entries.reduce((accum, { id, totalRecords }) => {
+      if (!totalRecords) return accum;
+
+      const langData = facetData.get(id);
+      const option = {
+        ...langData,
+        count: totalRecords,
       };
       accum.push(option);
       return accum;
@@ -202,65 +223,16 @@ const InstanceFilters = props => {
     return _.orderBy(options, ['count'], ['desc']);
   };
 
-  const effectiveLocationOptions = locations.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
-
-  const resourceTypeOptions = resourceTypes.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
-
-  const instanceFormatOptions = instanceFormats.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
-
-  const modeOfIssuanceOptions = modesOfIssuance.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
-
-  const natureOfContentOptions = natureOfContentTerms.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
-
-  const suppressedOptions = [
-    {
-      label: <FormattedMessage id="ui-inventory.yes" />,
-      value: 'true',
-    },
-    {
-      label: <FormattedMessage id="ui-inventory.no" />,
-      value: 'false',
-    },
-  ];
-
-  const sourceOptions = [
-    {
-      label: <FormattedMessage id="ui-inventory.folio" />,
-      value: 'FOLIO',
-    },
-    {
-      label: <FormattedMessage id="ui-inventory.marc" />,
-      value: 'MARC',
-    },
-  ];
-
-  const langOptions = languageOptions(intl);
-
   const [facetsOptions, setFacetsOptions] = useState({
-    effectiveLocationOptions,
-    langOptions,
-    resourceTypeOptions,
-    instanceFormatOptions,
-    modeOfIssuanceOptions,
-    natureOfContentOptions,
-    suppressedOptions,
-    sourceOptions,
-    tagsRecords,
+    effectiveLocationOptions: [],
+    langOptions: [],
+    resourceTypeOptions: [],
+    instanceFormatOptions: [],
+    modeOfIssuanceOptions: [],
+    natureOfContentOptions: [],
+    suppressedOptions: [],
+    sourceOptions: [],
+    tagsRecords: [],
   });
 
   const processFacetOpening = (facetToOpen, isSelected, isAllFiltersLoadedBefore) => {
@@ -368,7 +340,7 @@ const InstanceFilters = props => {
               accum[name] = getFacetOptions(records[recordName].values, locations);
               break;
             case IDs.LANGUAGES:
-              accum[name] = languageOptionsES(intl, records[recordName].values);
+              accum[name] = getLanguages(records[recordName].values, langOptions);
               break;
             case IDs.INSTANCE_TYPE_ID:
               accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
@@ -417,7 +389,11 @@ const InstanceFilters = props => {
       return false;
     });
 
-    if (isFacetOpened) {
+    if (
+      isFacetOpened &&
+      facetToOpen !== FACETS.CREATED_DATE &&
+      facetToOpen !== FACETS.UPDATED_DATE
+    ) {
       handleFetchFacets({ facetToOpen });
     } else {
       prevUrl.current = location.search;
