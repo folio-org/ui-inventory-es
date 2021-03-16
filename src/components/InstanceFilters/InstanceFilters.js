@@ -212,7 +212,7 @@ const InstanceFilters = props => {
     const options = sourceRecords.reduce((accum, { id, totalRecords }) => {
       if (!totalRecords) return accum;
 
-      const value = id === 'folio' ? 'FOLIO' : 'MARC';
+      const value = id === 'FOLIO' ? 'FOLIO' : 'MARC';
       const option = {
         label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
         value,
