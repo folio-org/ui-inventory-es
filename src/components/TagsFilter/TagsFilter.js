@@ -13,7 +13,7 @@ import CheckboxFacet from '../CheckboxFacet';
 
 const FILTER_NAME = 'tags';
 
-function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords }) {
+function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords, isPending }) {
   const intl = useIntl();
   const onClearFilter = useCallback(() => onClear(FILTER_NAME), [onClear]);
   const location = useLocation();
@@ -39,12 +39,14 @@ function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tags
         onFetch={onFetch}
         selectedValues={selectedValues}
         isFilterable
+        isPending={isPending}
       />
     </Accordion>
   );
 }
 
 TagsFilter.propTypes = {
+  isPending: PropTypes.bool,
   selectedValues: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,

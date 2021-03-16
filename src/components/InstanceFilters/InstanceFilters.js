@@ -80,6 +80,8 @@ const InstanceFilters = props => {
   const [facetSettings, setFacetSettings] = useState({});
   const [more, setMore] = useState({});
   const [focusedFacets, setFocusedFacets] = useState({});
+  const [facetNameToOpen, setFacetNameToOpen] = useState('');
+  const [showLoadingForAllFacets, setShowLoadingForAllFacets] = useState(false);
 
   const prevAccordionsState = useRef(accordions);
   const prevFilters = useRef({});
@@ -295,6 +297,14 @@ const InstanceFilters = props => {
     const isSelected = accordionsData[facetName]?.isSelected;
     const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName];
 
+    if (facetName) {
+      setFacetNameToOpen(facetName);
+      setShowLoadingForAllFacets(false);
+    } else {
+      setFacetNameToOpen('');
+      setShowLoadingForAllFacets(true);
+    }
+
     if (facetToOpen) {
       processFacetOpening(facetToOpen, isSelected, isAllFiltersLoadedBefore);
     } else if (onMoreClickedFacet) {
@@ -373,6 +383,10 @@ const InstanceFilters = props => {
       setFacetsOptions(prevFacetOptions => ({ ...prevFacetOptions, ...newRecords }));
     }
   }, [records]);
+
+  const getIsPending = (facetName) => {
+    return facets.isPending && (showLoadingForAllFacets || facetNameToOpen === facetName);
+  };
 
   useEffect(() => {
     let facetToOpen = '';
@@ -465,6 +479,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.EFFECTIVE_LOCATION)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -485,6 +500,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.LANGUAGE)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -504,6 +520,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.RESOURCE)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -523,6 +540,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.FORMAT)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -542,6 +560,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.MODE)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -561,6 +580,7 @@ const InstanceFilters = props => {
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
+          isPending={getIsPending(FACETS.NATURE_OF_CONTENT)}
           onFetch={handleFetchFacets}
         />
       </Accordion>
@@ -577,6 +597,7 @@ const InstanceFilters = props => {
           name="staffSuppress"
           dataOptions={facetsOptions.suppressedOptions}
           selectedValues={staffSuppress}
+          isPending={getIsPending(FACETS.STAFF_SUPPRESS)}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -596,6 +617,7 @@ const InstanceFilters = props => {
           name="discoverySuppress"
           dataOptions={facetsOptions.suppressedOptions}
           selectedValues={discoverySuppress}
+          isPending={getIsPending(FACETS.DISCOVERY_SUPPRESS)}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -649,6 +671,7 @@ const InstanceFilters = props => {
           name="source"
           dataOptions={facetsOptions.sourceOptions}
           selectedValues={source}
+          isPending={getIsPending(FACETS.SOURCE)}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -658,6 +681,7 @@ const InstanceFilters = props => {
         onChange={onChange}
         onClear={onClear}
         selectedValues={tags}
+        isPending={getIsPending(FACETS.TAGS)}
         tagsRecords={facetsOptions.tagsRecords}
         onFetch={handleFetchFacets}
         onSearch={handleFilterSearch}

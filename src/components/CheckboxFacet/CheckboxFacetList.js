@@ -22,6 +22,7 @@ function CheckboxFacetList({
   onChange,
   onFetch,
   fieldName,
+  isPending,
 }) {
   const handleTextFieldFocus = () => {
     onFetch({ focusedFacet: fieldName });
@@ -39,7 +40,10 @@ function CheckboxFacetList({
         </div>
       )}
       <div>
-        {dataOptions.length < 1 &&
+        {isPending &&
+          <Icon icon="spinner-ellipsis" size="small" />
+        }
+        {!isPending && dataOptions.length < 1 &&
           <FormattedMessage id="ui-inventory-es.noMatchingOptions" />
         }
 
@@ -90,6 +94,7 @@ function CheckboxFacetList({
 
 CheckboxFacetList.propTypes = {
   fieldName: PropTypes.string.isRequired,
+  isPending: PropTypes.bool,
   onMoreClick: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired,
   dataOptions: PropTypes.arrayOf(PropTypes.shape({

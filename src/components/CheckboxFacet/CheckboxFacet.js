@@ -23,6 +23,7 @@ export default class CheckboxFacet extends React.Component {
     onSearch: PropTypes.func,
     selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     isFilterable: PropTypes.bool,
+    isPending: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -84,6 +85,7 @@ export default class CheckboxFacet extends React.Component {
       dataOptions,
       selectedValues,
       isFilterable,
+      isPending,
       name,
       onFetch,
     } = this.props;
@@ -114,6 +116,7 @@ export default class CheckboxFacet extends React.Component {
         onSearch={this.onFacetSearch}
         onChange={this.onFasetChange}
         onFetch={onFetch}
+        isPending={isPending}
       />
     );
   }
