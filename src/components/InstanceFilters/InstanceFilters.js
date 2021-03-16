@@ -233,6 +233,7 @@ const InstanceFilters = props => {
     modeOfIssuanceOptions: [],
     natureOfContentOptions: [],
     suppressedOptions: [],
+    discoverySuppressOptions: [],
     sourceOptions: [],
     tagsRecords: [],
   });
@@ -338,7 +339,7 @@ const InstanceFilters = props => {
         [IDs.MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
         [IDs.NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
         [IDs.STAFF_SUPPRESS]: 'suppressedOptions',
-        [IDs.DISCOVERY_SUPPRESS]: 'suppressedOptions',
+        [IDs.DISCOVERY_SUPPRESS]: 'discoverySuppressOptions',
         [IDs.SOURCE]: 'sourceOptions',
         [IDs.INSTANCE_TAGS]: 'tagsRecords',
       };
@@ -615,7 +616,7 @@ const InstanceFilters = props => {
         <CheckboxFacet
           data-test-filter-instance-discovery-suppress
           name="discoverySuppress"
-          dataOptions={facetsOptions.suppressedOptions}
+          dataOptions={facetsOptions.discoverySuppressOptions}
           selectedValues={discoverySuppress}
           isPending={getIsPending(FACETS.DISCOVERY_SUPPRESS)}
           onChange={onChange}
