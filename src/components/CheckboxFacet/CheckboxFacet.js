@@ -19,8 +19,11 @@ export default class CheckboxFacet extends React.Component {
     })).isRequired,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
+    onFetch: PropTypes.func,
+    onSearch: PropTypes.func,
     selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     isFilterable: PropTypes.bool,
+    isPending: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -34,6 +37,11 @@ export default class CheckboxFacet extends React.Component {
   };
 
   onMoreClick = (totalOptions) => {
+    const {
+      onFetch,
+      name,
+    } = this.props;
+
     this.setState(({ more }) => {
       let visibleOptionsCount = more + SHOW_OPTIONS_INCREMENT;
       const showingAll = visibleOptionsCount >= totalOptions;
@@ -41,10 +49,18 @@ export default class CheckboxFacet extends React.Component {
 
       return { more: visibleOptionsCount };
     });
+
+    onFetch({ onMoreClickedFacet: name });
   };
 
   onFacetSearch = searchTerm => {
+    const {
+      onSearch,
+      name,
+    } = this.props;
+
     this.setState({ searchTerm });
+    onSearch({ name, value: searchTerm });
   };
 
   onFasetChange = (filterValue) => (e) => {
@@ -69,7 +85,9 @@ export default class CheckboxFacet extends React.Component {
       dataOptions,
       selectedValues,
       isFilterable,
+      isPending,
       name,
+      onFetch,
     } = this.props;
 
     const {
@@ -97,6 +115,8 @@ export default class CheckboxFacet extends React.Component {
         onMoreClick={() => this.onMoreClick(filteredOptions.length)}
         onSearch={this.onFacetSearch}
         onChange={this.onFasetChange}
+        onFetch={onFetch}
+        isPending={isPending}
       />
     );
   }

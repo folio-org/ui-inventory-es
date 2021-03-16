@@ -20,8 +20,14 @@ function CheckboxFacetList({
   onMoreClick,
   onSearch,
   onChange,
+  onFetch,
   fieldName,
+  isPending,
 }) {
+  const handleTextFieldFocus = () => {
+    onFetch({ focusedFacet: fieldName });
+  };
+
   return (
     <div className={css.facetSearchContainer}>
       {showSearch && (
@@ -29,17 +35,20 @@ function CheckboxFacetList({
           <TextField
             type="search"
             onChange={(e) => onSearch(e.target.value)}
+            onFocus={handleTextFieldFocus}
           />
         </div>
       )}
       <div>
-        {dataOptions.length < 1 &&
+        {isPending &&
+          <Icon icon="spinner-ellipsis" size="small" />
+        }
+        {!isPending && dataOptions.length < 1 &&
           <FormattedMessage id="ui-inventory-es.noMatchingOptions" />
         }
 
         {dataOptions.map(({ count, value, label, disabled, readOnly }) => {
           const name = typeof label === 'string' ? label : value;
-
           return (
             <Checkbox
               id={`clickable-filter-${fieldName}-${kebabCase(name)}`}
@@ -85,6 +94,7 @@ function CheckboxFacetList({
 
 CheckboxFacetList.propTypes = {
   fieldName: PropTypes.string.isRequired,
+  isPending: PropTypes.bool,
   onMoreClick: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired,
   dataOptions: PropTypes.arrayOf(PropTypes.shape({
@@ -95,9 +105,14 @@ CheckboxFacetList.propTypes = {
     count: PropTypes.number,
   })).isRequired,
   onChange: PropTypes.func.isRequired,
+  onFetch: PropTypes.func,
   selectedValues: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   showMore: PropTypes.bool.isRequired,
   showSearch: PropTypes.bool,
+};
+
+CheckboxFacetList.defaultProps = {
+  onFetch: () => null,
 };
 
 export default CheckboxFacetList;

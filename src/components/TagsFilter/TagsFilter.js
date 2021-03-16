@@ -13,7 +13,7 @@ import CheckboxFacet from '../CheckboxFacet';
 
 const FILTER_NAME = 'tags';
 
-function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
+function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords, isPending }) {
   const intl = useIntl();
   const onClearFilter = useCallback(() => onClear(FILTER_NAME), [onClear]);
   const location = useLocation();
@@ -21,12 +21,10 @@ function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
   const hasTagsSelected = !!Object.keys(filterState(urlParams.get('filters')))
     .find((key) => key.startsWith(`${FILTER_NAME}.`));
 
-  const tagsOptions = tagsRecords
-    .map(({ label }) => ({ label, value: label }))
-    .sort((a, b) => a.label.localeCompare((b.label)));
-
+  const tagsOptions = tagsRecords.map(({ label, count }) => ({ label, value: label, count }));
   return (
     <Accordion
+      id="tags"
       closedByDefault={!hasTagsSelected}
       displayClearButton={!!selectedValues?.length}
       header={FilterAccordionHeader}
@@ -37,17 +35,23 @@ function TagsFilter({ onChange, onClear, selectedValues, tagsRecords }) {
         dataOptions={tagsOptions}
         name={FILTER_NAME}
         onChange={onChange}
+        onSearch={onSearch}
+        onFetch={onFetch}
         selectedValues={selectedValues}
         isFilterable
+        isPending={isPending}
       />
     </Accordion>
   );
 }
 
 TagsFilter.propTypes = {
+  isPending: PropTypes.bool,
   selectedValues: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,
+  onFetch: PropTypes.func,
+  onSearch: PropTypes.func,
   tagsRecords: PropTypes.arrayOf(PropTypes.object),
 };
 

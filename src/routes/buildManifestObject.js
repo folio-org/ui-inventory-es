@@ -100,5 +100,12 @@ export function buildManifestObject() {
       accumulate: true,
       fetch: false,
     },
+    facets: {
+      type: 'okapi',
+      records: 'facets',
+      path: 'search/instances/facets',
+      fetch: false,
+      accumulate: true,
+    },
   };
 }
