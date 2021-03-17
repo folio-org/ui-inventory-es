@@ -6,10 +6,6 @@
   overflow-x: hidden;
 }
 
-.facetSearchContainer span[class^="labelText"] {
-  flex: 1;
-}
-
 .facetSearch {
   padding-top: var(--gutter-static-one-third);
 }
@@ -17,17 +13,4 @@
 .moreIcon {
   font-size: var(--font-size-x-small);
   margin-right: var(--gutter-static-one-third);
-}
-
-.label {
-  flex: 3;
-}
-
-.labelInfo {
-  flex: 1;
-  margin-left: var(--gutter-static-one-third);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  text-align: right;
 }

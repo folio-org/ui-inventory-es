@@ -168,7 +168,7 @@ export const buildOptionalBooleanQuery = name => values => {
   if (values.length === 2) {
     return 'cql.allRecords=1';
   } else if (values.length === 1 && values[0] === 'false') {
-    return `cql.allRecords=1 not ${name}=="true"`;
+    return `${name}=="false"`;
   } else {
     const joinedValues = values.map(v => `"${v}"`).join(' or ');
 
