@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import CheckboxFacetList from './CheckboxFacetList';
 
 import { accentFold } from '../../utils';
+import { DEFAULT_FILTERS_NUMBER } from '../../constants';
 
 const SHOW_OPTIONS_COUNT = 5;
 const SHOW_OPTIONS_INCREMENT = 5;
@@ -80,6 +81,21 @@ export default class CheckboxFacet extends React.Component {
     });
   };
 
+  updateMore = () => {
+    this.setState(({ more }) => {
+      return { more: more + SHOW_OPTIONS_INCREMENT };
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.dataOptions.length === DEFAULT_FILTERS_NUMBER &&
+      this.props.dataOptions.length > DEFAULT_FILTERS_NUMBER
+    ) {
+      this.updateMore();
+    }
+  }
+
   render() {
     const {
       dataOptions,
@@ -112,7 +128,7 @@ export default class CheckboxFacet extends React.Component {
         selectedValues={selectedValues}
         showMore={filteredOptions.length > more}
         showSearch={isFilterable}
-        onMoreClick={() => this.onMoreClick(filteredOptions.length)}
+        onMoreClick={() => this.onMoreClick(filteredOptions.length - 1)}
         onSearch={this.onFacetSearch}
         onChange={this.onFasetChange}
         onFetch={onFetch}

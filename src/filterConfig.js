@@ -12,7 +12,7 @@ import {
 export const instanceFilterConfig = [
   {
     name: 'effectiveLocation',
-    cql: 'item.effectiveLocationId',
+    cql: 'items.effectiveLocationId',
     values: [],
   },
   {
@@ -149,7 +149,7 @@ export const holdingSortMap = {};
 export const holdingFilterConfig = [
   {
     name: 'effectiveLocation',
-    cql: 'item.effectiveLocationId',
+    cql: 'items.effectiveLocationId',
     values: [],
   },
   {
@@ -214,7 +214,7 @@ export const itemFilterConfig = [
   },
   {
     name: 'effectiveLocation',
-    cql: 'item.effectiveLocationId',
+    cql: 'items.effectiveLocationId',
     values: [],
   },
   {
