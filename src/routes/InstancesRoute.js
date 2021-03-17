@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { flowRight } from 'lodash';
+import { flowRight, reduce } from 'lodash';
 
 import { stripesConnect } from '@folio/stripes/core';
 
@@ -9,8 +9,17 @@ import { InstancesView } from '../views';
 import {
   getFilterConfig,
 } from '../filterConfig';
-import { buildManifestObject } from './buildManifestObject';
+import {
+  buildManifestObject,
+  buildQuery
+} from './buildManifestObject';
 import { DataContext } from '../contexts';
+import {
+  FACETS,
+  FACETS_TO_REQUEST
+} from '../components/InstanceFilters/constants';
+
+const DEFAULT_FILTERS_NUMBER = 5;
 
 class InstancesRoute extends React.Component {
   static propTypes = {
@@ -30,6 +39,82 @@ class InstancesRoute extends React.Component {
   };
 
   static manifest = Object.freeze(buildManifestObject());
+
+  getFacets = (accordions, accordionsData) => {
+    let index = 0;
+
+    return reduce(accordions, (accum, isFacetOpened, facetName) => {
+      if (
+        isFacetOpened &&
+        facetName !== FACETS.UPDATED_DATE &&
+        facetName !== FACETS.CREATED_DATE
+      ) {
+        const facetNameToRequest = FACETS_TO_REQUEST[facetName];
+        const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
+        const isFacetValue = accordionsData?.[facetName]?.value;
+        const isFilterSelected = accordionsData?.[facetName]?.isSelected;
+        const isOnMoreClicked = accordionsData?.[facetName]?.isOnMoreClicked;
+        const isNeedAllFilters =
+          isOnMoreClicked ||
+          isFacetValue ||
+          isFilterSelected;
+
+        const symbol = index
+          ? ','
+          : '';
+
+        index++;
+        return `${accum}${symbol}${facetNameToRequest}${isNeedAllFilters ? '' : defaultFiltersNumber}`;
+      }
+      return accum;
+    }, '');
+  };
+
+  fetchFacets = (data) => async (properties = {}) => {
+    const {
+      onMoreClickedFacet,
+      focusedFacet,
+      accordions,
+      accordionsData,
+      facetToOpen,
+      isSelected,
+      isAllFiltersLoadedBefore,
+    } = properties;
+    const {
+      resources,
+      mutator,
+    } = this.props;
+    const {
+      reset,
+      GET,
+    } = mutator.facets;
+    const { query } = resources;
+
+    // temporary query value
+    const params = { query: 'id = *' };
+    const cqlQuery = buildQuery(query, {}, { ...data, query }, { log: () => null }) || '';
+    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
+    const facetNameToRequest = FACETS_TO_REQUEST[facetName];
+
+    if (cqlQuery) params.query = cqlQuery;
+
+    if (facetToOpen) {
+      const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
+      params.facet = `${facetNameToRequest}${isSelected || isAllFiltersLoadedBefore ? '' : defaultFiltersNumber}`;
+    } else if (onMoreClickedFacet || focusedFacet) {
+      params.facet = facetNameToRequest;
+    } else {
+      const facets = this.getFacets(accordions, accordionsData);
+      if (facets) params.facet = facets;
+    }
+
+    try {
+      reset();
+      await GET({ params });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
 
   render() {
     const {
@@ -56,7 +141,12 @@ class InstancesRoute extends React.Component {
             showSingleResult={showSingleResult}
             onSelectRow={onSelectRow}
             disableRecordCreation={disableRecordCreation}
-            renderFilters={renderer({ ...data, query })}
+            renderFilters={renderer({
+              ...data,
+              query,
+              onFetchFacets: this.fetchFacets(data),
+              parentResources: resources,
+            })}
             segment={segment}
             searchableIndexes={indexes}
             searchableIndexesES={indexesES}
