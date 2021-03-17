@@ -166,7 +166,7 @@ export const buildDateRangeQuery = name => values => {
 // to parse a given filter into a CQL manually.
 export const buildOptionalBooleanQuery = name => values => {
   if (values.length === 2) {
-    return 'cql.allRecords=1';
+    return `${name}=="false" or ${name}=="true"`;
   } else if (values.length === 1 && values[0] === 'false') {
     return `${name}=="false"`;
   } else {
