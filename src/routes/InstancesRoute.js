@@ -18,8 +18,7 @@ import {
   FACETS,
   FACETS_TO_REQUEST
 } from '../components/InstanceFilters/constants';
-
-const DEFAULT_FILTERS_NUMBER = 5;
+import { DEFAULT_FILTERS_NUMBER } from '../constants';
 
 class InstancesRoute extends React.Component {
   static propTypes = {

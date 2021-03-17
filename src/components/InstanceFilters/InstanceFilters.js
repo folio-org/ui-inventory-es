@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -8,11 +8,11 @@ import {
   Accordion,
   AccordionSet,
   FilterAccordionHeader,
-  languageOptions,
 } from '@folio/stripes/components';
 import {
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
+import { languageOptionsES } from './languages';
 
 import {
   retrieveDatesFromDateRangeFilterString,
@@ -88,16 +88,6 @@ const InstanceFilters = props => {
   const prevUrl = useRef(location.search);
   const prevQuery = useRef('');
 
-  const langOptions = useMemo(() => {
-    const facetDataMap = new Map();
-
-    languageOptions(intl).forEach(facet => {
-      facetDataMap.set(facet.value, facet);
-    });
-
-    return facetDataMap;
-  }, []);
-
   const onToggleSection = ({ id }) => {
     setAccordions(curState => {
       const newState = _.cloneDeep(curState);
@@ -161,7 +151,7 @@ const InstanceFilters = props => {
         name = '',
         id,
         label = '',
-      } = facetData.find(facet => facet.id === entry.id);
+      } = facetData.find(facet => facet.id === entry.id || facet.label === entry.id);
 
       const option = {
         label: name || label,
@@ -173,24 +163,8 @@ const InstanceFilters = props => {
     }, []);
   };
 
-  const getLanguages = (entries, facetData) => {
-    const options = entries.reduce((accum, { id, totalRecords }) => {
-      if (!totalRecords) return accum;
-
-      const langData = facetData.get(id);
-      const option = {
-        ...langData,
-        count: totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-
-    return _.orderBy(options, ['count'], ['desc']);
-  };
-
   const getSuppressedOptions = (suppressedOptionsRecords) => {
-    const options = suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
+    return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
       if (!totalRecords) return accum;
 
       const idPart = id === 'true' ? 'yes' : 'no';
@@ -204,12 +178,10 @@ const InstanceFilters = props => {
       accum.push(option);
       return accum;
     }, []);
-
-    return _.orderBy(options, ['count'], ['desc']);
   };
 
   const getSourceOptions = (sourceRecords) => {
-    const options = sourceRecords.reduce((accum, { id, totalRecords }) => {
+    return sourceRecords.reduce((accum, { id, totalRecords }) => {
       if (!totalRecords) return accum;
 
       const value = id === 'FOLIO' ? 'FOLIO' : 'MARC';
@@ -221,8 +193,6 @@ const InstanceFilters = props => {
       accum.push(option);
       return accum;
     }, []);
-
-    return _.orderBy(options, ['count'], ['desc']);
   };
 
   const [facetsOptions, setFacetsOptions] = useState({
@@ -351,7 +321,7 @@ const InstanceFilters = props => {
               accum[name] = getFacetOptions(records[recordName].values, locations);
               break;
             case IDs.LANGUAGES:
-              accum[name] = getLanguages(records[recordName].values, langOptions);
+              accum[name] = languageOptionsES(intl, records[recordName].values);
               break;
             case IDs.INSTANCE_TYPE_ID:
               accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
