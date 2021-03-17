@@ -85,7 +85,7 @@ const InstanceFilters = props => {
 
   const prevAccordionsState = useRef(accordions);
   const prevFilters = useRef({});
-  const prevUrl = useRef(location.search);
+  const prevUrl = useRef({});
   const prevQuery = useRef('');
 
   const onToggleSection = ({ id }) => {
@@ -208,28 +208,7 @@ const InstanceFilters = props => {
     tagsRecords: [],
   });
 
-  const processFacetOpening = (facetToOpen, isSelected, isAllFiltersLoadedBefore) => {
-    const isUrlChanged = prevUrl.current !== location.search;
-    const isFacetOpenedBefore = prevAccordionsState.current[facetToOpen];
-
-    if (
-      (isSelected && !isUrlChanged) ||
-      (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged) ||
-      (!isSelected && !isUrlChanged && isFacetOpenedBefore)
-    ) {
-      return;
-    }
-
-    onFetchFacets({
-      facetToOpen,
-      isSelected,
-      isAllFiltersLoadedBefore,
-    });
-  };
-
-  const processOmMoreClicking = (isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet) => {
-    if (isSelected || isAllFiltersLoadedBefore) return;
-
+  const processOnMoreClicking = (onMoreClickedFacet) => {
     onFetchFacets({ onMoreClickedFacet });
 
     setMore(prevMore => ({
@@ -246,9 +225,7 @@ const InstanceFilters = props => {
     }));
   };
 
-  const processFacetFocusing = (isSelected, isAllFiltersLoadedBefore, focusedFacet) => {
-    if (isSelected || isAllFiltersLoadedBefore) return;
-
+  const processFacetFocusing = (focusedFacet) => {
     onFetchFacets({ focusedFacet });
 
     setFocusedFacets(prevFocusedFacets => ({
@@ -266,7 +243,7 @@ const InstanceFilters = props => {
 
     const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
     const isSelected = accordionsData[facetName]?.isSelected;
-    const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName];
+    const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName] || isSelected;
 
     if (facetName) {
       setFacetNameToOpen(facetName);
@@ -276,12 +253,14 @@ const InstanceFilters = props => {
       setShowLoadingForAllFacets(true);
     }
 
+    if (facetName && isAllFiltersLoadedBefore) return;
+
     if (facetToOpen) {
-      processFacetOpening(facetToOpen, isSelected, isAllFiltersLoadedBefore);
+      onFetchFacets({ facetToOpen });
     } else if (onMoreClickedFacet) {
-      processOmMoreClicking(isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet);
+      processOnMoreClicking(onMoreClickedFacet);
     } else if (focusedFacet) {
-      processFacetFocusing(isSelected, isAllFiltersLoadedBefore, focusedFacet);
+      processFacetFocusing(focusedFacet);
     } else {
       const data = { ...accordionsData };
 
@@ -361,6 +340,7 @@ const InstanceFilters = props => {
 
   useEffect(() => {
     let facetToOpen = '';
+    let facetToClose = '';
 
     const isFacetOpened = _.some(prevAccordionsState.current, (prevFacetValue, facetName) => {
       const curFacetValue = accordions[facetName];
@@ -368,26 +348,28 @@ const InstanceFilters = props => {
       if (curFacetValue !== prevFacetValue) {
         if (curFacetValue) {
           facetToOpen = facetName;
+        } else {
+          facetToClose = facetName;
         }
         return curFacetValue;
       }
       return false;
     });
 
+    const isUrlChanged = prevUrl.current[facetToOpen] !== location.search;
+
     if (
       isFacetOpened &&
+      isUrlChanged &&
       facetToOpen !== FACETS.CREATED_DATE &&
       facetToOpen !== FACETS.UPDATED_DATE
     ) {
       handleFetchFacets({ facetToOpen });
     } else {
-      prevUrl.current = location.search;
+      prevUrl.current[facetToClose] = location.search;
     }
 
-    prevAccordionsState.current = {
-      ...prevAccordionsState.current,
-      [facetToOpen]: isFacetOpened,
-    };
+    prevAccordionsState.current = { ...accordions };
   }, [accordions]);
 
   useEffect(() => {
