@@ -37,8 +37,8 @@ const InstanceFilters = props => {
       natureOfContent,
       discoverySuppress,
       staffSuppress,
-      createdDate = [],
-      updatedDate = [],
+      createdDate,
+      updatedDate,
       source,
       tags,
     },
@@ -218,6 +218,22 @@ const InstanceFilters = props => {
     }));
   };
 
+  const processAllFacets = () => {
+    const data = { ...accordionsData };
+
+    _.forEach(facetSettings, (settings, facet) => {
+      data[facet] = {
+        ...data[facet],
+        ...settings,
+      };
+    });
+
+    onFetchFacets({
+      accordions,
+      accordionsData: data,
+    });
+  };
+
   const handleFetchFacets = (property = {}) => {
     const {
       onMoreClickedFacet,
@@ -243,19 +259,7 @@ const InstanceFilters = props => {
     } else if (focusedFacet) {
       onFetchFacets({ focusedFacet });
     } else {
-      const data = { ...accordionsData };
-
-      _.forEach(facetSettings, (settings, facet) => {
-        data[facet] = {
-          ...data[facet],
-          ...settings,
-        };
-      });
-
-      onFetchFacets({
-        accordions,
-        accordionsData: data,
-      });
+      processAllFacets();
     }
   };
 
@@ -372,6 +376,8 @@ const InstanceFilters = props => {
       [FACETS.NATURE_OF_CONTENT]: natureOfContent,
       [FACETS.STAFF_SUPPRESS]: staffSuppress,
       [FACETS.DISCOVERY_SUPPRESS]: discoverySuppress,
+      [FACETS.CREATED_DATE]: createdDate,
+      [FACETS.UPDATED_DATE]: updatedDate,
       [FACETS.SOURCE]: source,
       [FACETS.TAGS]: tags,
     };
@@ -569,9 +575,8 @@ const InstanceFilters = props => {
         <DateRangeFilter
           name="createdDate"
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate?.[0])}
           onChange={onChange}
-          onFetch={handleFetchFacets}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
@@ -587,9 +592,8 @@ const InstanceFilters = props => {
         <DateRangeFilter
           name="updatedDate"
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate?.[0])}
           onChange={onChange}
-          onFetch={handleFetchFacets}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
