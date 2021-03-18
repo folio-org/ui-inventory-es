@@ -78,8 +78,6 @@ const InstanceFilters = props => {
 
   const [accordionsData, setAccordionsData] = useState({});
   const [facetSettings, setFacetSettings] = useState({});
-  const [more, setMore] = useState({});
-  const [focusedFacets, setFocusedFacets] = useState({});
   const [facetNameToOpen, setFacetNameToOpen] = useState('');
   const [showLoadingForAllFacets, setShowLoadingForAllFacets] = useState(false);
 
@@ -211,11 +209,6 @@ const InstanceFilters = props => {
   const processOnMoreClicking = (onMoreClickedFacet) => {
     onFetchFacets({ onMoreClickedFacet });
 
-    setMore(prevMore => ({
-      ...prevMore,
-      [onMoreClickedFacet]: true,
-    }));
-
     setFacetSettings(prevFacetSettings => ({
       ...prevFacetSettings,
       [onMoreClickedFacet]: {
@@ -225,25 +218,15 @@ const InstanceFilters = props => {
     }));
   };
 
-  const processFacetFocusing = (focusedFacet) => {
-    onFetchFacets({ focusedFacet });
-
-    setFocusedFacets(prevFocusedFacets => ({
-      ...prevFocusedFacets,
-      [focusedFacet]: true,
-    }));
-  };
-
   const handleFetchFacets = (property = {}) => {
     const {
       onMoreClickedFacet,
       focusedFacet,
       facetToOpen,
+      dateFacet,
     } = property;
 
-    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
-    const isSelected = accordionsData[facetName]?.isSelected;
-    const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName] || isSelected;
+    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet || dateFacet;
 
     if (facetName) {
       setFacetNameToOpen(facetName);
@@ -253,14 +236,12 @@ const InstanceFilters = props => {
       setShowLoadingForAllFacets(true);
     }
 
-    if (facetName && isAllFiltersLoadedBefore) return;
-
     if (facetToOpen) {
       onFetchFacets({ facetToOpen });
     } else if (onMoreClickedFacet) {
       processOnMoreClicking(onMoreClickedFacet);
     } else if (focusedFacet) {
-      processFacetFocusing(focusedFacet);
+      onFetchFacets({ focusedFacet });
     } else {
       const data = { ...accordionsData };
 
@@ -590,6 +571,7 @@ const InstanceFilters = props => {
           dateFormat={DATE_FORMAT}
           selectedValues={retrieveDatesFromDateRangeFilterString(createdDate[0])}
           onChange={onChange}
+          onFetch={handleFetchFacets}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
@@ -607,6 +589,7 @@ const InstanceFilters = props => {
           dateFormat={DATE_FORMAT}
           selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate[0])}
           onChange={onChange}
+          onFetch={handleFetchFacets}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
