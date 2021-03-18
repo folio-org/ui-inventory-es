@@ -16,7 +16,7 @@ import {
 import { DataContext } from '../contexts';
 import {
   FACETS_TO_REQUEST,
-  IDs,
+  FACETS,
 } from '../components/InstanceFilters/constants';
 import { DEFAULT_FILTERS_NUMBER } from '../constants';
 
@@ -43,13 +43,16 @@ class InstancesRoute extends React.Component {
     let index = 0;
 
     return reduce(accordions, (accum, isFacetOpened, facetName) => {
-      if (isFacetOpened) {
+      if (
+        isFacetOpened &&
+        facetName !== FACETS.UPDATED_DATE &&
+        facetName !== FACETS.CREATED_DATE
+      ) {
         const facetNameToRequest = FACETS_TO_REQUEST[facetName];
         const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
         const isFacetValue = accordionsData?.[facetName]?.value;
         const isFilterSelected = accordionsData?.[facetName]?.isSelected;
         const isOnMoreClicked = accordionsData?.[facetName]?.isOnMoreClicked;
-        const isDateFacet = facetNameToRequest === IDs.CREATED_DATE_ID || facetNameToRequest === IDs.UPDATED_DATE_ID;
         const isNeedAllFilters =
           isOnMoreClicked ||
           isFacetValue ||
@@ -60,7 +63,7 @@ class InstancesRoute extends React.Component {
           : '';
 
         index++;
-        return `${accum}${symbol}${facetNameToRequest}${isDateFacet || isNeedAllFilters ? '' : defaultFiltersNumber}`;
+        return `${accum}${symbol}${facetNameToRequest}${isNeedAllFilters ? '' : defaultFiltersNumber}`;
       }
       return accum;
     }, '');
