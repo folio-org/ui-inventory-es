@@ -35,7 +35,18 @@ export default class CheckboxFacet extends React.Component {
   state = {
     more: SHOW_OPTIONS_COUNT,
     searchTerm: '',
+    isMoreClicked: false,
   };
+
+  componentDidUpdate(prevProps) {
+    if (
+      this.state.isMoreClicked &&
+      prevProps.dataOptions.length === DEFAULT_FILTERS_NUMBER &&
+      this.props.dataOptions.length > DEFAULT_FILTERS_NUMBER
+    ) {
+      this.updateMore();
+    }
+  }
 
   onMoreClick = (totalOptions) => {
     const {
@@ -51,6 +62,7 @@ export default class CheckboxFacet extends React.Component {
       return { more: visibleOptionsCount };
     });
 
+    this.setState({ isMoreClicked: true });
     onFetch({ onMoreClickedFacet: name });
   };
 
@@ -85,15 +97,6 @@ export default class CheckboxFacet extends React.Component {
     this.setState(({ more }) => {
       return { more: more + SHOW_OPTIONS_INCREMENT };
     });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (
-      prevProps.dataOptions.length === DEFAULT_FILTERS_NUMBER &&
-      this.props.dataOptions.length > DEFAULT_FILTERS_NUMBER
-    ) {
-      this.updateMore();
-    }
   }
 
   render() {

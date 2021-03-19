@@ -37,8 +37,8 @@ const InstanceFilters = props => {
       natureOfContent,
       discoverySuppress,
       staffSuppress,
-      createdDate = [],
-      updatedDate = [],
+      createdDate,
+      updatedDate,
       source,
       tags,
     },
@@ -78,14 +78,12 @@ const InstanceFilters = props => {
 
   const [accordionsData, setAccordionsData] = useState({});
   const [facetSettings, setFacetSettings] = useState({});
-  const [more, setMore] = useState({});
-  const [focusedFacets, setFocusedFacets] = useState({});
   const [facetNameToOpen, setFacetNameToOpen] = useState('');
   const [showLoadingForAllFacets, setShowLoadingForAllFacets] = useState(false);
 
   const prevAccordionsState = useRef(accordions);
   const prevFilters = useRef({});
-  const prevUrl = useRef(location.search);
+  const prevUrl = useRef({});
   const prevQuery = useRef('');
 
   const onToggleSection = ({ id }) => {
@@ -208,34 +206,8 @@ const InstanceFilters = props => {
     tagsRecords: [],
   });
 
-  const processFacetOpening = (facetToOpen, isSelected, isAllFiltersLoadedBefore) => {
-    const isUrlChanged = prevUrl.current !== location.search;
-    const isFacetOpenedBefore = prevAccordionsState.current[facetToOpen];
-
-    if (
-      (isSelected && !isUrlChanged) ||
-      (!isSelected && isAllFiltersLoadedBefore && !isUrlChanged) ||
-      (!isSelected && !isUrlChanged && isFacetOpenedBefore)
-    ) {
-      return;
-    }
-
-    onFetchFacets({
-      facetToOpen,
-      isSelected,
-      isAllFiltersLoadedBefore,
-    });
-  };
-
-  const processOmMoreClicking = (isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet) => {
-    if (isSelected || isAllFiltersLoadedBefore) return;
-
+  const processOnMoreClicking = (onMoreClickedFacet) => {
     onFetchFacets({ onMoreClickedFacet });
-
-    setMore(prevMore => ({
-      ...prevMore,
-      [onMoreClickedFacet]: true,
-    }));
 
     setFacetSettings(prevFacetSettings => ({
       ...prevFacetSettings,
@@ -246,15 +218,20 @@ const InstanceFilters = props => {
     }));
   };
 
-  const processFacetFocusing = (isSelected, isAllFiltersLoadedBefore, focusedFacet) => {
-    if (isSelected || isAllFiltersLoadedBefore) return;
+  const processAllFacets = () => {
+    const data = { ...accordionsData };
 
-    onFetchFacets({ focusedFacet });
+    _.forEach(facetSettings, (settings, facet) => {
+      data[facet] = {
+        ...data[facet],
+        ...settings,
+      };
+    });
 
-    setFocusedFacets(prevFocusedFacets => ({
-      ...prevFocusedFacets,
-      [focusedFacet]: true,
-    }));
+    onFetchFacets({
+      accordions,
+      accordionsData: data,
+    });
   };
 
   const handleFetchFacets = (property = {}) => {
@@ -262,11 +239,10 @@ const InstanceFilters = props => {
       onMoreClickedFacet,
       focusedFacet,
       facetToOpen,
+      dateFacet,
     } = property;
 
-    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet;
-    const isSelected = accordionsData[facetName]?.isSelected;
-    const isAllFiltersLoadedBefore = focusedFacets[facetName] || more[facetName];
+    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet || dateFacet;
 
     if (facetName) {
       setFacetNameToOpen(facetName);
@@ -277,25 +253,13 @@ const InstanceFilters = props => {
     }
 
     if (facetToOpen) {
-      processFacetOpening(facetToOpen, isSelected, isAllFiltersLoadedBefore);
+      onFetchFacets({ facetToOpen });
     } else if (onMoreClickedFacet) {
-      processOmMoreClicking(isSelected, isAllFiltersLoadedBefore, onMoreClickedFacet);
+      processOnMoreClicking(onMoreClickedFacet);
     } else if (focusedFacet) {
-      processFacetFocusing(isSelected, isAllFiltersLoadedBefore, focusedFacet);
+      onFetchFacets({ focusedFacet });
     } else {
-      const data = { ...accordionsData };
-
-      _.forEach(facetSettings, (settings, facet) => {
-        data[facet] = {
-          ...data[facet],
-          ...settings,
-        };
-      });
-
-      onFetchFacets({
-        accordions,
-        accordionsData: data,
-      });
+      processAllFacets();
     }
   };
 
@@ -361,6 +325,7 @@ const InstanceFilters = props => {
 
   useEffect(() => {
     let facetToOpen = '';
+    let facetToClose = '';
 
     const isFacetOpened = _.some(prevAccordionsState.current, (prevFacetValue, facetName) => {
       const curFacetValue = accordions[facetName];
@@ -368,26 +333,28 @@ const InstanceFilters = props => {
       if (curFacetValue !== prevFacetValue) {
         if (curFacetValue) {
           facetToOpen = facetName;
+        } else {
+          facetToClose = facetName;
         }
         return curFacetValue;
       }
       return false;
     });
 
+    const isUrlChanged = prevUrl.current[facetToOpen] !== location.search;
+
     if (
       isFacetOpened &&
+      isUrlChanged &&
       facetToOpen !== FACETS.CREATED_DATE &&
       facetToOpen !== FACETS.UPDATED_DATE
     ) {
       handleFetchFacets({ facetToOpen });
     } else {
-      prevUrl.current = location.search;
+      prevUrl.current[facetToClose] = location.search;
     }
 
-    prevAccordionsState.current = {
-      ...prevAccordionsState.current,
-      [facetToOpen]: isFacetOpened,
-    };
+    prevAccordionsState.current = { ...accordions };
   }, [accordions]);
 
   useEffect(() => {
@@ -409,6 +376,8 @@ const InstanceFilters = props => {
       [FACETS.NATURE_OF_CONTENT]: natureOfContent,
       [FACETS.STAFF_SUPPRESS]: staffSuppress,
       [FACETS.DISCOVERY_SUPPRESS]: discoverySuppress,
+      [FACETS.CREATED_DATE]: createdDate,
+      [FACETS.UPDATED_DATE]: updatedDate,
       [FACETS.SOURCE]: source,
       [FACETS.TAGS]: tags,
     };
@@ -606,7 +575,7 @@ const InstanceFilters = props => {
         <DateRangeFilter
           name="createdDate"
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />
@@ -623,7 +592,7 @@ const InstanceFilters = props => {
         <DateRangeFilter
           name="updatedDate"
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />

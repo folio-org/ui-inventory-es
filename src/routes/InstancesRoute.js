@@ -15,8 +15,8 @@ import {
 } from './buildManifestObject';
 import { DataContext } from '../contexts';
 import {
+  FACETS_TO_REQUEST,
   FACETS,
-  FACETS_TO_REQUEST
 } from '../components/InstanceFilters/constants';
 import { DEFAULT_FILTERS_NUMBER } from '../constants';
 
@@ -76,8 +76,6 @@ class InstancesRoute extends React.Component {
       accordions,
       accordionsData,
       facetToOpen,
-      isSelected,
-      isAllFiltersLoadedBefore,
     } = properties;
     const {
       resources,
@@ -99,7 +97,7 @@ class InstancesRoute extends React.Component {
 
     if (facetToOpen) {
       const defaultFiltersNumber = `:${DEFAULT_FILTERS_NUMBER}`;
-      params.facet = `${facetNameToRequest}${isSelected || isAllFiltersLoadedBefore ? '' : defaultFiltersNumber}`;
+      params.facet = `${facetNameToRequest}${defaultFiltersNumber}`;
     } else if (onMoreClickedFacet || focusedFacet) {
       params.facet = facetNameToRequest;
     } else {
