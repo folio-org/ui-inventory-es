@@ -1,6 +1,22 @@
 # Change history for ui-inventory
 
-## 6.0.0 (IN PROGRESS)
+## [6.0.0](https://github.com/folio-org/ui-inventory/tree/v6.0.0) (2021-03-19)
+
+* Bump data-export interface version. Refs UISEES-43
+* Replace search with ElasticQueryField. Refs UISEE-32
+* Update filters options for Instances with the facet data. Refs UISEES-29
+* Provide distinct permission values. Refs UISEES-42 
+* Add 'Proof of concept' label. Refs UISEES-13
+* Remove Inventory-es settings. Refs UISEES-40
+* Missing dependency in package.json. Refs UISEES-39
+* Creating a parser and rendering the results. Refs UISEES-36
+* Update stripes-cli to v2. Refs UISEES-38
+* Create CheckboxFacet component with the filtering and show more. Refs UISEES-28
+* Add suggestions to the “Advanced search” textbox. Refs UISEES-35
+* Add the supported search options. Refs UISEES-34
+* Replacing existing query search. Refs UISEES-33
+* Prepare environment with cloned Inventory for ES POC. Refs UISEES-4
+* Inventory clonned to Inventory-es
 
 * Assign tags to Inventory Items. Refs UIIN-309.
 * Filter Item by Tags. Refs UIIN-765.

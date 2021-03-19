@@ -1,6 +1,6 @@
 {
   "name": "@folio/inventory-es",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "Inventory ES POC: Inventory manager",
   "repository": "folio-org/ui-inventory-es",
   "publishConfig": {
