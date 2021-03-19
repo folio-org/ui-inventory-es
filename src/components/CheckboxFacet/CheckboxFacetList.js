@@ -47,7 +47,7 @@ function CheckboxFacetList({
           <FormattedMessage id="ui-inventory-es.noMatchingOptions" />
         }
 
-        {!isPending && dataOptions.map(({ count, value, label, disabled, readOnly }) => {
+        {dataOptions.map(({ count, value, label, disabled, readOnly }) => {
           const name = typeof label === 'string' ? label : value;
           return (
             <Checkbox
@@ -66,7 +66,7 @@ function CheckboxFacetList({
         })}
       </div>
 
-      {!isPending && showMore && (
+      {showMore && (
 
         <FormattedMessage id="ui-inventory-es.showMoreOptions">
           { ({ label }) => (
