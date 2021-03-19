@@ -22,8 +22,6 @@ export const IDs = {
   NATURE_OF_CONTENT_TERM_IDS: 'natureOfContentTermIds',
   STAFF_SUPPRESS: 'staffSuppress',
   DISCOVERY_SUPPRESS: 'discoverySuppress',
-  CREATED_DATE_ID: 'createDateId',
-  UPDATED_DATE_ID: 'updatedDateId',
   SOURCE: 'source',
   INSTANCE_TAGS: 'instanceTags',
 };
