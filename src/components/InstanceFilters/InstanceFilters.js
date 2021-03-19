@@ -252,6 +252,7 @@ const InstanceFilters = props => {
       setShowLoadingForAllFacets(true);
     }
 
+
     if (facetToOpen) {
       onFetchFacets({ facetToOpen });
     } else if (onMoreClickedFacet) {
