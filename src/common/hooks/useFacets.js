@@ -279,6 +279,18 @@ const useFacets = (activeFilters, data) => {
     }
   };
 
+  const processFacetOptions = (accum, name, recordName, facetData) => {
+    if (facetData) {
+      accum[name] = getFacetOptions(records[recordName].values, facetData);
+    }
+  };
+
+  const processItemsStatuses = (accum, name, recordName) => {
+    if (itemStatuses) {
+      accum[name] = getItemStatusesOptions(records[recordName].values, itemStatuses);
+    }
+  };
+
   useEffect(() => {
     if (!_.isEmpty(records)) {
       const newRecords = _.reduce(FACETS_OPTIONS, (accum, name, recordName) => {
@@ -286,32 +298,22 @@ const useFacets = (activeFilters, data) => {
           switch (recordName) {
             case IDs.EFFECTIVE_LOCATION_ID:
             case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
-              if (locations) {
-                accum[name] = getFacetOptions(records[recordName].values, locations);
-              }
+              processFacetOptions(accum, name, recordName, locations);
               break;
             case IDs.LANGUAGES:
               accum[name] = languageOptionsES(intl, records[recordName].values);
               break;
             case IDs.INSTANCE_TYPE_ID:
-              if (resourceTypes) {
-                accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
-              }
+              processFacetOptions(accum, name, recordName, resourceTypes);
               break;
             case IDs.INSTANCE_FORMAT_ID:
-              if (instanceFormats) {
-                accum[name] = getFacetOptions(records[recordName].values, instanceFormats);
-              }
+              processFacetOptions(accum, name, recordName, instanceFormats);
               break;
             case IDs.MODE_OF_ISSUANCE_ID:
-              if (modesOfIssuance) {
-                accum[name] = getFacetOptions(records[recordName].values, modesOfIssuance);
-              }
+              processFacetOptions(accum, name, recordName, modesOfIssuance);
               break;
             case IDs.NATURE_OF_CONTENT_TERM_IDS:
-              if (natureOfContentTerms) {
-                accum[name] = getFacetOptions(records[recordName].values, natureOfContentTerms);
-              }
+              processFacetOptions(accum, name, recordName, natureOfContentTerms);
               break;
             case IDs.STAFF_SUPPRESS:
             case IDs.INSTANCES_DISCOVERY_SUPPRESS:
@@ -325,19 +327,13 @@ const useFacets = (activeFilters, data) => {
             case IDs.INSTANCES_TAGS_ID:
             case IDs.HOLDINGS_TAGS_ID:
             case IDs.ITEMS_TAGS_ID:
-              if (tagsRecords) {
-                accum[name] = getFacetOptions(records[recordName].values, tagsRecords);
-              }
+              processFacetOptions(accum, name, recordName, tagsRecords);
               break;
             case IDs.MATERIAL_TYPES_ID:
-              if (materialTypes) {
-                accum[name] = getFacetOptions(records[recordName].values, materialTypes);
-              }
+              processFacetOptions(accum, name, recordName, materialTypes);
               break;
             case IDs.ITEMS_STATUSES_ID:
-              if (itemStatuses) {
-                accum[name] = getItemStatusesOptions(records[recordName].values, itemStatuses);
-              }
+              processItemsStatuses(accum, name, recordName);
               break;
             default:
           }
