@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { languageOptionsES } from '../../components/InstanceFilters/languages';
 import {
   FACETS,
+  FACETS_OPTIONS,
   IDs,
 } from '../../constants';
 
@@ -280,27 +281,7 @@ const useFacets = (activeFilters, data) => {
 
   useEffect(() => {
     if (!_.isEmpty(records)) {
-      const recordsSettings = {
-        [IDs.EFFECTIVE_LOCATION_ID]: 'effectiveLocationOptions',
-        [IDs.LANGUAGES]: 'langOptions',
-        [IDs.INSTANCE_TYPE_ID]: 'resourceTypeOptions',
-        [IDs.INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
-        [IDs.MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
-        [IDs.NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
-        [IDs.STAFF_SUPPRESS]: 'suppressedOptions',
-        [IDs.INSTANCES_DISCOVERY_SUPPRESS]: 'discoverySuppressOptions',
-        [IDs.HOLDINGS_DISCOVERY_SUPPRESS_ID]: 'discoverySuppressOptions',
-        [IDs.ITEMS_DISCOVERY_SUPPRESS_ID]: 'discoverySuppressOptions',
-        [IDs.SOURCE]: 'sourceOptions',
-        [IDs.INSTANCES_TAGS_ID]: 'tagsRecords',
-        [IDs.HOLDINGS_TAGS_ID]: 'tagsRecords',
-        [IDs.ITEMS_TAGS_ID]: 'tagsRecords',
-        [IDs.MATERIAL_TYPES_ID]: 'materialTypesOptions',
-        [IDs.ITEMS_STATUSES_ID]: 'itemStatusesOptions',
-        [IDs.HOLDINGS_PERMANENT_LOCATION_ID]: 'holdingsPermanentLocationOptions',
-      };
-
-      const newRecords = _.reduce(recordsSettings, (accum, name, recordName) => {
+      const newRecords = _.reduce(FACETS_OPTIONS, (accum, name, recordName) => {
         if (records[recordName]) {
           switch (recordName) {
             case IDs.EFFECTIVE_LOCATION_ID:

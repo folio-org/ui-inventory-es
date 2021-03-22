@@ -180,3 +180,23 @@ export const FACETS_TO_REQUEST = {
   [FACETS.ITEM_STATUS]: IDs.ITEMS_STATUSES_ID,
   [FACETS.HOLDINGS_PERMANENT_LOCATION]: IDs.HOLDINGS_PERMANENT_LOCATION_ID,
 };
+
+export const FACETS_OPTIONS = {
+  [IDs.EFFECTIVE_LOCATION_ID]: 'effectiveLocationOptions',
+  [IDs.LANGUAGES]: 'langOptions',
+  [IDs.INSTANCE_TYPE_ID]: 'resourceTypeOptions',
+  [IDs.INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
+  [IDs.MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
+  [IDs.NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
+  [IDs.STAFF_SUPPRESS]: 'suppressedOptions',
+  [IDs.INSTANCES_DISCOVERY_SUPPRESS]: 'discoverySuppressOptions',
+  [IDs.HOLDINGS_DISCOVERY_SUPPRESS_ID]: 'discoverySuppressOptions',
+  [IDs.ITEMS_DISCOVERY_SUPPRESS_ID]: 'discoverySuppressOptions',
+  [IDs.SOURCE]: 'sourceOptions',
+  [IDs.INSTANCES_TAGS_ID]: 'tagsRecords',
+  [IDs.HOLDINGS_TAGS_ID]: 'tagsRecords',
+  [IDs.ITEMS_TAGS_ID]: 'tagsRecords',
+  [IDs.MATERIAL_TYPES_ID]: 'materialTypesOptions',
+  [IDs.ITEMS_STATUSES_ID]: 'itemStatusesOptions',
+  [IDs.HOLDINGS_PERMANENT_LOCATION_ID]: 'holdingsPermanentLocationOptions',
+};
