@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import _ from 'lodash';
 
 import {
   Accordion,
@@ -11,38 +12,128 @@ import {
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
 
+import TagsFilter from '../TagsFilter';
+import CheckboxFacet from '../CheckboxFacet';
 import {
   retrieveDatesFromDateRangeFilterString,
   makeDateRangeFilterString,
 } from '../../utils';
 import {
+  getSourceOptions,
+  getSuppressedOptions,
+  processFacetOptions
+} from '../../facetUtils';
+import {
   DATE_FORMAT,
-  FACETS
+  FACETS,
+  FACETS_OPTIONS,
+  FACETS_SETTINGS,
+  IDs,
 } from '../../constants';
-import TagsFilter from '../TagsFilter';
-import CheckboxFacet from '../CheckboxFacet';
 import { useFacets } from '../../common/hooks';
+import { languageOptionsES } from './languages';
 
 const InstanceFilters = props => {
   const {
-    activeFilters: {
-      effectiveLocation,
-      resource,
-      language,
-      format,
-      mode,
-      natureOfContent,
-      instancesDiscoverySuppress,
-      staffSuppress,
-      createdDate,
-      updatedDate,
-      source,
-      instancesTags,
+    activeFilters,
+    data: {
+      locations,
+      resourceTypes,
+      instanceFormats,
+      modesOfIssuance,
+      natureOfContentTerms,
+      tagsRecords,
     },
-    data,
     onChange,
     onClear,
   } = props;
+
+  const intl = useIntl();
+
+  const segmentAccordions = {
+    [FACETS.EFFECTIVE_LOCATION]: false,
+    [FACETS.LANGUAGE]: false,
+    [FACETS.RESOURCE]: false,
+    [FACETS.FORMAT]: false,
+    [FACETS.MODE]: false,
+    [FACETS.NATURE_OF_CONTENT]: false,
+    [FACETS.STAFF_SUPPRESS]: false,
+    [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: false,
+    [FACETS.CREATED_DATE]: false,
+    [FACETS.UPDATED_DATE]: false,
+    [FACETS.SOURCE]: false,
+    [FACETS.INSTANCES_TAGS]: false,
+  };
+
+  const segmentOptions = {
+    [FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.LANG_OPTIONS]: [],
+    [FACETS_OPTIONS.RESOURCE_TYPE_OPTIONS]: [],
+    [FACETS_OPTIONS.FORMAT_OPTIONS]: [],
+    [FACETS_OPTIONS.MODE_OF_ISSUANCE_OPTIONS]: [],
+    [FACETS_OPTIONS.NATURE_OF_CONTENT_OPTIONS]: [],
+    [FACETS_OPTIONS.SUPPRESSED_OPTIONS]: [],
+    [FACETS_OPTIONS.INSTANCES_DISCOVERY_SUPPRESS_OPTIONS]: [],
+    [FACETS_OPTIONS.SOURCE_OPTIONS]: [],
+    [FACETS_OPTIONS.INSTANCES_TAGS_OPTIONS]: [],
+  };
+
+  const selectedFacetFilters = {
+    [FACETS.EFFECTIVE_LOCATION]: activeFilters[FACETS.EFFECTIVE_LOCATION],
+    [FACETS.LANGUAGE]: activeFilters[FACETS.LANGUAGE],
+    [FACETS.RESOURCE]: activeFilters[FACETS.RESOURCE],
+    [FACETS.FORMAT]: activeFilters[FACETS.FORMAT],
+    [FACETS.MODE]: activeFilters[FACETS.MODE],
+    [FACETS.NATURE_OF_CONTENT]: activeFilters[FACETS.NATURE_OF_CONTENT],
+    [FACETS.STAFF_SUPPRESS]: activeFilters[FACETS.STAFF_SUPPRESS],
+    [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS],
+    [FACETS.CREATED_DATE]: activeFilters[FACETS.CREATED_DATE],
+    [FACETS.UPDATED_DATE]: activeFilters[FACETS.UPDATED_DATE],
+    [FACETS.SOURCE]: activeFilters[FACETS.SOURCE],
+    [FACETS.INSTANCES_TAGS]: activeFilters[FACETS.INSTANCES_TAGS],
+  };
+
+  const getNewRecords = (records) => {
+    return _.reduce(FACETS_SETTINGS, (accum, name, recordName) => {
+      if (records[recordName]) {
+        const recordValues = records[recordName].values;
+        const commonProps = [recordValues, accum, name];
+
+        switch (recordName) {
+          case IDs.EFFECTIVE_LOCATION_ID:
+            processFacetOptions(locations, ...commonProps);
+            break;
+          case IDs.LANGUAGES:
+            accum[name] = languageOptionsES(intl, recordValues);
+            break;
+          case IDs.INSTANCE_TYPE_ID:
+            processFacetOptions(resourceTypes, ...commonProps);
+            break;
+          case IDs.INSTANCE_FORMAT_ID:
+            processFacetOptions(instanceFormats, ...commonProps);
+            break;
+          case IDs.MODE_OF_ISSUANCE_ID:
+            processFacetOptions(modesOfIssuance, ...commonProps);
+            break;
+          case IDs.NATURE_OF_CONTENT_TERM_IDS:
+            processFacetOptions(natureOfContentTerms, ...commonProps);
+            break;
+          case IDs.STAFF_SUPPRESS:
+          case IDs.INSTANCES_DISCOVERY_SUPPRESS:
+            accum[name] = getSuppressedOptions(recordValues);
+            break;
+          case IDs.SOURCE:
+            accum[name] = getSourceOptions(recordValues);
+            break;
+          case IDs.INSTANCES_TAGS_ID:
+            processFacetOptions(tagsRecords, ...commonProps);
+            break;
+          default:
+        }
+      }
+      return accum;
+    }, {});
+  };
 
   const [
     accordions,
@@ -51,7 +142,13 @@ const InstanceFilters = props => {
     handleFilterSearch,
     facetsOptions,
     getIsPending,
-  ] = useFacets(props.activeFilters, data);
+  ] = useFacets(
+    segmentAccordions,
+    segmentOptions,
+    selectedFacetFilters,
+    getNewRecords,
+    props.data
+  );
 
   return (
     <AccordionSet accordionStatus={accordions} onToggle={onToggleSection}>
@@ -61,13 +158,13 @@ const InstanceFilters = props => {
         name={FACETS.EFFECTIVE_LOCATION}
         separator={false}
         header={FilterAccordionHeader}
-        displayClearButton={effectiveLocation?.length > 0}
+        displayClearButton={activeFilters[FACETS.EFFECTIVE_LOCATION]?.length > 0}
         onClearFilter={() => onClear(FACETS.EFFECTIVE_LOCATION)}
       >
         <CheckboxFacet
           name={FACETS.EFFECTIVE_LOCATION}
-          dataOptions={facetsOptions.effectiveLocationOptions}
-          selectedValues={effectiveLocation}
+          dataOptions={facetsOptions[FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.EFFECTIVE_LOCATION]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -82,13 +179,13 @@ const InstanceFilters = props => {
         separator={false}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={language?.length > 0}
+        displayClearButton={activeFilters[FACETS.LANGUAGE]?.length > 0}
         onClearFilter={() => onClear(FACETS.LANGUAGE)}
       >
         <CheckboxFacet
           name={FACETS.LANGUAGE}
-          dataOptions={facetsOptions.langOptions}
-          selectedValues={language}
+          dataOptions={facetsOptions[FACETS_OPTIONS.LANG_OPTIONS]}
+          selectedValues={activeFilters[FACETS.LANGUAGE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -102,13 +199,13 @@ const InstanceFilters = props => {
         name={FACETS.RESOURCE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={resource?.length > 0}
+        displayClearButton={activeFilters[FACETS.RESOURCE]?.length > 0}
         onClearFilter={() => onClear(FACETS.RESOURCE)}
       >
         <CheckboxFacet
           name={FACETS.RESOURCE}
-          dataOptions={facetsOptions.resourceTypeOptions}
-          selectedValues={resource}
+          dataOptions={facetsOptions[FACETS_OPTIONS.RESOURCE_TYPE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.RESOURCE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -122,13 +219,13 @@ const InstanceFilters = props => {
         name={FACETS.FORMAT}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={format?.length > 0}
+        displayClearButton={activeFilters[FACETS.FORMAT]?.length > 0}
         onClearFilter={() => onClear(FACETS.FORMAT)}
       >
         <CheckboxFacet
           name={FACETS.FORMAT}
-          dataOptions={facetsOptions.instanceFormatOptions}
-          selectedValues={format}
+          dataOptions={facetsOptions[FACETS_OPTIONS.FORMAT_OPTIONS]}
+          selectedValues={activeFilters[FACETS.FORMAT]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -142,13 +239,13 @@ const InstanceFilters = props => {
         name={FACETS.MODE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={mode?.length > 0}
+        displayClearButton={activeFilters[FACETS.MODE]?.length > 0}
         onClearFilter={() => onClear(FACETS.MODE)}
       >
         <CheckboxFacet
           name={FACETS.MODE}
-          dataOptions={facetsOptions.modeOfIssuanceOptions}
-          selectedValues={mode}
+          dataOptions={facetsOptions[FACETS_OPTIONS.MODE_OF_ISSUANCE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.MODE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -162,13 +259,13 @@ const InstanceFilters = props => {
         name={FACETS.NATURE_OF_CONTENT}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={mode?.length > 0}
+        displayClearButton={activeFilters[FACETS.NATURE_OF_CONTENT]?.length > 0}
         onClearFilter={() => onClear(FACETS.NATURE_OF_CONTENT)}
       >
         <CheckboxFacet
           name={FACETS.NATURE_OF_CONTENT}
-          dataOptions={facetsOptions.natureOfContentOptions}
-          selectedValues={natureOfContent}
+          dataOptions={facetsOptions[FACETS_OPTIONS.NATURE_OF_CONTENT_OPTIONS]}
+          selectedValues={activeFilters[FACETS.NATURE_OF_CONTENT]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -182,13 +279,13 @@ const InstanceFilters = props => {
         name={FACETS.STAFF_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={staffSuppress?.length > 0}
+        displayClearButton={activeFilters[FACETS.STAFF_SUPPRESS]?.length > 0}
         onClearFilter={() => onClear(FACETS.STAFF_SUPPRESS)}
       >
         <CheckboxFacet
           name={FACETS.STAFF_SUPPRESS}
-          dataOptions={facetsOptions.suppressedOptions}
-          selectedValues={staffSuppress}
+          dataOptions={facetsOptions[FACETS_OPTIONS.SUPPRESSED_OPTIONS]}
+          selectedValues={activeFilters[FACETS.STAFF_SUPPRESS]}
           isPending={getIsPending(FACETS.STAFF_SUPPRESS)}
           onChange={onChange}
         />
@@ -199,14 +296,14 @@ const InstanceFilters = props => {
         name={FACETS.INSTANCES_DISCOVERY_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={instancesDiscoverySuppress?.length > 0}
+        displayClearButton={activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS]?.length > 0}
         onClearFilter={() => onClear(FACETS.INSTANCES_DISCOVERY_SUPPRESS)}
       >
         <CheckboxFacet
           data-test-filter-instance-discovery-suppress
           name={FACETS.INSTANCES_DISCOVERY_SUPPRESS}
-          dataOptions={facetsOptions.discoverySuppressOptions}
-          selectedValues={instancesDiscoverySuppress}
+          dataOptions={facetsOptions[FACETS_OPTIONS.INSTANCES_DISCOVERY_SUPPRESS_OPTIONS]}
+          selectedValues={activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS]}
           isPending={getIsPending(FACETS.INSTANCES_DISCOVERY_SUPPRESS)}
           onChange={onChange}
         />
@@ -217,13 +314,13 @@ const InstanceFilters = props => {
         name={FACETS.CREATED_DATE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={createdDate?.length > 0}
+        displayClearButton={activeFilters[FACETS.CREATED_DATE]?.length > 0}
         onClearFilter={() => onClear(FACETS.CREATED_DATE)}
       >
         <DateRangeFilter
           name={FACETS.CREATED_DATE}
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate?.[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.CREATED_DATE]?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />
@@ -234,13 +331,13 @@ const InstanceFilters = props => {
         name={FACETS.UPDATED_DATE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={updatedDate?.length > 0}
+        displayClearButton={activeFilters[FACETS.UPDATED_DATE]?.length > 0}
         onClearFilter={() => onClear(FACETS.UPDATED_DATE)}
       >
         <DateRangeFilter
           name={FACETS.UPDATED_DATE}
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate?.[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.UPDATED_DATE]?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />
@@ -251,14 +348,14 @@ const InstanceFilters = props => {
         name={FACETS.SOURCE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={source?.length > 0}
+        displayClearButton={activeFilters[FACETS.SOURCE]?.length > 0}
         onClearFilter={() => onClear(FACETS.SOURCE)}
       >
         <CheckboxFacet
           data-test-filter-instance-source
           name={FACETS.SOURCE}
-          dataOptions={facetsOptions.sourceOptions}
-          selectedValues={source}
+          dataOptions={facetsOptions[FACETS_OPTIONS.SOURCE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.SOURCE]}
           isPending={getIsPending(FACETS.SOURCE)}
           onChange={onChange}
         />
@@ -267,9 +364,9 @@ const InstanceFilters = props => {
         id={FACETS.INSTANCES_TAGS}
         onChange={onChange}
         onClear={onClear}
-        selectedValues={instancesTags}
+        selectedValues={activeFilters[FACETS.INSTANCES_TAGS]}
         isPending={getIsPending(FACETS.INSTANCES_TAGS)}
-        tagsRecords={facetsOptions.tagsRecords}
+        tagsRecords={facetsOptions[FACETS_OPTIONS.INSTANCES_TAGS_OPTIONS]}
         onFetch={handleFetchFacets}
         onSearch={handleFilterSearch}
       />
