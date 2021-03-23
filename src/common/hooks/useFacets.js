@@ -1,78 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
-import { languageOptionsES } from '../../components/InstanceFilters/languages';
-import {
-  FACETS,
-  FACETS_OPTIONS,
-  IDs,
-} from '../../constants';
 
-const useFacets = (activeFilters, data) => {
-  const {
-    effectiveLocation,
-    resource,
-    language,
-    format,
-    mode,
-    natureOfContent,
-    instancesDiscoverySuppress,
-    holdingsDiscoverySuppress,
-    itemsDiscoverySuppress,
-    staffSuppress,
-    createdDate,
-    updatedDate,
-    source,
-    instancesTags,
-    holdingsTags,
-    itemsTags,
-    holdingsPermanentLocation,
-    materialType,
-    itemStatus,
-  } = activeFilters;
+import { FACETS } from '../../constants';
 
+const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getNewRecords, data) => {
   const {
-    locations,
-    resourceTypes,
-    instanceFormats,
-    modesOfIssuance,
-    natureOfContentTerms,
-    tagsRecords,
     query: { query, filters = '' },
     onFetchFacets,
     parentResources: { facets },
-    materialTypes,
-    itemStatuses,
   } = data;
 
   const records = facets.records[0];
 
-  const intl = useIntl();
   const location = useLocation();
-  const [accordions, setAccordions] = useState({
-    [FACETS.EFFECTIVE_LOCATION]: false,
-    [FACETS.LANGUAGE]: false,
-    [FACETS.RESOURCE]: false,
-    [FACETS.FORMAT]: false,
-    [FACETS.MODE]: false,
-    [FACETS.NATURE_OF_CONTENT]: false,
-    [FACETS.STAFF_SUPPRESS]: false,
-    [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: false,
-    [FACETS.ITEMS_DISCOVERY_SUPPRESS]: false,
-    [FACETS.HOLDINGS_DISCOVERY_SUPPRESS]: false,
-    [FACETS.CREATED_DATE]: false,
-    [FACETS.UPDATED_DATE]: false,
-    [FACETS.SOURCE]: false,
-    [FACETS.INSTANCES_TAGS]: false,
-    [FACETS.HOLDINGS_TAGS]: false,
-    [FACETS.ITEMS_TAGS]: false,
-    [FACETS.MATERIAL_TYPE]: false,
-    [FACETS.ITEM_STATUS]: false,
-    [FACETS.HOLDINGS_PERMANENT_LOCATION]: false,
-  });
-
+  const [accordions, setAccordions] = useState(segmentAccordions);
   const [accordionsData, setAccordionsData] = useState({});
+  const [facetsOptions, setFacetsOptions] = useState(segmentOptions);
   const [facetSettings, setFacetSettings] = useState({});
   const [facetNameToOpen, setFacetNameToOpen] = useState('');
   const [showLoadingForAllFacets, setShowLoadingForAllFacets] = useState(false);
@@ -135,93 +79,6 @@ const useFacets = (activeFilters, data) => {
     }
   };
 
-  const getFacetOptions = (entries, facetData) => {
-    return entries.reduce((accum, entry) => {
-      if (!entry.totalRecords) return accum;
-
-      const {
-        name = '',
-        id,
-        label = '',
-      } = facetData.find(facet => facet.id === entry.id || facet.label === entry.id);
-
-      const option = {
-        label: name || label,
-        value: id,
-        count: entry.totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const getSuppressedOptions = (suppressedOptionsRecords) => {
-    return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
-      if (!totalRecords) return accum;
-
-      const idPart = id === 'true' ? 'yes' : 'no';
-      const value = id === 'true' ? 'true' : 'false';
-
-      const option = {
-        label: <FormattedMessage id={`ui-inventory.${idPart}`} />,
-        value,
-        count: totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const getSourceOptions = (sourceRecords) => {
-    return sourceRecords.reduce((accum, { id, totalRecords }) => {
-      if (!totalRecords) return accum;
-
-      const value = id === 'FOLIO' ? 'FOLIO' : 'MARC';
-      const option = {
-        label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
-        value,
-        count: totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const getItemStatusesOptions = (entries, facetData) => {
-    return entries.reduce((accum, entry) => {
-      if (!entry.totalRecords) return accum;
-
-      const {
-        value,
-        label,
-      } = facetData.find(facet => facet.value === entry.id);
-
-      const option = {
-        label: intl.formatMessage({ id: label }),
-        value,
-        count: entry.totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const [facetsOptions, setFacetsOptions] = useState({
-    effectiveLocationOptions: [],
-    langOptions: [],
-    resourceTypeOptions: [],
-    instanceFormatOptions: [],
-    modeOfIssuanceOptions: [],
-    natureOfContentOptions: [],
-    suppressedOptions: [],
-    discoverySuppressOptions: [],
-    sourceOptions: [],
-    tagsRecords: [],
-    materialTypesOptions: [],
-    itemStatusesOptions: [],
-    holdingsPermanentLocationOptions: [],
-  });
-
   const processOnMoreClicking = (onMoreClickedFacet) => {
     onFetchFacets({ onMoreClickedFacet });
 
@@ -279,75 +136,16 @@ const useFacets = (activeFilters, data) => {
     }
   };
 
-  const processFacetOptions = (accum, name, recordName, facetData) => {
-    if (facetData) {
-      accum[name] = getFacetOptions(records[recordName].values, facetData);
-    }
-  };
-
-  const processItemsStatuses = (accum, name, recordName) => {
-    if (itemStatuses) {
-      accum[name] = getItemStatusesOptions(records[recordName].values, itemStatuses);
-    }
+  const getIsPending = (facetName) => {
+    return facets.isPending && (showLoadingForAllFacets || facetNameToOpen === facetName);
   };
 
   useEffect(() => {
     if (!_.isEmpty(records)) {
-      const newRecords = _.reduce(FACETS_OPTIONS, (accum, name, recordName) => {
-        if (records[recordName]) {
-          switch (recordName) {
-            case IDs.EFFECTIVE_LOCATION_ID:
-            case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
-              processFacetOptions(accum, name, recordName, locations);
-              break;
-            case IDs.LANGUAGES:
-              accum[name] = languageOptionsES(intl, records[recordName].values);
-              break;
-            case IDs.INSTANCE_TYPE_ID:
-              processFacetOptions(accum, name, recordName, resourceTypes);
-              break;
-            case IDs.INSTANCE_FORMAT_ID:
-              processFacetOptions(accum, name, recordName, instanceFormats);
-              break;
-            case IDs.MODE_OF_ISSUANCE_ID:
-              processFacetOptions(accum, name, recordName, modesOfIssuance);
-              break;
-            case IDs.NATURE_OF_CONTENT_TERM_IDS:
-              processFacetOptions(accum, name, recordName, natureOfContentTerms);
-              break;
-            case IDs.STAFF_SUPPRESS:
-            case IDs.INSTANCES_DISCOVERY_SUPPRESS:
-            case IDs.HOLDINGS_DISCOVERY_SUPPRESS_ID:
-            case IDs.ITEMS_DISCOVERY_SUPPRESS_ID:
-              accum[name] = getSuppressedOptions(records[recordName].values);
-              break;
-            case IDs.SOURCE:
-              accum[name] = getSourceOptions(records[recordName].values);
-              break;
-            case IDs.INSTANCES_TAGS_ID:
-            case IDs.HOLDINGS_TAGS_ID:
-            case IDs.ITEMS_TAGS_ID:
-              processFacetOptions(accum, name, recordName, tagsRecords);
-              break;
-            case IDs.MATERIAL_TYPES_ID:
-              processFacetOptions(accum, name, recordName, materialTypes);
-              break;
-            case IDs.ITEMS_STATUSES_ID:
-              processItemsStatuses(accum, name, recordName);
-              break;
-            default:
-          }
-        }
-        return accum;
-      }, {});
-
+      const newRecords = getNewRecords(records);
       setFacetsOptions(prevFacetOptions => ({ ...prevFacetOptions, ...newRecords }));
     }
   }, [records]);
-
-  const getIsPending = (facetName) => {
-    return facets.isPending && (showLoadingForAllFacets || facetNameToOpen === facetName);
-  };
 
   useEffect(() => {
     let facetToOpen = '';
@@ -393,28 +191,6 @@ const useFacets = (activeFilters, data) => {
   }, [accordionsData]);
 
   useEffect(() => {
-    const selectedFacetFilters = {
-      [FACETS.EFFECTIVE_LOCATION]: effectiveLocation,
-      [FACETS.LANGUAGE]: language,
-      [FACETS.RESOURCE]: resource,
-      [FACETS.FORMAT]: format,
-      [FACETS.MODE]: mode,
-      [FACETS.NATURE_OF_CONTENT]: natureOfContent,
-      [FACETS.STAFF_SUPPRESS]: staffSuppress,
-      [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: instancesDiscoverySuppress,
-      [FACETS.ITEMS_DISCOVERY_SUPPRESS]: itemsDiscoverySuppress,
-      [FACETS.HOLDINGS_DISCOVERY_SUPPRESS]: holdingsDiscoverySuppress,
-      [FACETS.CREATED_DATE]: createdDate,
-      [FACETS.UPDATED_DATE]: updatedDate,
-      [FACETS.SOURCE]: source,
-      [FACETS.INSTANCES_TAGS]: instancesTags,
-      [FACETS.HOLDINGS_TAGS]: holdingsTags,
-      [FACETS.ITEMS_TAGS]: itemsTags,
-      [FACETS.MATERIAL_TYPE]: materialType,
-      [FACETS.ITEM_STATUS]: itemStatus,
-      [FACETS.HOLDINGS_PERMANENT_LOCATION]: holdingsPermanentLocation,
-    };
-
     _.forEach(selectedFacetFilters, (selectedFilters, facetName) => {
       processFilterChange(selectedFilters, facetName);
     });
