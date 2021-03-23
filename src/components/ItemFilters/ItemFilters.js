@@ -1,7 +1,7 @@
-import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   Accordion,
   AccordionSet,
@@ -11,22 +11,89 @@ import {
 import TagsFilter from '../TagsFilter';
 import CheckboxFacet from '../CheckboxFacet';
 import { useFacets } from '../../common/hooks';
-import { FACETS } from '../../constants';
+import {
+  getSuppressedOptions,
+  processFacetOptions,
+  processItemsStatuses
+} from '../../facetUtils';
+import {
+  FACETS,
+  FACETS_OPTIONS,
+  FACETS_SETTINGS,
+  IDs,
+} from '../../constants';
 
 const ItemFilters = (props) => {
   const {
-    activeFilters: {
-      materialType,
-      itemStatus,
-      effectiveLocation,
-      holdingsPermanentLocation,
-      itemsDiscoverySuppress,
-      itemsTags,
+    activeFilters,
+    data: {
+      itemStatuses,
+      locations,
+      materialTypes,
+      tagsRecords,
     },
-    data,
     onChange,
     onClear,
   } = props;
+
+  const intl = useIntl();
+
+  const segmentAccordions = {
+    [FACETS.ITEM_STATUS]: false,
+    [FACETS.EFFECTIVE_LOCATION]: false,
+    [FACETS.HOLDINGS_PERMANENT_LOCATION]: false,
+    [FACETS.MATERIAL_TYPE]: false,
+    [FACETS.ITEMS_DISCOVERY_SUPPRESS]: false,
+    [FACETS.ITEMS_TAGS]: false,
+  };
+
+  const segmentOptions = {
+    [FACETS_OPTIONS.ITEMS_STATUSES_OPTIONS]: [],
+    [FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.HOLDINGS_PERMANENT_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.MATERIAL_TYPES_OPTIONS]: [],
+    [FACETS_OPTIONS.ITEMS_DISCOVERY_SUPPRESS_OPTIONS]: [],
+    [FACETS_OPTIONS.ITEMS_TAGS_OPTIONS]: [],
+  };
+
+  const selectedFacetFilters = {
+    [FACETS.ITEM_STATUS]: activeFilters[FACETS.ITEM_STATUS],
+    [FACETS.EFFECTIVE_LOCATION]: activeFilters[FACETS.EFFECTIVE_LOCATION],
+    [FACETS.HOLDINGS_PERMANENT_LOCATION]: activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION],
+    [FACETS.MATERIAL_TYPE]: activeFilters[FACETS.MATERIAL_TYPE],
+    [FACETS.ITEMS_DISCOVERY_SUPPRESS]: activeFilters[FACETS.ITEMS_DISCOVERY_SUPPRESS],
+    [FACETS.ITEMS_TAGS]: activeFilters[FACETS.ITEMS_TAGS],
+  };
+
+  const getNewRecords = (records) => {
+    return _.reduce(FACETS_SETTINGS, (accum, name, recordName) => {
+      if (records[recordName]) {
+        const recordValues = records[recordName].values;
+        const commonProps = [recordValues, accum, name];
+
+        switch (recordName) {
+          case IDs.ITEMS_STATUSES_ID:
+            processItemsStatuses(itemStatuses, intl, ...commonProps);
+            break;
+          case IDs.EFFECTIVE_LOCATION_ID:
+          case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
+            processFacetOptions(locations, ...commonProps);
+            break;
+          case IDs.MATERIAL_TYPES_ID:
+            processFacetOptions(materialTypes, ...commonProps);
+            break;
+          case IDs.ITEMS_DISCOVERY_SUPPRESS_ID:
+            accum[name] = getSuppressedOptions(recordValues);
+            break;
+          case IDs.ITEMS_TAGS_ID:
+            processFacetOptions(tagsRecords, ...commonProps);
+            break;
+          default:
+        }
+      }
+      return accum;
+    }, {});
+  };
 
   const [
     accordions,
@@ -35,7 +102,13 @@ const ItemFilters = (props) => {
     handleFilterSearch,
     facetsOptions,
     getIsPending,
-  ] = useFacets(props.activeFilters, data);
+  ] = useFacets(
+    segmentAccordions,
+    segmentOptions,
+    selectedFacetFilters,
+    getNewRecords,
+    props.data
+  );
 
   return (
     <AccordionSet accordionStatus={accordions} onToggle={onToggleSection}>
@@ -44,13 +117,13 @@ const ItemFilters = (props) => {
         id={FACETS.ITEM_STATUS}
         name={FACETS.ITEM_STATUS}
         header={FilterAccordionHeader}
-        displayClearButton={!isEmpty(itemStatus)}
+        displayClearButton={!_.isEmpty(activeFilters[FACETS.ITEM_STATUS])}
         onClearFilter={() => onClear(FACETS.ITEM_STATUS)}
       >
         <CheckboxFacet
           name={FACETS.ITEM_STATUS}
-          dataOptions={facetsOptions.itemStatusesOptions}
-          selectedValues={itemStatus}
+          dataOptions={facetsOptions[FACETS_OPTIONS.ITEMS_STATUSES_OPTIONS]}
+          selectedValues={activeFilters[FACETS.ITEM_STATUS]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -64,13 +137,13 @@ const ItemFilters = (props) => {
         name={FACETS.EFFECTIVE_LOCATION}
         separator
         header={FilterAccordionHeader}
-        displayClearButton={effectiveLocation?.length > 0}
+        displayClearButton={activeFilters[FACETS.EFFECTIVE_LOCATION]?.length > 0}
         onClearFilter={() => onClear(FACETS.EFFECTIVE_LOCATION)}
       >
         <CheckboxFacet
           name={FACETS.EFFECTIVE_LOCATION}
-          dataOptions={facetsOptions.effectiveLocationOptions}
-          selectedValues={effectiveLocation}
+          dataOptions={facetsOptions[FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.EFFECTIVE_LOCATION]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -84,13 +157,13 @@ const ItemFilters = (props) => {
         name={FACETS.HOLDINGS_PERMANENT_LOCATION}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={holdingsPermanentLocation?.length > 0}
+        displayClearButton={activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION]?.length > 0}
         onClearFilter={() => onClear(FACETS.HOLDINGS_PERMANENT_LOCATION)}
       >
         <CheckboxFacet
           name={FACETS.HOLDINGS_PERMANENT_LOCATION}
-          dataOptions={facetsOptions.holdingsPermanentLocationOptions}
-          selectedValues={holdingsPermanentLocation}
+          dataOptions={facetsOptions[FACETS_OPTIONS.HOLDINGS_PERMANENT_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -105,14 +178,14 @@ const ItemFilters = (props) => {
         separator
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={!isEmpty(materialType)}
+        displayClearButton={!_.isEmpty(activeFilters[FACETS.MATERIAL_TYPE])}
         onClearFilter={() => onClear(FACETS.MATERIAL_TYPE)}
       >
         <CheckboxFacet
           name={FACETS.MATERIAL_TYPE}
           id="materialTypeFilter"
-          dataOptions={facetsOptions.materialTypesOptions}
-          selectedValues={materialType}
+          dataOptions={facetsOptions[FACETS_OPTIONS.MATERIAL_TYPES_OPTIONS]}
+          selectedValues={activeFilters[FACETS.MATERIAL_TYPE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           onFetch={handleFetchFacets}
@@ -126,14 +199,14 @@ const ItemFilters = (props) => {
         name={FACETS.ITEMS_DISCOVERY_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={itemsDiscoverySuppress?.length > 0}
+        displayClearButton={activeFilters[FACETS.ITEMS_DISCOVERY_SUPPRESS]?.length > 0}
         onClearFilter={() => onClear(FACETS.ITEMS_DISCOVERY_SUPPRESS)}
       >
         <CheckboxFacet
           data-test-filter-item-discovery-suppress
           name={FACETS.ITEMS_DISCOVERY_SUPPRESS}
-          dataOptions={facetsOptions.discoverySuppressOptions}
-          selectedValues={itemsDiscoverySuppress}
+          dataOptions={facetsOptions[FACETS_OPTIONS.ITEMS_DISCOVERY_SUPPRESS_OPTIONS]}
+          selectedValues={activeFilters[FACETS.ITEMS_DISCOVERY_SUPPRESS]}
           onChange={onChange}
           isPending={getIsPending(FACETS.ITEMS_DISCOVERY_SUPPRESS)}
         />
@@ -144,8 +217,8 @@ const ItemFilters = (props) => {
         onClear={onClear}
         onSearch={handleFilterSearch}
         onFetch={handleFetchFacets}
-        selectedValues={itemsTags}
-        tagsRecords={facetsOptions.tagsRecords}
+        selectedValues={activeFilters[FACETS.ITEMS_TAGS]}
+        tagsRecords={facetsOptions[FACETS_OPTIONS.ITEMS_TAGS_OPTIONS]}
         isPending={getIsPending(FACETS.ITEMS_TAGS)}
       />
     </AccordionSet>
