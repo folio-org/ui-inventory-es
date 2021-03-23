@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
+import _ from 'lodash';
 
 import {
   Accordion,
@@ -11,20 +12,72 @@ import { AccordionSet } from '@folio/stripes-components';
 import TagsFilter from '../TagsFilter';
 import CheckboxFacet from '../CheckboxFacet';
 import { useFacets } from '../../common/hooks';
-import { FACETS } from '../../constants';
+import {
+  getSuppressedOptions,
+  processFacetOptions,
+} from '../../facetUtils';
+import {
+  FACETS,
+  FACETS_OPTIONS,
+  IDs,
+  FACETS_SETTINGS,
+} from '../../constants';
 
 const HoldingsRecordFilters = (props) => {
   const {
-    activeFilters: {
-      holdingsDiscoverySuppress,
-      effectiveLocation,
-      holdingsPermanentLocation,
-      holdingsTags,
+    activeFilters,
+    data: {
+      locations,
+      tagsRecords,
     },
-    data,
     onChange,
     onClear,
   } = props;
+
+  const segmentAccordions = {
+    [FACETS.EFFECTIVE_LOCATION]: false,
+    [FACETS.HOLDINGS_PERMANENT_LOCATION]: false,
+    [FACETS.HOLDINGS_DISCOVERY_SUPPRESS]: false,
+    [FACETS.HOLDINGS_TAGS]: false,
+  };
+
+  const segmentOptions = {
+    [FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.HOLDINGS_PERMANENT_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.HOLDINGS_DISCOVERY_SUPPRESS_OPTIONS]: [],
+    [FACETS_OPTIONS.HOLDINGS_TAGS_OPTIONS]: [],
+  };
+
+  const selectedFacetFilters = {
+    [FACETS.EFFECTIVE_LOCATION]: activeFilters[FACETS.EFFECTIVE_LOCATION],
+    [FACETS.HOLDINGS_PERMANENT_LOCATION]: activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION],
+    [FACETS.HOLDINGS_DISCOVERY_SUPPRESS]: activeFilters[FACETS.HOLDINGS_DISCOVERY_SUPPRESS],
+    [FACETS.HOLDINGS_TAGS]: activeFilters[FACETS.HOLDINGS_TAGS],
+  };
+
+  const getNewRecords = (records) => {
+    return _.reduce(FACETS_SETTINGS, (accum, name, recordName) => {
+      if (records[recordName]) {
+        const recordValues = records[recordName].values;
+        const commonProps = [recordValues, accum, name];
+
+        switch (recordName) {
+          case IDs.EFFECTIVE_LOCATION_ID:
+          case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
+            processFacetOptions(locations, ...commonProps);
+            break;
+          case IDs.HOLDINGS_DISCOVERY_SUPPRESS_ID:
+            accum[name] = getSuppressedOptions(recordValues);
+            break;
+          case IDs.HOLDINGS_TAGS_ID:
+            processFacetOptions(tagsRecords, ...commonProps);
+            break;
+          default:
+        }
+      }
+      return accum;
+    }, {});
+  };
 
   const [
     accordions,
@@ -33,7 +86,13 @@ const HoldingsRecordFilters = (props) => {
     handleFilterSearch,
     facetsOptions,
     getIsPending,
-  ] = useFacets(props.activeFilters, data);
+  ] = useFacets(
+    segmentAccordions,
+    segmentOptions,
+    selectedFacetFilters,
+    getNewRecords,
+    props.data
+  );
 
   return (
     <AccordionSet accordionStatus={accordions} onToggle={onToggleSection}>
@@ -43,13 +102,13 @@ const HoldingsRecordFilters = (props) => {
         name={FACETS.EFFECTIVE_LOCATION}
         separator={false}
         header={FilterAccordionHeader}
-        displayClearButton={effectiveLocation?.length > 0}
+        displayClearButton={activeFilters[FACETS.EFFECTIVE_LOCATION]?.length > 0}
         onClearFilter={() => onClear(FACETS.EFFECTIVE_LOCATION)}
       >
         <CheckboxFacet
           name={FACETS.EFFECTIVE_LOCATION}
-          dataOptions={facetsOptions.effectiveLocationOptions}
-          selectedValues={effectiveLocation}
+          dataOptions={facetsOptions[FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.EFFECTIVE_LOCATION]}
           onChange={onChange}
           onFetch={handleFetchFacets}
           onSearch={handleFilterSearch}
@@ -63,13 +122,13 @@ const HoldingsRecordFilters = (props) => {
         name={FACETS.HOLDINGS_PERMANENT_LOCATION}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={holdingsPermanentLocation?.length > 0}
+        displayClearButton={activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION]?.length > 0}
         onClearFilter={() => onClear(FACETS.HOLDINGS_PERMANENT_LOCATION)}
       >
         <CheckboxFacet
           name={FACETS.HOLDINGS_PERMANENT_LOCATION}
-          dataOptions={facetsOptions.holdingsPermanentLocationOptions}
-          selectedValues={holdingsPermanentLocation}
+          dataOptions={facetsOptions[FACETS_OPTIONS.HOLDINGS_PERMANENT_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION]}
           onChange={onChange}
           onFetch={handleFetchFacets}
           onSearch={handleFilterSearch}
@@ -84,15 +143,15 @@ const HoldingsRecordFilters = (props) => {
         name={FACETS.HOLDINGS_DISCOVERY_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={holdingsDiscoverySuppress?.length > 0}
+        displayClearButton={activeFilters[FACETS.HOLDINGS_DISCOVERY_SUPPRESS]?.length > 0}
         onClearFilter={() => onClear(FACETS.HOLDINGS_DISCOVERY_SUPPRESS)}
       >
         <CheckboxFacet
           data-test-filter-holdings-discovery-suppress
           name={FACETS.HOLDINGS_DISCOVERY_SUPPRESS}
-          dataOptions={facetsOptions.discoverySuppressOptions}
+          dataOptions={facetsOptions[FACETS_OPTIONS.HOLDINGS_DISCOVERY_SUPPRESS_OPTIONS]}
           isPending={getIsPending(FACETS.HOLDINGS_DISCOVERY_SUPPRESS)}
-          selectedValues={holdingsDiscoverySuppress}
+          selectedValues={activeFilters[FACETS.HOLDINGS_DISCOVERY_SUPPRESS]}
           onChange={onChange}
         />
       </Accordion>
@@ -102,8 +161,8 @@ const HoldingsRecordFilters = (props) => {
         onFetch={handleFetchFacets}
         onSearch={handleFilterSearch}
         onClear={onClear}
-        selectedValues={holdingsTags}
-        tagsRecords={facetsOptions.tagsRecords}
+        selectedValues={activeFilters[FACETS.HOLDINGS_TAGS]}
+        tagsRecords={facetsOptions[FACETS_OPTIONS.HOLDINGS_TAGS_OPTIONS]}
         isPending={getIsPending(FACETS.HOLDINGS_TAGS)}
       />
     </AccordionSet>
