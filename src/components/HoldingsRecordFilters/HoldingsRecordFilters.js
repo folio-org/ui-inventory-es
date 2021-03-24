@@ -19,7 +19,7 @@ import {
 import {
   FACETS,
   FACETS_OPTIONS,
-  IDs,
+  FACETS_CQL,
   FACETS_SETTINGS,
 } from '../../constants';
 
@@ -62,14 +62,14 @@ const HoldingsRecordFilters = (props) => {
         const commonProps = [recordValues, accum, name];
 
         switch (recordName) {
-          case IDs.EFFECTIVE_LOCATION_ID:
-          case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
+          case FACETS_CQL.EFFECTIVE_LOCATION:
+          case FACETS_CQL.HOLDINGS_PERMANENT_LOCATION:
             processFacetOptions(locations, ...commonProps);
             break;
-          case IDs.HOLDINGS_DISCOVERY_SUPPRESS_ID:
+          case FACETS_CQL.HOLDINGS_DISCOVERY_SUPPRESS:
             accum[name] = getSuppressedOptions(recordValues);
             break;
-          case IDs.HOLDINGS_TAGS_ID:
+          case FACETS_CQL.HOLDINGS_TAGS:
             processFacetOptions(tagsRecords, ...commonProps);
             break;
           default:
