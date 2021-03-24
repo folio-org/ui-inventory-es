@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 
 import { FACETS } from '../../constants';
 
-const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getNewRecords, data) => {
+const useFacets = (
+  segmentAccordions,
+  segmentOptions,
+  selectedFacetFilters,
+  getNewRecords,
+  data,
+) => {
   const {
     query: { query, filters = '' },
     onFetchFacets,
@@ -26,15 +32,15 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
   const prevUrl = useRef({});
   const prevQuery = useRef('');
 
-  const onToggleSection = ({ id }) => {
+  const onToggleSection = useCallback(({ id }) => {
     setAccordions(curState => {
       const newState = _.cloneDeep(curState);
       newState[id] = !curState[id];
       return newState;
     });
-  };
+  }, []);
 
-  const handleFilterSearch = (filter) => {
+  const handleFilterSearch = useCallback((filter) => {
     const {
       name,
       value,
@@ -47,7 +53,7 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
         value,
       },
     }));
-  };
+  }, []);
 
   const processFilterChange = (selectedFilters, facetName) => {
     if (selectedFilters) {
@@ -79,7 +85,7 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
     }
   };
 
-  const processOnMoreClicking = (onMoreClickedFacet) => {
+  const processOnMoreClicking = useCallback((onMoreClickedFacet) => {
     onFetchFacets({ onMoreClickedFacet });
 
     setFacetSettings(prevFacetSettings => ({
@@ -89,9 +95,9 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
         isOnMoreClicked: true,
       },
     }));
-  };
+  }, [onFetchFacets]);
 
-  const processAllFacets = () => {
+  const processAllFacets = useCallback(() => {
     const facetsData = { ...accordionsData };
 
     _.forEach(facetSettings, (settings, facet) => {
@@ -105,9 +111,14 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
       accordions,
       accordionsData: facetsData,
     });
-  };
+  }, [
+    accordions,
+    accordionsData,
+    facetSettings,
+    onFetchFacets,
+  ]);
 
-  const handleFetchFacets = (property = {}) => {
+  const handleFetchFacets = useCallback((property = {}) => {
     const {
       onMoreClickedFacet,
       focusedFacet,
@@ -134,11 +145,19 @@ const useFacets = (segmentAccordions, segmentOptions, selectedFacetFilters, getN
     } else {
       processAllFacets();
     }
-  };
+  }, [
+    onFetchFacets,
+    processAllFacets,
+    processOnMoreClicking
+  ]);
 
-  const getIsPending = (facetName) => {
+  const getIsPending = useCallback((facetName) => {
     return facets.isPending && (showLoadingForAllFacets || facetNameToOpen === facetName);
-  };
+  }, [
+    facets.isPending,
+    facetNameToOpen,
+    showLoadingForAllFacets
+  ]);
 
   useEffect(() => {
     if (!_.isEmpty(records)) {
