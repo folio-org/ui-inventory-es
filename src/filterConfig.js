@@ -82,7 +82,7 @@ export const instanceFilterConfig = [
   },
   {
     name: FACETS.INSTANCES_TAGS,
-    cql: 'tags.tagList',
+    cql: FACETS_CQL.INSTANCES_TAGS,
     values: [],
     operator: '=',
   },

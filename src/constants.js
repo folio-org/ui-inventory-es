@@ -153,7 +153,7 @@ export const FACETS_CQL = {
   CREATED_DATE: 'metadata.createdDate',
   UPDATED_DATE: 'metadata.updatedDate',
   SOURCE: 'source',
-  INSTANCES_TAGS: 'instanceTags',
+  INSTANCES_TAGS: 'tags.tagList',
   HOLDINGS_TAGS: 'holdings.tags.tagList',
   ITEMS_TAGS: 'items.tags.tagList',
   MATERIAL_TYPES: 'items.materialTypeId',
