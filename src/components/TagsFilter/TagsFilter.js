@@ -13,7 +13,7 @@ import CheckboxFacet from '../CheckboxFacet';
 
 const FILTER_NAME = 'tags';
 
-function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords, isPending }) {
+function TagsFilter({ id, onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords, isPending }) {
   const intl = useIntl();
   const onClearFilter = useCallback(() => onClear(FILTER_NAME), [onClear]);
   const location = useLocation();
@@ -24,7 +24,7 @@ function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tags
   const tagsOptions = tagsRecords.map(({ label, count }) => ({ label, value: label, count }));
   return (
     <Accordion
-      id="tags"
+      id={id}
       closedByDefault={!hasTagsSelected}
       displayClearButton={!!selectedValues?.length}
       header={FilterAccordionHeader}
@@ -46,6 +46,7 @@ function TagsFilter({ onChange, onFetch, onSearch, onClear, selectedValues, tags
 }
 
 TagsFilter.propTypes = {
+  id: PropTypes.string,
   isPending: PropTypes.bool,
   selectedValues: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,

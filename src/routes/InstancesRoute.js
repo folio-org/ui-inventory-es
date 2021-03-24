@@ -15,10 +15,10 @@ import {
 } from './buildManifestObject';
 import { DataContext } from '../contexts';
 import {
-  FACETS_TO_REQUEST,
+  DEFAULT_FILTERS_NUMBER,
   FACETS,
-} from '../components/InstanceFilters/constants';
-import { DEFAULT_FILTERS_NUMBER } from '../constants';
+  FACETS_TO_REQUEST
+} from '../constants';
 
 class InstancesRoute extends React.Component {
   static propTypes = {
