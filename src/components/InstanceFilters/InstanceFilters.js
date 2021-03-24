@@ -28,7 +28,7 @@ import {
   FACETS,
   FACETS_OPTIONS,
   FACETS_SETTINGS,
-  IDs,
+  FACETS_CQL,
 } from '../../constants';
 import { useFacets } from '../../common/hooks';
 import { languageOptionsES } from './languages';
@@ -100,32 +100,32 @@ const InstanceFilters = props => {
         const commonProps = [recordValues, accum, name];
 
         switch (recordName) {
-          case IDs.EFFECTIVE_LOCATION_ID:
+          case FACETS_CQL.EFFECTIVE_LOCATION:
             processFacetOptions(locations, ...commonProps);
             break;
-          case IDs.LANGUAGES:
+          case FACETS_CQL.LANGUAGES:
             accum[name] = languageOptionsES(intl, recordValues);
             break;
-          case IDs.INSTANCE_TYPE_ID:
+          case FACETS_CQL.INSTANCE_TYPE:
             processFacetOptions(resourceTypes, ...commonProps);
             break;
-          case IDs.INSTANCE_FORMAT_ID:
+          case FACETS_CQL.INSTANCE_FORMAT:
             processFacetOptions(instanceFormats, ...commonProps);
             break;
-          case IDs.MODE_OF_ISSUANCE_ID:
+          case FACETS_CQL.MODE_OF_ISSUANCE:
             processFacetOptions(modesOfIssuance, ...commonProps);
             break;
-          case IDs.NATURE_OF_CONTENT_TERM_IDS:
+          case FACETS_CQL.NATURE_OF_CONTENT:
             processFacetOptions(natureOfContentTerms, ...commonProps);
             break;
-          case IDs.STAFF_SUPPRESS:
-          case IDs.INSTANCES_DISCOVERY_SUPPRESS:
+          case FACETS_CQL.STAFF_SUPPRESS:
+          case FACETS_CQL.INSTANCES_DISCOVERY_SUPPRESS:
             accum[name] = getSuppressedOptions(recordValues);
             break;
-          case IDs.SOURCE:
+          case FACETS_CQL.SOURCE:
             accum[name] = getSourceOptions(recordValues);
             break;
-          case IDs.INSTANCES_TAGS_ID:
+          case FACETS_CQL.INSTANCES_TAGS:
             processFacetOptions(tagsRecords, ...commonProps);
             break;
           default:

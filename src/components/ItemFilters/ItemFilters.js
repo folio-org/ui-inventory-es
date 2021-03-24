@@ -20,7 +20,7 @@ import {
   FACETS,
   FACETS_OPTIONS,
   FACETS_SETTINGS,
-  IDs,
+  FACETS_CQL,
 } from '../../constants';
 
 const ItemFilters = (props) => {
@@ -72,20 +72,20 @@ const ItemFilters = (props) => {
         const commonProps = [recordValues, accum, name];
 
         switch (recordName) {
-          case IDs.ITEMS_STATUSES_ID:
+          case FACETS_CQL.ITEMS_STATUSES:
             processItemsStatuses(itemStatuses, intl, ...commonProps);
             break;
-          case IDs.EFFECTIVE_LOCATION_ID:
-          case IDs.HOLDINGS_PERMANENT_LOCATION_ID:
+          case FACETS_CQL.EFFECTIVE_LOCATION:
+          case FACETS_CQL.HOLDINGS_PERMANENT_LOCATION:
             processFacetOptions(locations, ...commonProps);
             break;
-          case IDs.MATERIAL_TYPES_ID:
+          case FACETS_CQL.MATERIAL_TYPES:
             processFacetOptions(materialTypes, ...commonProps);
             break;
-          case IDs.ITEMS_DISCOVERY_SUPPRESS_ID:
+          case FACETS_CQL.ITEMS_DISCOVERY_SUPPRESS:
             accum[name] = getSuppressedOptions(recordValues);
             break;
-          case IDs.ITEMS_TAGS_ID:
+          case FACETS_CQL.ITEMS_TAGS:
             processFacetOptions(tagsRecords, ...commonProps);
             break;
           default:
