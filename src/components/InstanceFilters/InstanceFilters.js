@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -12,36 +11,31 @@ import {
 import {
   DateRangeFilter,
 } from '@folio/stripes/smart-components';
-import { languageOptionsES } from './languages';
 
+import TagsFilter from '../TagsFilter';
+import CheckboxFacet from '../CheckboxFacet';
 import {
   retrieveDatesFromDateRangeFilterString,
   makeDateRangeFilterString,
 } from '../../utils';
-import { DATE_FORMAT } from '../../constants';
 import {
+  getSourceOptions,
+  getSuppressedOptions,
+  processFacetOptions
+} from '../../facetUtils';
+import {
+  DATE_FORMAT,
   FACETS,
+  FACETS_OPTIONS,
+  FACETS_SETTINGS,
   IDs,
-} from './constants';
-import TagsFilter from '../TagsFilter';
-import CheckboxFacet from '../CheckboxFacet';
+} from '../../constants';
+import { useFacets } from '../../common/hooks';
+import { languageOptionsES } from './languages';
 
 const InstanceFilters = props => {
   const {
-    activeFilters: {
-      effectiveLocation,
-      resource,
-      language,
-      format,
-      mode,
-      natureOfContent,
-      discoverySuppress,
-      staffSuppress,
-      createdDate,
-      updatedDate,
-      source,
-      tags,
-    },
+    activeFilters,
     data: {
       locations,
       resourceTypes,
@@ -49,19 +43,14 @@ const InstanceFilters = props => {
       modesOfIssuance,
       natureOfContentTerms,
       tagsRecords,
-      query: { query, filters = '' },
-      onFetchFacets,
-      parentResources: { facets },
     },
     onChange,
     onClear,
   } = props;
 
-  const records = facets.records[0];
-
   const intl = useIntl();
-  const location = useLocation();
-  const [accordions, setAccordions] = useState({
+
+  const segmentAccordions = {
     [FACETS.EFFECTIVE_LOCATION]: false,
     [FACETS.LANGUAGE]: false,
     [FACETS.RESOURCE]: false,
@@ -69,353 +58,113 @@ const InstanceFilters = props => {
     [FACETS.MODE]: false,
     [FACETS.NATURE_OF_CONTENT]: false,
     [FACETS.STAFF_SUPPRESS]: false,
-    [FACETS.DISCOVERY_SUPPRESS]: false,
+    [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: false,
     [FACETS.CREATED_DATE]: false,
     [FACETS.UPDATED_DATE]: false,
     [FACETS.SOURCE]: false,
-    [FACETS.TAGS]: false,
-  });
-
-  const [accordionsData, setAccordionsData] = useState({});
-  const [facetSettings, setFacetSettings] = useState({});
-  const [facetNameToOpen, setFacetNameToOpen] = useState('');
-  const [showLoadingForAllFacets, setShowLoadingForAllFacets] = useState(false);
-
-  const prevAccordionsState = useRef(accordions);
-  const prevFilters = useRef({});
-  const prevUrl = useRef({});
-  const prevQuery = useRef('');
-
-  const onToggleSection = ({ id }) => {
-    setAccordions(curState => {
-      const newState = _.cloneDeep(curState);
-      newState[id] = !curState[id];
-      return newState;
-    });
+    [FACETS.INSTANCES_TAGS]: false,
   };
 
-  const handleFilterSearch = (filter) => {
-    const {
-      name,
-      value,
-    } = filter;
-
-    setFacetSettings(prevFacetSettings => ({
-      ...prevFacetSettings,
-      [name]: {
-        ...prevFacetSettings[name],
-        value,
-      },
-    }));
-
-    onChange(filter);
+  const segmentOptions = {
+    [FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]: [],
+    [FACETS_OPTIONS.LANG_OPTIONS]: [],
+    [FACETS_OPTIONS.RESOURCE_TYPE_OPTIONS]: [],
+    [FACETS_OPTIONS.FORMAT_OPTIONS]: [],
+    [FACETS_OPTIONS.MODE_OF_ISSUANCE_OPTIONS]: [],
+    [FACETS_OPTIONS.NATURE_OF_CONTENT_OPTIONS]: [],
+    [FACETS_OPTIONS.SUPPRESSED_OPTIONS]: [],
+    [FACETS_OPTIONS.INSTANCES_DISCOVERY_SUPPRESS_OPTIONS]: [],
+    [FACETS_OPTIONS.SOURCE_OPTIONS]: [],
+    [FACETS_OPTIONS.INSTANCES_TAGS_OPTIONS]: [],
   };
 
-  const processFilterChange = (selectedFilters, facetName) => {
-    if (selectedFilters) {
-      const isFilterChanged = prevFilters.current[facetName]?.length !== selectedFilters.length;
-      if (isFilterChanged) {
-        prevFilters.current[facetName] = selectedFilters;
-
-        setAccordionsData(prevAccordionsData => ({
-          ...prevAccordionsData,
-          [facetName]: {
-            ...prevAccordionsData[facetName],
-            isSelected: true,
-          },
-        }));
-      }
-    } else {
-      const isLastFilterRemoved = prevFilters.current[facetName]?.length === 1 && selectedFilters === undefined;
-      if (isLastFilterRemoved) {
-        prevFilters.current[facetName] = [];
-
-        setAccordionsData(prevAccordionsData => ({
-          ...prevAccordionsData,
-          [facetName]: {
-            ...prevAccordionsData[facetName],
-            isSelected: false,
-          },
-        }));
-      }
-    }
+  const selectedFacetFilters = {
+    [FACETS.EFFECTIVE_LOCATION]: activeFilters[FACETS.EFFECTIVE_LOCATION],
+    [FACETS.LANGUAGE]: activeFilters[FACETS.LANGUAGE],
+    [FACETS.RESOURCE]: activeFilters[FACETS.RESOURCE],
+    [FACETS.FORMAT]: activeFilters[FACETS.FORMAT],
+    [FACETS.MODE]: activeFilters[FACETS.MODE],
+    [FACETS.NATURE_OF_CONTENT]: activeFilters[FACETS.NATURE_OF_CONTENT],
+    [FACETS.STAFF_SUPPRESS]: activeFilters[FACETS.STAFF_SUPPRESS],
+    [FACETS.INSTANCES_DISCOVERY_SUPPRESS]: activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS],
+    [FACETS.CREATED_DATE]: activeFilters[FACETS.CREATED_DATE],
+    [FACETS.UPDATED_DATE]: activeFilters[FACETS.UPDATED_DATE],
+    [FACETS.SOURCE]: activeFilters[FACETS.SOURCE],
+    [FACETS.INSTANCES_TAGS]: activeFilters[FACETS.INSTANCES_TAGS],
   };
 
-  const getFacetOptions = (entries, facetData) => {
-    return entries.reduce((accum, entry) => {
-      if (!entry.totalRecords) return accum;
+  const getNewRecords = (records) => {
+    return _.reduce(FACETS_SETTINGS, (accum, name, recordName) => {
+      if (records[recordName]) {
+        const recordValues = records[recordName].values;
+        const commonProps = [recordValues, accum, name];
 
-      const {
-        name = '',
-        id,
-        label = '',
-      } = facetData.find(facet => facet.id === entry.id || facet.label === entry.id);
-
-      const option = {
-        label: name || label,
-        value: id,
-        count: entry.totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const getSuppressedOptions = (suppressedOptionsRecords) => {
-    return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
-      if (!totalRecords) return accum;
-
-      const idPart = id === 'true' ? 'yes' : 'no';
-      const value = id === 'true' ? 'true' : 'false';
-
-      const option = {
-        label: <FormattedMessage id={`ui-inventory.${idPart}`} />,
-        value,
-        count: totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const getSourceOptions = (sourceRecords) => {
-    return sourceRecords.reduce((accum, { id, totalRecords }) => {
-      if (!totalRecords) return accum;
-
-      const value = id === 'FOLIO' ? 'FOLIO' : 'MARC';
-      const option = {
-        label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
-        value,
-        count: totalRecords,
-      };
-      accum.push(option);
-      return accum;
-    }, []);
-  };
-
-  const [facetsOptions, setFacetsOptions] = useState({
-    effectiveLocationOptions: [],
-    langOptions: [],
-    resourceTypeOptions: [],
-    instanceFormatOptions: [],
-    modeOfIssuanceOptions: [],
-    natureOfContentOptions: [],
-    suppressedOptions: [],
-    discoverySuppressOptions: [],
-    sourceOptions: [],
-    tagsRecords: [],
-  });
-
-  const processOnMoreClicking = (onMoreClickedFacet) => {
-    onFetchFacets({ onMoreClickedFacet });
-
-    setFacetSettings(prevFacetSettings => ({
-      ...prevFacetSettings,
-      [onMoreClickedFacet]: {
-        ...prevFacetSettings[onMoreClickedFacet],
-        isOnMoreClicked: true,
-      },
-    }));
-  };
-
-  const processAllFacets = () => {
-    const data = { ...accordionsData };
-
-    _.forEach(facetSettings, (settings, facet) => {
-      data[facet] = {
-        ...data[facet],
-        ...settings,
-      };
-    });
-
-    onFetchFacets({
-      accordions,
-      accordionsData: data,
-    });
-  };
-
-  const handleFetchFacets = (property = {}) => {
-    const {
-      onMoreClickedFacet,
-      focusedFacet,
-      facetToOpen,
-      dateFacet,
-    } = property;
-
-    const facetName = facetToOpen || onMoreClickedFacet || focusedFacet || dateFacet;
-
-    if (facetName) {
-      setFacetNameToOpen(facetName);
-      setShowLoadingForAllFacets(false);
-    } else {
-      setFacetNameToOpen('');
-      setShowLoadingForAllFacets(true);
-    }
-
-    if (facetToOpen) {
-      onFetchFacets({ facetToOpen });
-    } else if (onMoreClickedFacet) {
-      processOnMoreClicking(onMoreClickedFacet);
-    } else if (focusedFacet) {
-      onFetchFacets({ focusedFacet });
-    } else {
-      processAllFacets();
-    }
-  };
-
-  useEffect(() => {
-    if (!_.isEmpty(records)) {
-      const recordsSettings = {
-        [IDs.EFFECTIVE_LOCATION_ID]: 'effectiveLocationOptions',
-        [IDs.LANGUAGES]: 'langOptions',
-        [IDs.INSTANCE_TYPE_ID]: 'resourceTypeOptions',
-        [IDs.INSTANCE_FORMAT_ID]: 'instanceFormatOptions',
-        [IDs.MODE_OF_ISSUANCE_ID]: 'modeOfIssuanceOptions',
-        [IDs.NATURE_OF_CONTENT_TERM_IDS]: 'natureOfContentOptions',
-        [IDs.STAFF_SUPPRESS]: 'suppressedOptions',
-        [IDs.DISCOVERY_SUPPRESS]: 'discoverySuppressOptions',
-        [IDs.SOURCE]: 'sourceOptions',
-        [IDs.INSTANCE_TAGS]: 'tagsRecords',
-      };
-
-      const newRecords = _.reduce(recordsSettings, (accum, name, recordName) => {
-        if (records[recordName]) {
-          switch (recordName) {
-            case IDs.EFFECTIVE_LOCATION_ID:
-              accum[name] = getFacetOptions(records[recordName].values, locations);
-              break;
-            case IDs.LANGUAGES:
-              accum[name] = languageOptionsES(intl, records[recordName].values);
-              break;
-            case IDs.INSTANCE_TYPE_ID:
-              accum[name] = getFacetOptions(records[recordName].values, resourceTypes);
-              break;
-            case IDs.INSTANCE_FORMAT_ID:
-              accum[name] = getFacetOptions(records[recordName].values, instanceFormats);
-              break;
-            case IDs.MODE_OF_ISSUANCE_ID:
-              accum[name] = getFacetOptions(records[recordName].values, modesOfIssuance);
-              break;
-            case IDs.NATURE_OF_CONTENT_TERM_IDS:
-              accum[name] = getFacetOptions(records[recordName].values, natureOfContentTerms);
-              break;
-            case IDs.STAFF_SUPPRESS:
-            case IDs.DISCOVERY_SUPPRESS:
-              accum[name] = getSuppressedOptions(records[recordName].values);
-              break;
-            case IDs.SOURCE:
-              accum[name] = getSourceOptions(records[recordName].values);
-              break;
-            case IDs.INSTANCE_TAGS:
-              accum[name] = getFacetOptions(records[recordName].values, tagsRecords);
-              break;
-            default:
-          }
+        switch (recordName) {
+          case IDs.EFFECTIVE_LOCATION_ID:
+            processFacetOptions(locations, ...commonProps);
+            break;
+          case IDs.LANGUAGES:
+            accum[name] = languageOptionsES(intl, recordValues);
+            break;
+          case IDs.INSTANCE_TYPE_ID:
+            processFacetOptions(resourceTypes, ...commonProps);
+            break;
+          case IDs.INSTANCE_FORMAT_ID:
+            processFacetOptions(instanceFormats, ...commonProps);
+            break;
+          case IDs.MODE_OF_ISSUANCE_ID:
+            processFacetOptions(modesOfIssuance, ...commonProps);
+            break;
+          case IDs.NATURE_OF_CONTENT_TERM_IDS:
+            processFacetOptions(natureOfContentTerms, ...commonProps);
+            break;
+          case IDs.STAFF_SUPPRESS:
+          case IDs.INSTANCES_DISCOVERY_SUPPRESS:
+            accum[name] = getSuppressedOptions(recordValues);
+            break;
+          case IDs.SOURCE:
+            accum[name] = getSourceOptions(recordValues);
+            break;
+          case IDs.INSTANCES_TAGS_ID:
+            processFacetOptions(tagsRecords, ...commonProps);
+            break;
+          default:
         }
-        return accum;
-      }, {});
-
-      setFacetsOptions(prevFacetOptions => ({ ...prevFacetOptions, ...newRecords }));
-    }
-  }, [records]);
-
-  const getIsPending = (facetName) => {
-    return facets.isPending && (showLoadingForAllFacets || facetNameToOpen === facetName);
+      }
+      return accum;
+    }, {});
   };
 
-  useEffect(() => {
-    let facetToOpen = '';
-    let facetToClose = '';
-
-    const isFacetOpened = _.some(prevAccordionsState.current, (prevFacetValue, facetName) => {
-      const curFacetValue = accordions[facetName];
-
-      if (curFacetValue !== prevFacetValue) {
-        if (curFacetValue) {
-          facetToOpen = facetName;
-        } else {
-          facetToClose = facetName;
-        }
-        return curFacetValue;
-      }
-      return false;
-    });
-
-    const isUrlChanged = prevUrl.current[facetToOpen] !== location.search;
-
-    if (
-      isFacetOpened &&
-      isUrlChanged &&
-      facetToOpen !== FACETS.CREATED_DATE &&
-      facetToOpen !== FACETS.UPDATED_DATE
-    ) {
-      handleFetchFacets({ facetToOpen });
-    } else {
-      prevUrl.current[facetToClose] = location.search;
-    }
-
-    prevAccordionsState.current = { ...accordions };
-  }, [accordions]);
-
-  useEffect(() => {
-    if (!_.isEmpty(accordionsData)) {
-      const isNoFilterSelected = _.every(accordionsData, value => !value?.isSelected);
-      if (!query && prevQuery.current && isNoFilterSelected) return;
-
-      handleFetchFacets();
-    }
-  }, [accordionsData]);
-
-  useEffect(() => {
-    const selectedFacetFilters = {
-      [FACETS.EFFECTIVE_LOCATION]: effectiveLocation,
-      [FACETS.LANGUAGE]: language,
-      [FACETS.RESOURCE]: resource,
-      [FACETS.FORMAT]: format,
-      [FACETS.MODE]: mode,
-      [FACETS.NATURE_OF_CONTENT]: natureOfContent,
-      [FACETS.STAFF_SUPPRESS]: staffSuppress,
-      [FACETS.DISCOVERY_SUPPRESS]: discoverySuppress,
-      [FACETS.CREATED_DATE]: createdDate,
-      [FACETS.UPDATED_DATE]: updatedDate,
-      [FACETS.SOURCE]: source,
-      [FACETS.TAGS]: tags,
-    };
-
-    _.forEach(selectedFacetFilters, (selectedFilters, facetName) => {
-      processFilterChange(selectedFilters, facetName);
-    });
-  }, [filters]);
-
-  useEffect(() => {
-    const isSomeFacetOpened = _.some(accordions, isFacetOpened => isFacetOpened);
-    const isValidQuery = (query && query !== prevQuery.current) || (query !== undefined && prevQuery.current);
-
-    if (isSomeFacetOpened) {
-      if (isValidQuery) {
-        prevQuery.current = query;
-        handleFetchFacets();
-      }
-    } else if (isValidQuery) {
-      prevQuery.current = query;
-    }
-  }, [query]);
+  const [
+    accordions,
+    onToggleSection,
+    handleFetchFacets,
+    handleFilterSearch,
+    facetsOptions,
+    getIsPending,
+  ] = useFacets(
+    segmentAccordions,
+    segmentOptions,
+    selectedFacetFilters,
+    getNewRecords,
+    props.data
+  );
 
   return (
     <AccordionSet accordionStatus={accordions} onToggle={onToggleSection}>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.filters.effectiveLocation" />}
-        id="effectiveLocation"
-        name="effectiveLocation"
+        label={<FormattedMessage id={`ui-inventory.filters.${FACETS.EFFECTIVE_LOCATION}`} />}
+        id={FACETS.EFFECTIVE_LOCATION}
+        name={FACETS.EFFECTIVE_LOCATION}
         separator={false}
         header={FilterAccordionHeader}
-        displayClearButton={effectiveLocation?.length > 0}
-        onClearFilter={() => onClear('effectiveLocation')}
+        displayClearButton={activeFilters[FACETS.EFFECTIVE_LOCATION]?.length > 0}
+        onClearFilter={() => onClear(FACETS.EFFECTIVE_LOCATION)}
       >
         <CheckboxFacet
-          name="effectiveLocation"
-          dataOptions={facetsOptions.effectiveLocationOptions}
-          selectedValues={effectiveLocation}
+          name={FACETS.EFFECTIVE_LOCATION}
+          dataOptions={facetsOptions[FACETS_OPTIONS.EFFECTIVE_LOCATION_OPTIONS]}
+          selectedValues={activeFilters[FACETS.EFFECTIVE_LOCATION]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -424,19 +173,19 @@ const InstanceFilters = props => {
         />
       </Accordion>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.instances.language" />}
-        id="language"
-        name="language"
+        label={<FormattedMessage id={`ui-inventory.instances.${FACETS.LANGUAGE}`} />}
+        id={FACETS.LANGUAGE}
+        name={FACETS.LANGUAGE}
         separator={false}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={language?.length > 0}
-        onClearFilter={() => onClear('language')}
+        displayClearButton={activeFilters[FACETS.LANGUAGE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.LANGUAGE)}
       >
         <CheckboxFacet
-          name="language"
-          dataOptions={facetsOptions.langOptions}
-          selectedValues={language}
+          name={FACETS.LANGUAGE}
+          dataOptions={facetsOptions[FACETS_OPTIONS.LANG_OPTIONS]}
+          selectedValues={activeFilters[FACETS.LANGUAGE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -446,17 +195,17 @@ const InstanceFilters = props => {
       </Accordion>
       <Accordion
         label={<FormattedMessage id="ui-inventory.instances.resourceType" />}
-        id="resource"
-        name="resource"
+        id={FACETS.RESOURCE}
+        name={FACETS.RESOURCE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={resource?.length > 0}
-        onClearFilter={() => onClear('resource')}
+        displayClearButton={activeFilters[FACETS.RESOURCE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.RESOURCE)}
       >
         <CheckboxFacet
-          name="resource"
-          dataOptions={facetsOptions.resourceTypeOptions}
-          selectedValues={resource}
+          name={FACETS.RESOURCE}
+          dataOptions={facetsOptions[FACETS_OPTIONS.RESOURCE_TYPE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.RESOURCE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -466,17 +215,17 @@ const InstanceFilters = props => {
       </Accordion>
       <Accordion
         label={<FormattedMessage id="ui-inventory.instanceFormat" />}
-        id="format"
-        name="format"
+        id={FACETS.FORMAT}
+        name={FACETS.FORMAT}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={format?.length > 0}
-        onClearFilter={() => onClear('format')}
+        displayClearButton={activeFilters[FACETS.FORMAT]?.length > 0}
+        onClearFilter={() => onClear(FACETS.FORMAT)}
       >
         <CheckboxFacet
-          name="format"
-          dataOptions={facetsOptions.instanceFormatOptions}
-          selectedValues={format}
+          name={FACETS.FORMAT}
+          dataOptions={facetsOptions[FACETS_OPTIONS.FORMAT_OPTIONS]}
+          selectedValues={activeFilters[FACETS.FORMAT]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -486,17 +235,17 @@ const InstanceFilters = props => {
       </Accordion>
       <Accordion
         label={<FormattedMessage id="ui-inventory.modeOfIssuance" />}
-        id="mode"
-        name="mode"
+        id={FACETS.MODE}
+        name={FACETS.MODE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={mode?.length > 0}
-        onClearFilter={() => onClear('mode')}
+        displayClearButton={activeFilters[FACETS.MODE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.MODE)}
       >
         <CheckboxFacet
-          name="mode"
-          dataOptions={facetsOptions.modeOfIssuanceOptions}
-          selectedValues={mode}
+          name={FACETS.MODE}
+          dataOptions={facetsOptions[FACETS_OPTIONS.MODE_OF_ISSUANCE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.MODE]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -506,17 +255,17 @@ const InstanceFilters = props => {
       </Accordion>
       <Accordion
         label={<FormattedMessage id="ui-inventory.natureOfContentTerms" />}
-        id="natureOfContent"
-        name="natureOfContent"
+        id={FACETS.NATURE_OF_CONTENT}
+        name={FACETS.NATURE_OF_CONTENT}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={mode?.length > 0}
-        onClearFilter={() => onClear('natureOfContent')}
+        displayClearButton={activeFilters[FACETS.NATURE_OF_CONTENT]?.length > 0}
+        onClearFilter={() => onClear(FACETS.NATURE_OF_CONTENT)}
       >
         <CheckboxFacet
-          name="natureOfContent"
-          dataOptions={facetsOptions.natureOfContentOptions}
-          selectedValues={natureOfContent}
+          name={FACETS.NATURE_OF_CONTENT}
+          dataOptions={facetsOptions[FACETS_OPTIONS.NATURE_OF_CONTENT_OPTIONS]}
+          selectedValues={activeFilters[FACETS.NATURE_OF_CONTENT]}
           onChange={onChange}
           onSearch={handleFilterSearch}
           isFilterable
@@ -525,104 +274,99 @@ const InstanceFilters = props => {
         />
       </Accordion>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.staffSuppress" />}
-        id="staffSuppress"
-        name="staffSuppress"
+        label={<FormattedMessage id={`ui-inventory.${FACETS.STAFF_SUPPRESS}`} />}
+        id={FACETS.STAFF_SUPPRESS}
+        name={FACETS.STAFF_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={staffSuppress?.length > 0}
-        onClearFilter={() => onClear('staffSuppress')}
+        displayClearButton={activeFilters[FACETS.STAFF_SUPPRESS]?.length > 0}
+        onClearFilter={() => onClear(FACETS.STAFF_SUPPRESS)}
       >
         <CheckboxFacet
-          name="staffSuppress"
-          dataOptions={facetsOptions.suppressedOptions}
-          selectedValues={staffSuppress}
+          name={FACETS.STAFF_SUPPRESS}
+          dataOptions={facetsOptions[FACETS_OPTIONS.SUPPRESSED_OPTIONS]}
+          selectedValues={activeFilters[FACETS.STAFF_SUPPRESS]}
           isPending={getIsPending(FACETS.STAFF_SUPPRESS)}
           onChange={onChange}
-          onSearch={handleFilterSearch}
-          onFetch={handleFetchFacets}
         />
       </Accordion>
       <Accordion
         label={<FormattedMessage id="ui-inventory.discoverySuppress" />}
-        id="discoverySuppress"
-        name="discoverySuppress"
+        id={FACETS.INSTANCES_DISCOVERY_SUPPRESS}
+        name={FACETS.INSTANCES_DISCOVERY_SUPPRESS}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={discoverySuppress?.length > 0}
-        onClearFilter={() => onClear('discoverySuppress')}
+        displayClearButton={activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS]?.length > 0}
+        onClearFilter={() => onClear(FACETS.INSTANCES_DISCOVERY_SUPPRESS)}
       >
         <CheckboxFacet
           data-test-filter-instance-discovery-suppress
-          name="discoverySuppress"
-          dataOptions={facetsOptions.discoverySuppressOptions}
-          selectedValues={discoverySuppress}
-          isPending={getIsPending(FACETS.DISCOVERY_SUPPRESS)}
+          name={FACETS.INSTANCES_DISCOVERY_SUPPRESS}
+          dataOptions={facetsOptions[FACETS_OPTIONS.INSTANCES_DISCOVERY_SUPPRESS_OPTIONS]}
+          selectedValues={activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS]}
+          isPending={getIsPending(FACETS.INSTANCES_DISCOVERY_SUPPRESS)}
           onChange={onChange}
-          onSearch={handleFilterSearch}
-          onFetch={handleFetchFacets}
         />
       </Accordion>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.createdDate" />}
-        id="createdDate"
-        name="createdDate"
+        label={<FormattedMessage id={`ui-inventory.${FACETS.CREATED_DATE}`} />}
+        id={FACETS.CREATED_DATE}
+        name={FACETS.CREATED_DATE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={createdDate?.length > 0}
-        onClearFilter={() => onClear('createdDate')}
+        displayClearButton={activeFilters[FACETS.CREATED_DATE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.CREATED_DATE)}
       >
         <DateRangeFilter
-          name="createdDate"
+          name={FACETS.CREATED_DATE}
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(createdDate?.[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.CREATED_DATE]?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.updatedDate" />}
-        id="updatedDate"
-        name="updatedDate"
+        label={<FormattedMessage id={`ui-inventory.${FACETS.UPDATED_DATE}`} />}
+        id={FACETS.UPDATED_DATE}
+        name={FACETS.UPDATED_DATE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={updatedDate?.length > 0}
-        onClearFilter={() => onClear('updatedDate')}
+        displayClearButton={activeFilters[FACETS.UPDATED_DATE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.UPDATED_DATE)}
       >
         <DateRangeFilter
-          name="updatedDate"
+          name={FACETS.UPDATED_DATE}
           dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(updatedDate?.[0])}
+          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.UPDATED_DATE]?.[0])}
           onChange={onChange}
           makeFilterString={makeDateRangeFilterString}
         />
       </Accordion>
       <Accordion
-        label={<FormattedMessage id="ui-inventory.source" />}
-        id="source"
-        name="source"
+        label={<FormattedMessage id={`ui-inventory.${FACETS.SOURCE}`} />}
+        id={FACETS.SOURCE}
+        name={FACETS.SOURCE}
         closedByDefault
         header={FilterAccordionHeader}
-        displayClearButton={source?.length > 0}
-        onClearFilter={() => onClear('source')}
+        displayClearButton={activeFilters[FACETS.SOURCE]?.length > 0}
+        onClearFilter={() => onClear(FACETS.SOURCE)}
       >
         <CheckboxFacet
           data-test-filter-instance-source
-          name="source"
-          dataOptions={facetsOptions.sourceOptions}
-          selectedValues={source}
+          name={FACETS.SOURCE}
+          dataOptions={facetsOptions[FACETS_OPTIONS.SOURCE_OPTIONS]}
+          selectedValues={activeFilters[FACETS.SOURCE]}
           isPending={getIsPending(FACETS.SOURCE)}
           onChange={onChange}
-          onSearch={handleFilterSearch}
-          onFetch={handleFetchFacets}
         />
       </Accordion>
       <TagsFilter
+        id={FACETS.INSTANCES_TAGS}
         onChange={onChange}
         onClear={onClear}
-        selectedValues={tags}
-        isPending={getIsPending(FACETS.TAGS)}
-        tagsRecords={facetsOptions.tagsRecords}
+        selectedValues={activeFilters[FACETS.INSTANCES_TAGS]}
+        isPending={getIsPending(FACETS.INSTANCES_TAGS)}
+        tagsRecords={facetsOptions[FACETS_OPTIONS.INSTANCES_TAGS_OPTIONS]}
         onFetch={handleFetchFacets}
         onSearch={handleFilterSearch}
       />
@@ -641,8 +385,4 @@ InstanceFilters.propTypes = {
 
 InstanceFilters.defaultProps = {
   activeFilters: {},
-  data: {
-    resourceTypes: [],
-    locations: [],
-  },
 };

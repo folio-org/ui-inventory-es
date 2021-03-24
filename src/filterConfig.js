@@ -53,7 +53,7 @@ export const instanceFilterConfig = [
     parse: buildOptionalBooleanQuery('staffSuppress'),
   },
   {
-    name: 'discoverySuppress',
+    name: 'instancesDiscoverySuppress',
     cql: 'discoverySuppress',
     values: [],
     parse: buildOptionalBooleanQuery('discoverySuppress'),
@@ -77,7 +77,7 @@ export const instanceFilterConfig = [
     values: [],
   },
   {
-    name: 'tags',
+    name: 'instancesTags',
     cql: 'tags.tagList',
     values: [],
     operator: '=',
@@ -158,13 +158,13 @@ export const holdingFilterConfig = [
     values: [],
   },
   {
-    name: 'discoverySuppress',
+    name: 'holdingsDiscoverySuppress',
     cql: 'holdingsRecords.discoverySuppress',
     values: [],
     parse: buildOptionalBooleanQuery('holdingsRecords.discoverySuppress'),
   },
   {
-    name: 'tags',
+    name: 'holdingsTags',
     cql: 'holdingsRecords.tags.tagList',
     values: [],
     operator: '=',
@@ -223,13 +223,13 @@ export const itemFilterConfig = [
     values: [],
   },
   {
-    name: 'discoverySuppress',
+    name: 'itemsDiscoverySuppress',
     cql: 'item.discoverySuppress',
     values: [],
     parse: buildOptionalBooleanQuery('item.discoverySuppress'),
   },
   {
-    name: 'tags',
+    name: 'itemsTags',
     cql: 'item.tags.tagList',
     values: [],
     operator: '=',
