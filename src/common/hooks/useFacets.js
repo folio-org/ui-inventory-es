@@ -70,7 +70,7 @@ const useFacets = (
         }));
       }
     } else {
-      const isLastFilterRemoved = prevFilters.current[facetName]?.length === 1 && selectedFilters === undefined;
+      const isLastFilterRemoved = prevFilters.current[facetName]?.length && selectedFilters === undefined;
       if (isLastFilterRemoved) {
         prevFilters.current[facetName] = [];
 
