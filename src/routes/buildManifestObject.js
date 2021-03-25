@@ -27,9 +27,6 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
 
   if (queryIndex === 'advancedSearch' && queryValue.match('sortby')) {
     query.sort = '';
-  } else if (!query.sort) {
-    // Default sort for filtering/searching instances/holdings/items should be by title (UIIN-1046)
-    query.sort = 'title';
   }
 
   resourceData.query = { ...query, qindex: '' };
@@ -37,7 +34,7 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
   // makeQueryFunction escapes quote and backslash characters by default,
   // but when submitting a raw CQL query (i.e. when queryIndex === 'advancedSearch')
   // we assume the user knows what they are doing and wants to run the CQL as-is.
-  return makeQueryFunction(
+  const cql = makeQueryFunction(
     CQL_FIND_ALL,
     queryTemplate,
     sortMap,
@@ -46,6 +43,10 @@ export function buildQuery(queryParams, pathComponents, resourceData, logger, pr
     null,
     queryIndex !== 'advancedSearch',
   )(queryParams, pathComponents, resourceData, logger, props);
+
+  return cql === undefined
+    ? CQL_FIND_ALL
+    : cql;
 }
 
 export function buildManifestObject() {
@@ -55,7 +56,7 @@ export function buildManifestObject() {
       initialValue: {
         query: '',
         filters: '',
-        sort: 'title',
+        sort: '',
       },
     },
     resultCount: { initialValue: INITIAL_RESULT_COUNT },
