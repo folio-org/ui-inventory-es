@@ -153,9 +153,9 @@ export const FACETS_CQL = {
   CREATED_DATE: 'metadata.createdDate',
   UPDATED_DATE: 'metadata.updatedDate',
   SOURCE: 'source',
-  INSTANCES_TAGS: 'tags.tagList',
-  HOLDINGS_TAGS: 'holdings.tags.tagList',
-  ITEMS_TAGS: 'items.tags.tagList',
+  INSTANCES_TAGS: 'instanceTags',
+  HOLDINGS_TAGS: 'holdingTags',
+  ITEMS_TAGS: 'itemTags',
   MATERIAL_TYPES: 'items.materialTypeId',
   ITEMS_STATUSES: 'items.status.name',
   HOLDINGS_PERMANENT_LOCATION: 'holdings.permanentLocationId'
