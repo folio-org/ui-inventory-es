@@ -63,14 +63,16 @@ const HoldingsRecordFilters = (props) => {
 
         switch (recordName) {
           case FACETS_CQL.EFFECTIVE_LOCATION:
+            processFacetOptions(activeFilters[FACETS.EFFECTIVE_LOCATION], locations, ...commonProps);
+            break;
           case FACETS_CQL.HOLDINGS_PERMANENT_LOCATION:
-            processFacetOptions(locations, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION], locations, ...commonProps);
             break;
           case FACETS_CQL.HOLDINGS_DISCOVERY_SUPPRESS:
-            accum[name] = getSuppressedOptions(recordValues);
+            accum[name] = getSuppressedOptions(activeFilters[FACETS.HOLDINGS_DISCOVERY_SUPPRESS], recordValues);
             break;
           case FACETS_CQL.HOLDINGS_TAGS:
-            processFacetOptions(tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.HOLDINGS_TAGS], tagsRecords, ...commonProps);
             break;
           default:
         }

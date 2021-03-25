@@ -1,6 +1,8 @@
 // This file should be removed after stripes-components release.
 // Also in InstanceFilters.js we need to change the import of the
-// languageOptionsES function to '@folio/stripes-components/util/languages'.
+// languageOptionsES function to '@folio/stripes-components/util/languages'
+// and replace the languageOptionsES function from the stripes-component with
+// the languageOptionsES function from the current file.
 
 import { find } from 'lodash';
 
@@ -515,8 +517,25 @@ export const formattedLanguageName = (code, intl) => {
   else return language.name;
 };
 
-export const languageOptionsES = (intl, langs = []) => {
-  return langs.reduce((accum, { id, totalRecords }) => {
+export const languageOptionsES = (selectedLanguages, intl, langs = []) => {
+  const selectedLangsWithoutCount = [];
+
+  if (selectedLanguages) {
+    selectedLanguages.forEach(selectedLang => {
+      const selectedLangWithCount = langs.find(lang => lang.id === selectedLang);
+
+      if (!selectedLangWithCount) {
+        const option = {
+          label: formattedLanguageName(selectedLang, intl),
+          value: selectedLang,
+          count: 0,
+        };
+        selectedLangsWithoutCount.push(option);
+      }
+    });
+  }
+
+  const restLangs = langs.reduce((accum, { id, totalRecords }) => {
     if (!totalRecords) return accum;
 
     const option = {
@@ -528,6 +547,8 @@ export const languageOptionsES = (intl, langs = []) => {
 
     return accum;
   }, []);
+
+  return [...selectedLangsWithoutCount, ...restLangs];
 };
 
 export default languages;
