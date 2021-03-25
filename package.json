@@ -17,7 +17,7 @@
     ],
     "displayName": "ui-inventory-es.meta.title",
     "route": "/search",
-    "home": "/search?filters=&sort=title",
+    "home": "/search?filters=",
     "queryResource": "query",
     "icons": [
       {

@@ -17,7 +17,7 @@ const FilterNavigation = ({ segment }) => (
       Object.keys(segments).map(name => (
         <Button
           key={`${name}`}
-          to={`/search?segment=${name}&sort=title`}
+          to={`/search?segment=${name}`}
           buttonStyle={`${segment === name ? 'primary' : 'default'}`}
           id={`segment-navigation-${name}`}
         >
