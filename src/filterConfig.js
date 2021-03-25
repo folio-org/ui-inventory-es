@@ -23,7 +23,6 @@ export const instanceFilterConfig = [
     name: FACETS.LANGUAGE,
     cql: FACETS_CQL.LANGUAGES,
     values: [],
-    operator: '=',
   },
   {
     name: FACETS.FORMAT,
@@ -84,7 +83,6 @@ export const instanceFilterConfig = [
     name: FACETS.INSTANCES_TAGS,
     cql: FACETS_CQL.INSTANCES_TAGS,
     values: [],
-    operator: '=',
   },
 ];
 
@@ -171,7 +169,6 @@ export const holdingFilterConfig = [
     name: FACETS.HOLDINGS_TAGS,
     cql: FACETS_CQL.HOLDINGS_TAGS,
     values: [],
-    operator: '=',
   },
 ];
 
@@ -236,7 +233,6 @@ export const itemFilterConfig = [
     name: FACETS.ITEMS_TAGS,
     cql: FACETS_CQL.ITEMS_TAGS,
     values: [],
-    operator: '=',
   },
 ];
 
