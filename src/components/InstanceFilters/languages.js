@@ -517,17 +517,17 @@ export const formattedLanguageName = (code, intl) => {
   else return language.name;
 };
 
-export const languageOptionsES = (selectedLanguages, intl, langs = []) => {
+const getSelectedLangsWithoutCount = (selectedLanguagesId, intl, langs) => {
   const selectedLangsWithoutCount = [];
 
-  if (selectedLanguages) {
-    selectedLanguages.forEach(selectedLang => {
-      const selectedLangWithCount = langs.find(lang => lang.id === selectedLang);
+  if (selectedLanguagesId) {
+    selectedLanguagesId.forEach(selectedLangId => {
+      const selectedLangWithCount = langs.find(lang => lang.id === selectedLangId);
 
       if (!selectedLangWithCount) {
         const option = {
-          label: formattedLanguageName(selectedLang, intl),
-          value: selectedLang,
+          label: formattedLanguageName(selectedLangId, intl),
+          value: selectedLangId,
           count: 0,
         };
         selectedLangsWithoutCount.push(option);
@@ -535,6 +535,10 @@ export const languageOptionsES = (selectedLanguages, intl, langs = []) => {
     });
   }
 
+  return selectedLangsWithoutCount;
+};
+
+export const languageOptionsES = (selectedLanguagesId, intl, langs = []) => {
   const restLangs = langs.reduce((accum, { id, totalRecords }) => {
     if (!totalRecords) return accum;
 
@@ -548,7 +552,10 @@ export const languageOptionsES = (selectedLanguages, intl, langs = []) => {
     return accum;
   }, []);
 
-  return [...selectedLangsWithoutCount, ...restLangs];
+  return [
+    ...getSelectedLangsWithoutCount(selectedLanguagesId, intl, langs),
+    ...restLangs,
+  ];
 };
 
 export default languages;
