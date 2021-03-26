@@ -88,7 +88,7 @@ const ItemFilters = (props) => {
             accum[name] = getSuppressedOptions(activeFilters[FACETS.ITEMS_DISCOVERY_SUPPRESS], recordValues);
             break;
           case FACETS_CQL.ITEMS_TAGS:
-            processFacetOptions(activeFilters[FACETS.ITEMS_TAGS], tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.ITEMS_TAGS], tagsRecords, ...commonProps, 'label');
             break;
           default:
         }
@@ -215,6 +215,7 @@ const ItemFilters = (props) => {
       </Accordion>
       <TagsFilter
         id={FACETS.ITEMS_TAGS}
+        name={FACETS.ITEMS_TAGS}
         onChange={onChange}
         onClear={onClear}
         onSearch={handleFilterSearch}

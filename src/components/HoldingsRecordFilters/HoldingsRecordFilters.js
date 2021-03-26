@@ -72,7 +72,7 @@ const HoldingsRecordFilters = (props) => {
             accum[name] = getSuppressedOptions(activeFilters[FACETS.HOLDINGS_DISCOVERY_SUPPRESS], recordValues);
             break;
           case FACETS_CQL.HOLDINGS_TAGS:
-            processFacetOptions(activeFilters[FACETS.HOLDINGS_TAGS], tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.HOLDINGS_TAGS], tagsRecords, ...commonProps, 'label');
             break;
           default:
         }
@@ -159,6 +159,7 @@ const HoldingsRecordFilters = (props) => {
       </Accordion>
       <TagsFilter
         id={FACETS.HOLDINGS_TAGS}
+        name={FACETS.HOLDINGS_TAGS}
         onChange={onChange}
         onFetch={handleFetchFacets}
         onSearch={handleFilterSearch}
