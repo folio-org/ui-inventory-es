@@ -8,23 +8,15 @@ import {
   AccordionSet,
   FilterAccordionHeader,
 } from '@folio/stripes/components';
-import {
-  DateRangeFilter,
-} from '@folio/stripes/smart-components';
 
 import TagsFilter from '../TagsFilter';
 import CheckboxFacet from '../CheckboxFacet';
-import {
-  retrieveDatesFromDateRangeFilterString,
-  makeDateRangeFilterString,
-} from '../../utils';
 import {
   getSourceOptions,
   getSuppressedOptions,
   processFacetOptions
 } from '../../facetUtils';
 import {
-  DATE_FORMAT,
   FACETS,
   FACETS_OPTIONS,
   FACETS_SETTINGS,
@@ -101,32 +93,34 @@ const InstanceFilters = props => {
 
         switch (recordName) {
           case FACETS_CQL.EFFECTIVE_LOCATION:
-            processFacetOptions(locations, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.EFFECTIVE_LOCATION], locations, ...commonProps);
             break;
           case FACETS_CQL.LANGUAGES:
-            accum[name] = languageOptionsES(intl, recordValues);
+            accum[name] = languageOptionsES(activeFilters[FACETS.LANGUAGE], intl, recordValues);
             break;
           case FACETS_CQL.INSTANCE_TYPE:
-            processFacetOptions(resourceTypes, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.RESOURCE], resourceTypes, ...commonProps);
             break;
           case FACETS_CQL.INSTANCE_FORMAT:
-            processFacetOptions(instanceFormats, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.FORMAT], instanceFormats, ...commonProps);
             break;
           case FACETS_CQL.MODE_OF_ISSUANCE:
-            processFacetOptions(modesOfIssuance, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.MODE], modesOfIssuance, ...commonProps);
             break;
           case FACETS_CQL.NATURE_OF_CONTENT:
-            processFacetOptions(natureOfContentTerms, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.NATURE_OF_CONTENT], natureOfContentTerms, ...commonProps);
             break;
           case FACETS_CQL.STAFF_SUPPRESS:
+            accum[name] = getSuppressedOptions(activeFilters[FACETS.STAFF_SUPPRESS], recordValues);
+            break;
           case FACETS_CQL.INSTANCES_DISCOVERY_SUPPRESS:
-            accum[name] = getSuppressedOptions(recordValues);
+            accum[name] = getSuppressedOptions(activeFilters[FACETS.INSTANCES_DISCOVERY_SUPPRESS], recordValues);
             break;
           case FACETS_CQL.SOURCE:
-            accum[name] = getSourceOptions(recordValues);
+            accum[name] = getSourceOptions(activeFilters[FACETS.SOURCE], recordValues);
             break;
           case FACETS_CQL.INSTANCES_TAGS:
-            processFacetOptions(tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.INSTANCES_TAGS], tagsRecords, ...commonProps);
             break;
           default:
         }
@@ -308,40 +302,46 @@ const InstanceFilters = props => {
           onChange={onChange}
         />
       </Accordion>
-      <Accordion
-        label={<FormattedMessage id={`ui-inventory.${FACETS.CREATED_DATE}`} />}
-        id={FACETS.CREATED_DATE}
-        name={FACETS.CREATED_DATE}
-        closedByDefault
-        header={FilterAccordionHeader}
-        displayClearButton={activeFilters[FACETS.CREATED_DATE]?.length > 0}
-        onClearFilter={() => onClear(FACETS.CREATED_DATE)}
-      >
-        <DateRangeFilter
+      {
+        // uncomment when BE side is ready
+
+        /*
+        <Accordion
+          label={<FormattedMessage id={`ui-inventory.${FACETS.CREATED_DATE}`} />}
+          id={FACETS.CREATED_DATE}
           name={FACETS.CREATED_DATE}
-          dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.CREATED_DATE]?.[0])}
-          onChange={onChange}
-          makeFilterString={makeDateRangeFilterString}
-        />
-      </Accordion>
-      <Accordion
-        label={<FormattedMessage id={`ui-inventory.${FACETS.UPDATED_DATE}`} />}
-        id={FACETS.UPDATED_DATE}
-        name={FACETS.UPDATED_DATE}
-        closedByDefault
-        header={FilterAccordionHeader}
-        displayClearButton={activeFilters[FACETS.UPDATED_DATE]?.length > 0}
-        onClearFilter={() => onClear(FACETS.UPDATED_DATE)}
-      >
-        <DateRangeFilter
+          closedByDefault
+          header={FilterAccordionHeader}
+          displayClearButton={activeFilters[FACETS.CREATED_DATE]?.length > 0}
+          onClearFilter={() => onClear(FACETS.CREATED_DATE)}
+        >
+          <DateRangeFilter
+            name={FACETS.CREATED_DATE}
+            dateFormat={DATE_FORMAT}
+            selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.CREATED_DATE]?.[0])}
+            onChange={onChange}
+            makeFilterString={makeDateRangeFilterString}
+          />
+        </Accordion>
+        <Accordion
+          label={<FormattedMessage id={`ui-inventory.${FACETS.UPDATED_DATE}`} />}
+          id={FACETS.UPDATED_DATE}
           name={FACETS.UPDATED_DATE}
-          dateFormat={DATE_FORMAT}
-          selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.UPDATED_DATE]?.[0])}
-          onChange={onChange}
-          makeFilterString={makeDateRangeFilterString}
-        />
-      </Accordion>
+          closedByDefault
+          header={FilterAccordionHeader}
+          displayClearButton={activeFilters[FACETS.UPDATED_DATE]?.length > 0}
+          onClearFilter={() => onClear(FACETS.UPDATED_DATE)}
+        >
+          <DateRangeFilter
+            name={FACETS.UPDATED_DATE}
+            dateFormat={DATE_FORMAT}
+            selectedValues={retrieveDatesFromDateRangeFilterString(activeFilters[FACETS.UPDATED_DATE]?.[0])}
+            onChange={onChange}
+            makeFilterString={makeDateRangeFilterString}
+          />
+        </Accordion>
+        */
+      }
       <Accordion
         label={<FormattedMessage id={`ui-inventory.${FACETS.SOURCE}`} />}
         id={FACETS.SOURCE}
