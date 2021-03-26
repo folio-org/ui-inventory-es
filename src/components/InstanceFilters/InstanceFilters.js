@@ -120,7 +120,7 @@ const InstanceFilters = props => {
             accum[name] = getSourceOptions(activeFilters[FACETS.SOURCE], recordValues);
             break;
           case FACETS_CQL.INSTANCES_TAGS:
-            processFacetOptions(activeFilters[FACETS.INSTANCES_TAGS], tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.INSTANCES_TAGS], tagsRecords, ...commonProps, 'label');
             break;
           default:
         }
@@ -362,6 +362,7 @@ const InstanceFilters = props => {
       </Accordion>
       <TagsFilter
         id={FACETS.INSTANCES_TAGS}
+        name={FACETS.INSTANCES_TAGS}
         onChange={onChange}
         onClear={onClear}
         selectedValues={activeFilters[FACETS.INSTANCES_TAGS]}

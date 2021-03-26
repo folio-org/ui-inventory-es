@@ -11,15 +11,23 @@ import {
 
 import CheckboxFacet from '../CheckboxFacet';
 
-const FILTER_NAME = 'tags';
-
-function TagsFilter({ id, onChange, onFetch, onSearch, onClear, selectedValues, tagsRecords, isPending }) {
+const TagsFilter = ({
+  id,
+  name,
+  onChange,
+  onFetch,
+  onSearch,
+  onClear,
+  selectedValues,
+  tagsRecords,
+  isPending,
+}) => {
   const intl = useIntl();
-  const onClearFilter = useCallback(() => onClear(FILTER_NAME), [onClear]);
+  const onClearFilter = useCallback(() => onClear(name), [onClear, name]);
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const hasTagsSelected = !!Object.keys(filterState(urlParams.get('filters')))
-    .find((key) => key.startsWith(`${FILTER_NAME}.`));
+    .find((key) => key.startsWith(`${name}.`));
 
   const tagsOptions = tagsRecords.map(({ label, count }) => ({ label, value: label, count }));
   return (
@@ -33,7 +41,7 @@ function TagsFilter({ id, onChange, onFetch, onSearch, onClear, selectedValues, 
     >
       <CheckboxFacet
         dataOptions={tagsOptions}
-        name={FILTER_NAME}
+        name={name}
         onChange={onChange}
         onSearch={onSearch}
         onFetch={onFetch}
@@ -48,6 +56,7 @@ function TagsFilter({ id, onChange, onFetch, onSearch, onClear, selectedValues, 
 TagsFilter.propTypes = {
   id: PropTypes.string,
   isPending: PropTypes.bool,
+  name: PropTypes.string,
   selectedValues: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,

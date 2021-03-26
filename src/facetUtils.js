@@ -1,11 +1,11 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 
-const getFacetDataMap = (facetData) => {
+const getFacetDataMap = (facetData, key = 'id') => {
   const facetDataMap = new Map();
 
   facetData.forEach(data => {
-    const id = data.id || data.label;
+    const id = data[key];
     facetDataMap.set(id, data);
   });
 
@@ -39,8 +39,8 @@ const getSelectedFacetOptionsWithoutCount = (selectedFiltersId, entries, facetDa
   return selectedFiltersWithoutCount;
 };
 
-export const getFacetOptions = (selectedFiltersId, entries, facetData) => {
-  const facetDataMap = getFacetDataMap(facetData);
+export const getFacetOptions = (selectedFiltersId, entries, facetData, key) => {
+  const facetDataMap = getFacetDataMap(facetData, key);
 
   const restFilters = entries.reduce((accum, entry) => {
     if (!entry.totalRecords) return accum;
@@ -205,9 +205,9 @@ export const getItemStatusesOptions = (selectedFiltersId, entries, facetData, in
   ];
 };
 
-export const processFacetOptions = (selectedFiltersId, facetData, recordValues, accum, name) => {
+export const processFacetOptions = (selectedFiltersId, facetData, recordValues, accum, name, key) => {
   if (facetData) {
-    accum[name] = getFacetOptions(selectedFiltersId, recordValues, facetData);
+    accum[name] = getFacetOptions(selectedFiltersId, recordValues, facetData, key);
   }
 };
 
