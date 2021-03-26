@@ -1,15 +1,55 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export const getFacetOptions = (entries, facetData) => {
-  return entries.reduce((accum, entry) => {
+const getFacetDataMap = (facetData) => {
+  const facetDataMap = new Map();
+
+  facetData.forEach(data => {
+    const id = data.id || data.label;
+    facetDataMap.set(id, data);
+  });
+
+  return facetDataMap;
+};
+
+const getSelectedFacetOptionsWithoutCount = (selectedFiltersId, entries, facetDataMap) => {
+  const selectedFiltersWithoutCount = [];
+
+  if (selectedFiltersId) {
+    selectedFiltersId.forEach(selectedFilterId => {
+      const selectedFilterWithCount = entries.find(filter => filter.id === selectedFilterId);
+
+      if (!selectedFilterWithCount) {
+        const {
+          name = '',
+          id,
+          label = '',
+        } = facetDataMap.get(selectedFilterId);
+
+        const option = {
+          label: name || label,
+          value: id,
+          count: 0,
+        };
+        selectedFiltersWithoutCount.push(option);
+      }
+    });
+  }
+
+  return selectedFiltersWithoutCount;
+};
+
+export const getFacetOptions = (selectedFiltersId, entries, facetData) => {
+  const facetDataMap = getFacetDataMap(facetData);
+
+  const restFilters = entries.reduce((accum, entry) => {
     if (!entry.totalRecords) return accum;
 
     const {
       name = '',
       id,
       label = '',
-    } = facetData.find(facet => facet.id === entry.id || facet.label === entry.id);
+    } = facetDataMap.get(entry.id);
 
     const option = {
       label: name || label,
@@ -19,42 +59,130 @@ export const getFacetOptions = (entries, facetData) => {
     accum.push(option);
     return accum;
   }, []);
+
+  return [
+    ...restFilters,
+    ...getSelectedFacetOptionsWithoutCount(selectedFiltersId, entries, facetDataMap),
+  ];
 };
 
-export const getSuppressedOptions = (suppressedOptionsRecords) => {
-  return suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
+const getSuppressedLabel = (id) => (id === 'true' ? 'yes' : 'no');
+const getSuppressedValue = (id) => (id === 'true' ? 'true' : 'false');
+const getSourceValue = (id) => (id === 'FOLIO' ? 'FOLIO' : 'MARC');
+
+const getSelectedSuppressedOptionsWithoutCount = (selectedFiltersId, suppressedOptionsRecords) => {
+  const selectedFiltersWithoutCount = [];
+
+  if (selectedFiltersId) {
+    selectedFiltersId.forEach(selectedFilterId => {
+      const selectedFilterWithCount = suppressedOptionsRecords.find(record => record.id === selectedFilterId);
+
+      if (!selectedFilterWithCount) {
+        const option = {
+          label: <FormattedMessage id={`ui-inventory.${getSuppressedLabel(selectedFilterId)}`} />,
+          value: getSuppressedValue(selectedFilterId),
+          count: 0,
+        };
+        selectedFiltersWithoutCount.push(option);
+      }
+    });
+  }
+
+  return selectedFiltersWithoutCount;
+};
+
+export const getSuppressedOptions = (selectedFiltersId, suppressedOptionsRecords) => {
+  const restFilter = suppressedOptionsRecords.reduce((accum, { id, totalRecords }) => {
     if (!totalRecords) return accum;
 
-    const idPart = id === 'true' ? 'yes' : 'no';
-    const value = id === 'true' ? 'true' : 'false';
-
     const option = {
-      label: <FormattedMessage id={`ui-inventory.${idPart}`} />,
-      value,
+      label: <FormattedMessage id={`ui-inventory.${getSuppressedLabel(id)}`} />,
+      value: getSuppressedValue(id),
       count: totalRecords,
     };
     accum.push(option);
     return accum;
   }, []);
+
+  return [
+    ...restFilter,
+    ...getSelectedSuppressedOptionsWithoutCount(selectedFiltersId, suppressedOptionsRecords),
+  ];
 };
 
-export const getSourceOptions = (sourceRecords) => {
-  return sourceRecords.reduce((accum, { id, totalRecords }) => {
+const getSelectedSourceOptionsWithoutCount = (selectedFiltersId, sourceRecords) => {
+  const selectedFiltersWithoutCount = [];
+
+  if (selectedFiltersId) {
+    selectedFiltersId.forEach(selectedFilterId => {
+      const selectedFilterWithCount = sourceRecords.find(record => record.id === selectedFilterId);
+
+      if (!selectedFilterWithCount) {
+        const value = getSourceValue(selectedFilterId);
+
+        const option = {
+          label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
+          value,
+          count: 0,
+        };
+        selectedFiltersWithoutCount.push(option);
+      }
+    });
+  }
+
+  return selectedFiltersWithoutCount;
+};
+
+export const getSourceOptions = (selectedFiltersId, sourceRecords) => {
+  const restFilter = sourceRecords.reduce((accum, { id, totalRecords }) => {
     if (!totalRecords) return accum;
 
-    const value = id === 'FOLIO' ? 'FOLIO' : 'MARC';
+    const value = getSourceValue(id);
+
     const option = {
       label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
       value,
       count: totalRecords,
     };
+
     accum.push(option);
     return accum;
   }, []);
+
+  return [
+    ...restFilter,
+    ...getSelectedSourceOptionsWithoutCount(selectedFiltersId, sourceRecords),
+  ];
 };
 
-export const getItemStatusesOptions = (entries, facetData, intl) => {
-  return entries.reduce((accum, entry) => {
+const getSelectedItemStatusOptions = (selectedFiltersId, entries, facetData, intl) => {
+  const selectedFiltersWithoutCount = [];
+
+  if (selectedFiltersId) {
+    selectedFiltersId.forEach(selectedFilterId => {
+      const selectedFilterWithCount = entries.find(filter => filter.id === selectedFilterId);
+
+      if (!selectedFilterWithCount) {
+        const {
+          value,
+          label,
+        } = facetData.find(facet => facet.value === selectedFilterId);
+
+        const option = {
+          label: intl.formatMessage({ id: label }),
+          value,
+          count: 0,
+        };
+        selectedFiltersWithoutCount.push(option);
+      }
+    });
+  }
+
+  return selectedFiltersWithoutCount;
+};
+
+export const getItemStatusesOptions = (selectedFiltersId, entries, facetData, intl) => {
+  const restFilters = entries.reduce((accum, entry) => {
     if (!entry.totalRecords) return accum;
 
     const {
@@ -70,16 +198,21 @@ export const getItemStatusesOptions = (entries, facetData, intl) => {
     accum.push(option);
     return accum;
   }, []);
+
+  return [
+    ...restFilters,
+    ...getSelectedItemStatusOptions(selectedFiltersId, entries, facetData, intl),
+  ];
 };
 
-export const processFacetOptions = (facetData, recordValues, accum, name) => {
+export const processFacetOptions = (selectedFiltersId, facetData, recordValues, accum, name) => {
   if (facetData) {
-    accum[name] = getFacetOptions(recordValues, facetData);
+    accum[name] = getFacetOptions(selectedFiltersId, recordValues, facetData);
   }
 };
 
-export const processItemsStatuses = (itemStatuses, intl, recordValues, accum, name) => {
+export const processItemsStatuses = (selectedFiltersId, itemStatuses, intl, recordValues, accum, name) => {
   if (itemStatuses) {
-    accum[name] = getItemStatusesOptions(recordValues, itemStatuses, intl);
+    accum[name] = getItemStatusesOptions(selectedFiltersId, recordValues, itemStatuses, intl);
   }
 };

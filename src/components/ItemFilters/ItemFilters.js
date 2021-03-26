@@ -73,20 +73,22 @@ const ItemFilters = (props) => {
 
         switch (recordName) {
           case FACETS_CQL.ITEMS_STATUSES:
-            processItemsStatuses(itemStatuses, intl, ...commonProps);
+            processItemsStatuses(activeFilters[FACETS.ITEM_STATUS], itemStatuses, intl, ...commonProps);
             break;
           case FACETS_CQL.EFFECTIVE_LOCATION:
+            processFacetOptions(activeFilters[FACETS.EFFECTIVE_LOCATION], locations, ...commonProps);
+            break;
           case FACETS_CQL.HOLDINGS_PERMANENT_LOCATION:
-            processFacetOptions(locations, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.HOLDINGS_PERMANENT_LOCATION], locations, ...commonProps);
             break;
           case FACETS_CQL.MATERIAL_TYPES:
-            processFacetOptions(materialTypes, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.MATERIAL_TYPE], materialTypes, ...commonProps);
             break;
           case FACETS_CQL.ITEMS_DISCOVERY_SUPPRESS:
-            accum[name] = getSuppressedOptions(recordValues);
+            accum[name] = getSuppressedOptions(activeFilters[FACETS.ITEMS_DISCOVERY_SUPPRESS], recordValues);
             break;
           case FACETS_CQL.ITEMS_TAGS:
-            processFacetOptions(tagsRecords, ...commonProps);
+            processFacetOptions(activeFilters[FACETS.ITEMS_TAGS], tagsRecords, ...commonProps);
             break;
           default:
         }
