@@ -61,8 +61,8 @@ export const getFacetOptions = (selectedFiltersId, entries, facetData) => {
   }, []);
 
   return [
-    ...getSelectedFacetOptionsWithoutCount(selectedFiltersId, entries, facetDataMap),
     ...restFilters,
+    ...getSelectedFacetOptionsWithoutCount(selectedFiltersId, entries, facetDataMap),
   ];
 };
 
@@ -105,8 +105,8 @@ export const getSuppressedOptions = (selectedFiltersId, suppressedOptionsRecords
   }, []);
 
   return [
-    ...getSelectedSuppressedOptionsWithoutCount(selectedFiltersId, suppressedOptionsRecords),
     ...restFilter,
+    ...getSelectedSuppressedOptionsWithoutCount(selectedFiltersId, suppressedOptionsRecords),
   ];
 };
 
@@ -150,8 +150,8 @@ export const getSourceOptions = (selectedFiltersId, sourceRecords) => {
   }, []);
 
   return [
-    ...getSelectedSourceOptionsWithoutCount(selectedFiltersId, sourceRecords),
     ...restFilter,
+    ...getSelectedSourceOptionsWithoutCount(selectedFiltersId, sourceRecords),
   ];
 };
 
@@ -200,8 +200,8 @@ export const getItemStatusesOptions = (selectedFiltersId, entries, facetData, in
   }, []);
 
   return [
-    ...getSelectedItemStatusOptions(selectedFiltersId, entries, facetData, intl),
     ...restFilters,
+    ...getSelectedItemStatusOptions(selectedFiltersId, entries, facetData, intl),
   ];
 };
 

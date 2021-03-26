@@ -553,8 +553,8 @@ export const languageOptionsES = (selectedLanguagesId, intl, langs = []) => {
   }, []);
 
   return [
-    ...getSelectedLangsWithoutCount(selectedLanguagesId, intl, langs),
     ...restLangs,
+    ...getSelectedLangsWithoutCount(selectedLanguagesId, intl, langs),
   ];
 };
 
