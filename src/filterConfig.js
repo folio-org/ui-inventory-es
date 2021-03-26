@@ -142,7 +142,7 @@ export const holdingIndexesES = [
   { label: 'ui-inventory-es.search.all', value: 'all', queryTemplate: 'keyword all' },
   { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
-  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'holdingsCallNumber=' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'holdings.fullCallNumber==' },
   { label: 'ui-inventory-es.holdingsHrid', value: 'HRID', queryTemplate: 'holdingsRecords.hrid==' },
 ];
 
@@ -197,7 +197,7 @@ export const itemIndexesES = [
   { label: 'ui-inventory-es.barcode', value: 'Barcode', queryTemplate: 'item.barcode==' },
   { label: 'ui-inventory-es.issn', value: 'ISSN', queryTemplate: 'issn==' },
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
-  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'itemsCallNumber=' },
+  { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'items.effectiveCallNumberComponents==' },
   { label: 'ui-inventory-es.itemHrid', value: 'Item HRID', queryTemplate: 'item.hrid==' },
 ];
 
