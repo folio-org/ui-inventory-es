@@ -1,8 +1,18 @@
 # Change history for ui-inventory
+## [6.1.0](https://github.com/folio-org/ui-inventory-es/tree/v6.1.0) (2021-03-26)
+[Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.0.0...v6.1.0)
 
-## [6.0.0](https://github.com/folio-org/ui-inventory/tree/v6.0.0) (2021-03-19)
+* Update filters options for Items with the facet data. Refs UISEES-30
+* Update filters options for Holdings with the facet data. Refs UISEES-31
+* Set the default order on the results pane to order by ranking. Refs UISEES-46
+* Some languages show the wrong number of possible results. Refs UISEES-50
+* Enhancements to filter/facets implementation. Refs UISEES-44
+* Change query for 'Call Number' in 'items' and 'holdings' in advanced search. Refs UISEES-51
+* Change query for 'hrid' in 'items' and 'holdings' and 'barcode' in advanced search. Refs UISEES-52
 
-* Bump data-export interface version. Refs UISEES-43
+## [6.0.0](https://github.com/folio-org/ui-inventory-es/tree/v6.0.0) (2021-03-19)
+
+* Bump data-export inte*rface version. Refs UISEES-43
 * Replace search with ElasticQueryField. Refs UISEE-32
 * Update filters options for Instances with the facet data. Refs UISEES-29
 * Provide distinct permission values. Refs UISEES-42 

@@ -51,7 +51,7 @@ const TagsFilter = ({
       />
     </Accordion>
   );
-}
+};
 
 TagsFilter.propTypes = {
   id: PropTypes.string,
