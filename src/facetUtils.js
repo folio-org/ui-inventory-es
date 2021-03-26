@@ -66,9 +66,9 @@ export const getFacetOptions = (selectedFiltersId, entries, facetData) => {
   ];
 };
 
-const getSuppressedLabel = (id) => id === 'true' ? 'yes' : 'no';
-const getSuppressedValue = (id) => id === 'true' ? 'true' : 'false';
-const getSourceValue = (id) => id === 'FOLIO' ? 'FOLIO' : 'MARC';
+const getSuppressedLabel = (id) => (id === 'true' ? 'yes' : 'no');
+const getSuppressedValue = (id) => (id === 'true' ? 'true' : 'false');
+const getSourceValue = (id) => (id === 'FOLIO' ? 'FOLIO' : 'MARC');
 
 const getSelectedSuppressedOptionsWithoutCount = (selectedFiltersId, suppressedOptionsRecords) => {
   const selectedFiltersWithoutCount = [];
