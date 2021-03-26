@@ -11,19 +11,17 @@ import {
 
 import CheckboxFacet from '../CheckboxFacet';
 
-function TagsFilter(props) {
-  const {
-    id,
-    name,
-    onChange,
-    onFetch,
-    onSearch,
-    onClear,
-    selectedValues,
-    tagsRecords,
-    isPending,
-  } = props;
-
+const TagsFilter = ({
+  id,
+  name,
+  onChange,
+  onFetch,
+  onSearch,
+  onClear,
+  selectedValues,
+  tagsRecords,
+  isPending,
+}) => {
   const intl = useIntl();
   const onClearFilter = useCallback(() => onClear(name), [onClear, name]);
   const location = useLocation();
