@@ -243,6 +243,7 @@ const operators = [
 const booleanOperators = [
   { label: 'ui-inventory-es.and' },
   { label: 'ui-inventory-es.or' },
+  { label: 'ui-inventory-es.not' },
 ];
 
 export const itemSortMap = {
