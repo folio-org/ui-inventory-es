@@ -10,6 +10,7 @@ const UNSELECTED_OPTION_INDEX = -1;
 const SPACE = ' ';
 const OPEN_BRACKET = '(';
 const CLOSE_BRACKET = ')';
+const SLASH = '/';
 
 const propTypes = {
   booleanOperators: PropTypes.arrayOf(PropTypes.shape({
@@ -94,10 +95,19 @@ const ElasticQueryField = props => {
     }
 
     if (valueToInsert.startsWith(OPEN_BRACKET)) {
+      if (valueToInsert.includes(SLASH)) {
+        return `${OPEN_BRACKET}"${valueToInsert.slice(1)}"`;
+      }
       return `${OPEN_BRACKET}${valueToInsert.slice(1)}`;
     }
     if (valueToInsert.endsWith(CLOSE_BRACKET)) {
+      if (valueToInsert.includes(SLASH)) {
+        return `"${valueToInsert.slice(0, -1)}"${CLOSE_BRACKET}`;
+      }
       return `${valueToInsert.slice(0, -1)}${CLOSE_BRACKET}`;
+    }
+    if (valueToInsert.includes(SLASH)) {
+      return `"${valueToInsert}"`;
     }
     return `${valueToInsert}`;
   };
