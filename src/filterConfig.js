@@ -116,6 +116,11 @@ export const instanceIndexesES = [
   { label: 'ui-inventory-es.subject', value: 'Subject', queryTemplate: 'subjects all' },
   { label: 'ui-inventory-es.instanceId', value: 'UUID', queryTemplate: 'id==' },
   { label: 'ui-inventory-es.instanceHrid', value: 'HRID', queryTemplate: 'hrid==' },
+  { label: 'ui-inventory-es.electronicAccessAll', value: 'Electronic access (all)', queryTemplate: 'electronicAccess==' },
+  { label: 'ui-inventory-es.electronicAccessURI', value: 'Electronic access (URI)', queryTemplate: 'electronicAccess.uri==' },
+  { label: 'ui-inventory-es.electronicAccessPublicNote', value: 'Electronic access (Public Note)', queryTemplate: 'electronicAccess.publicNote all' },
+  { label: 'ui-inventory-es.electronicAccessLinkText', value: 'Electronic access (Link text)', queryTemplate: 'electronicAccess.linkText all' },
+  { label: 'ui-inventory-es.electronicAccessMaterialsSpecified', value: 'Electronic access (Materials specified)', queryTemplate: 'electronicAccess.materialsSpecification all' },
 ];
 
 export const instanceSortMap = {
@@ -149,6 +154,11 @@ export const holdingIndexesES = [
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
   { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'holdings.fullCallNumber==' },
   { label: 'ui-inventory-es.holdingsHrid', value: 'HRID', queryTemplate: 'holdings.hrid==' },
+  { label: 'ui-inventory-es.electronicAccessAll', value: 'Electronic access (all)', queryTemplate: 'electronicAccess==' },
+  { label: 'ui-inventory-es.electronicAccessURI', value: 'Electronic access (URI)', queryTemplate: 'electronicAccess.uri==' },
+  { label: 'ui-inventory-es.electronicAccessPublicNote', value: 'Electronic access (Public Note)', queryTemplate: 'electronicAccess.publicNote all' },
+  { label: 'ui-inventory-es.electronicAccessLinkText', value: 'Electronic access (Link text)', queryTemplate: 'electronicAccess.linkText all' },
+  { label: 'ui-inventory-es.electronicAccessMaterialsSpecified', value: 'Electronic access (Materials specified)', queryTemplate: 'electronicAccess.materialsSpecification all' },
 ];
 
 export const holdingSortMap = {};
@@ -204,6 +214,11 @@ export const itemIndexesES = [
   { label: 'ui-inventory-es.isbn', value: 'ISBN', queryTemplate: 'isbn==' },
   { label: 'ui-inventory-es.callNumber', value: 'Call Number', queryTemplate: 'items.effectiveCallNumberComponents==' },
   { label: 'ui-inventory-es.itemHrid', value: 'Item HRID', queryTemplate: 'items.hrid==' },
+  { label: 'ui-inventory-es.electronicAccessAll', value: 'Electronic access (all)', queryTemplate: 'electronicAccess==' },
+  { label: 'ui-inventory-es.electronicAccessURI', value: 'Electronic access (URI)', queryTemplate: 'electronicAccess.uri==' },
+  { label: 'ui-inventory-es.electronicAccessPublicNote', value: 'Electronic access (Public Note)', queryTemplate: 'electronicAccess.publicNote all' },
+  { label: 'ui-inventory-es.electronicAccessLinkText', value: 'Electronic access (Link text)', queryTemplate: 'electronicAccess.linkText all' },
+  { label: 'ui-inventory-es.electronicAccessMaterialsSpecified', value: 'Electronic access (Materials specified)', queryTemplate: 'electronicAccess.materialsSpecification all' },
 ];
 
 export const itemFilterConfig = [
