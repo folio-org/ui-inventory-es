@@ -12,6 +12,11 @@ import {
   FACETS,
   FACETS_CQL
 } from './constants';
+import {
+  AND,
+  NOT,
+  OR
+} from './components/ElasticQueryField/constants';
 
 export const instanceFilterConfig = [
   {
@@ -256,8 +261,9 @@ const operators = [
 ];
 
 const booleanOperators = [
-  { label: 'ui-inventory-es.and' },
-  { label: 'ui-inventory-es.or' },
+  { label: AND },
+  { label: OR },
+  { label: NOT },
 ];
 
 export const itemSortMap = {
