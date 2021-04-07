@@ -1,9 +1,11 @@
-const cqlParser = (intl) => {
-  const AND = intl.formatMessage({ id: 'ui-inventory-es.and' }).toLowerCase();
-  const OR = intl.formatMessage({ id: 'ui-inventory-es.or' }).toLowerCase();
-  const NOT = intl.formatMessage({ id: 'ui-inventory-es.not' }).toLowerCase();
-  const PROX = intl.formatMessage({ id: 'ui-inventory-es.prox' }).toLowerCase();
+import {
+  AND,
+  NOT,
+  OR,
+  PROX
+} from './constants';
 
+const cqlParser = (intl) => {
   // CQLBoolean
   const CQLBoolean = function CQLBoolean() {
     this.op = null;
@@ -87,10 +89,10 @@ const cqlParser = (intl) => {
     _parseQuery(field, relation, modifiers) {
       let left = this._parseSearchClause(field, relation, modifiers);
       while (this.look === 's' && (
-        this.lval === AND ||
-        this.lval === OR ||
-        this.lval === NOT ||
-        this.lval === PROX)) {
+        this.lval === AND.toLowerCase() ||
+        this.lval === OR.toLowerCase() ||
+        this.lval === NOT.toLowerCase() ||
+        this.lval === PROX.toLowerCase())) {
         const b = new CQLBoolean();
         b.op = this.lval;
         this._move();
@@ -149,10 +151,10 @@ const cqlParser = (intl) => {
         this._move();
         if (this.look === 'q' ||
           (this.look === 's' &&
-            this.lval !== AND &&
-            this.lval !== OR &&
-            this.lval !== NOT &&
-            this.lval !== PROX)) {
+            this.lval !== AND.toLowerCase() &&
+            this.lval !== OR.toLowerCase() &&
+            this.lval !== NOT.toLowerCase() &&
+            this.lval !== PROX.toLowerCase())) {
           const rel = this.val;    // string relation
           this._move();
           return this._parseSearchClause(first, rel, this._parseModifiers());

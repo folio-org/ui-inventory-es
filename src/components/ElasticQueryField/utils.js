@@ -3,7 +3,8 @@ import {
   BEFORE,
   CLOSE_BRACKET,
   OPEN_BRACKET,
-  SPACE
+  SPACE,
+  SLASH,
 } from './constants';
 
 export const getSearchOption = (val, notEditableValueBefore, notEditableValueAfter) => {
@@ -149,10 +150,19 @@ export const addQuotes = (valueToInsert, booleanOperators) => {
     return processValueWithSpace(valueToInsert);
   }
   if (valueToInsert.startsWith(OPEN_BRACKET)) {
+    if (valueToInsert.includes(SLASH)) {
+      return `${OPEN_BRACKET}"${valueToInsert.slice(1)}"`;
+    }
     return `${OPEN_BRACKET}${valueToInsert.slice(1)}`;
   }
   if (valueToInsert.endsWith(CLOSE_BRACKET)) {
+    if (valueToInsert.includes(SLASH)) {
+      return `"${valueToInsert.slice(0, -1)}"${CLOSE_BRACKET}`;
+    }
     return `${valueToInsert.slice(0, -1)}${CLOSE_BRACKET}`;
+  }
+  if (valueToInsert.includes(SLASH)) {
+    return `"${valueToInsert}"`;
   }
   return valueToInsert;
 };

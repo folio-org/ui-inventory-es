@@ -580,10 +580,6 @@
   "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
   "callNumber": "Call Number",
   "equality": "=",
-  "and": "AND",
-  "or": "OR",
-  "not": "NOT",
-  "prox": "PROX",
   "elasticWarning": "The entered value is not one of the suggested",
   "parser.emptyQuery": "The query to be parsed cannot be empty",
   "parser.eof": "Invalid search clause",
@@ -592,5 +588,10 @@
   "parser.invalidSearchClause": "Invalid search clause",
   "parser.missingCloseParenthesis": "Missing closing parenthesis",
   "parser.strOrQuotedExpression": "Expecting string or a quoted expression",
-  "POC": "Proof of concept"
+  "POC": "Proof of concept",
+  "electronicAccessAll": "Electronic access all fields",
+  "electronicAccessURI": "Electronic access - URI",
+  "electronicAccessPublicNote": "Electronic access - Public note",
+  "electronicAccessLinkText": "Electronic access - Link Text",
+  "electronicAccessMaterialsSpecified": "Electronic access - Materials Specified"
 }
