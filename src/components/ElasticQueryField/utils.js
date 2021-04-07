@@ -286,12 +286,12 @@ export const getNotEditableValueBefore = (
       }
     }
 
-    const { label: boolOperatorAfter } = findBoolOperator(booleanOperators, curValue, i + 1, AFTER);
-    const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i + 1, BEFORE);
+    const { label: boolOpAfter } = findBoolOperator(booleanOperators, curValue, i + 1, AFTER);
+    const { label: boolOpBefore } = findBoolOperator(booleanOperators, curValue, i + 1, BEFORE);
 
     if (
-      (boolOperatorAfter && !typedValueForEditMode) ||
-      boolOperatorBefore
+      (boolOpAfter && !typedValueForEditMode) ||
+      boolOpBefore
     ) {
       return curValue.slice(0, i + 1);
     }
@@ -313,10 +313,10 @@ export const getNotEditableValueAfter = (selectionStartNumber, curValue, boolean
       if (isLineEndAfter) return '';
     }
 
-    const { label: boolOperatAfter } = findBoolOperator(booleanOperators, curValue, i - 1, AFTER);
-    const { label: boolOperatBefore } = findBoolOperator(booleanOperators, curValue, i - 1, BEFORE);
+    const { label: boolOpertAfter } = findBoolOperator(booleanOperators, curValue, i - 1, AFTER);
+    const { label: boolOpertBefore } = findBoolOperator(booleanOperators, curValue, i - 1, BEFORE);
 
-    if (boolOperatAfter || boolOperatBefore) return curValue.slice(i);
+    if (boolOpertAfter || boolOpertBefore) return curValue.slice(i);
   }
 
   return '';
