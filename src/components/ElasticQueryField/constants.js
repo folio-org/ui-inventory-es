@@ -14,3 +14,19 @@ export const AND = 'AND';
 export const OR = 'OR';
 export const NOT = 'NOT';
 export const PROX = 'PROX';
+export const CODE = {
+  X: 88,
+  V: 86,
+  A: 65,
+  Z: 90,
+  DELETE: 46,
+  SPACE: 32,
+  BACKSPACE: 8,
+  ZERO: 48,
+  NINE: 57,
+  ENTER: 13,
+  ARROW_DOWN: 40,
+  ARROW_UP: 38,
+  ESCAPE: 27,
+  TAB: 9,
+};

@@ -8,12 +8,14 @@ import { Highlighter } from '@folio/stripes-components';
 
 import getElasticQuery from './getElasticQuery';
 import {
-  addQuotes, changeTextAreaHeight,
+  addQuotes,
+  changeTextAreaHeight,
   getNotEditableSearchOptionLeftSide,
   getNotEditableSearchOptionRightSide,
   getNotEditableValueAfter,
   getNotEditableValueBefore,
-  getSearchOption, getSearchWords,
+  getSearchOption,
+  getSearchWords,
   getValueToHighlight,
   isSomeOptionIncludesValue,
   isValueFromOptions,
@@ -30,6 +32,7 @@ import {
   OPEN_BRACKET,
   SPACE,
   UNSELECTED_OPTION_INDEX,
+  CODE,
 } from './constants';
 import css from './ElasticQueryField.css';
 
@@ -75,7 +78,7 @@ const ElasticQueryField = props => {
   const [options, setOptions] = useState([]);
   const [focusedOptionIndex, setFocusedOptionIndex] = useState(UNSELECTED_OPTION_INDEX);
   const [typedValue, setTypedValue] = useState('');
-  const [typedValueForEditMode, setTypedValue2] = useState('');
+  const [typedValueForEditMode, setTypedValueForEditMode] = useState('');
   const [prevTypedValue, setPrevTypedValue] = useState('');
   const [prevValue, setPrevValue] = useState('');
   const [isOpenBracketAfterEquality, setIsOpenBracketAfterEquality] = useState(false);
@@ -171,7 +174,7 @@ const ElasticQueryField = props => {
     actualValue.current = inputValue;
     setSearchOption(valueToInsert);
     setTypedValue('');
-    setTypedValue2(prevTypValue => {
+    setTypedValueForEditMode(prevTypValue => {
       setPrevTypedValue(prevTypValue);
       return '';
     });
@@ -217,7 +220,7 @@ const ElasticQueryField = props => {
     setOperator(valueToInsert);
     setPrevValue(prevVal => `${prevVal}${valueToInsert}${SPACE}`);
     setTypedValue('');
-    setTypedValue2(prevTypValue => {
+    setTypedValueForEditMode(prevTypValue => {
       setPrevTypedValue(prevTypValue);
       return '';
     });
@@ -259,7 +262,7 @@ const ElasticQueryField = props => {
       setIsEditingModeBefore(false);
     }
     setTypedValue('');
-    setTypedValue2(prevTypValue => {
+    setTypedValueForEditMode(prevTypValue => {
       setPrevTypedValue(prevTypValue);
       return '';
     });
@@ -307,7 +310,7 @@ const ElasticQueryField = props => {
     actualValue.current = inputValue;
     setPrevValue(prevVal => `${prevVal}${valueToInsert}${SPACE}`);
     setTypedValue('');
-    setTypedValue2(prevTypValue => {
+    setTypedValueForEditMode(prevTypValue => {
       setPrevTypedValue(prevTypValue);
       return '';
     });
@@ -363,15 +366,18 @@ const ElasticQueryField = props => {
     const keyCode = event.keyCode;
     let typedChar = '';
 
-    if (keyCode === 90 && typedValueForEditMode.slice(0, 7) === CONTROL) { // Control + z
-      setTypedValue2('');
+    if ( // Control + z/backspace/x/v
+      (keyCode === CODE.Z || keyCode === CODE.BACKSPACE || keyCode === CODE.X || keyCode === CODE.V) &&
+      typedValueForEditMode.startsWith(CONTROL)
+    ) {
+      setTypedValueForEditMode('');
       return;
     }
 
     if (
-      (keyCode >= 48 && keyCode <= 57) || // 0-9
-      (keyCode >= 65 && keyCode <= 90) || // a-z
-      keyCode === 32 || // space
+      (keyCode >= CODE.ZERO && keyCode <= CODE.NINE) ||
+      (keyCode >= CODE.A && keyCode <= CODE.Z) ||
+      keyCode === CODE.SPACE ||
       CHARS.has(keyCode) // `-=\[];',.//*-+Control
     ) {
       if (CHARS.has(keyCode)) {
@@ -379,19 +385,19 @@ const ElasticQueryField = props => {
       } else {
         typedChar = String.fromCharCode(keyCode);
       }
-      setTypedValue2(prevTypValue => {
+      setTypedValueForEditMode(prevTypValue => {
         setPrevTypedValue(prevTypValue);
         return `${prevTypValue}${typedChar}`;
       });
-    } else if (keyCode === 8 || keyCode === 46) { // backSpace/delete
+    } else if (keyCode === CODE.BACKSPACE || keyCode === CODE.DELETE) {
       const amountSelectedChars = selectionEnd - selectionStart;
       if (amountSelectedChars > 1) {
-        setTypedValue2(prevTypValue => {
+        setTypedValueForEditMode(prevTypValue => {
           setPrevTypedValue(prevTypValue);
           return prevTypValue.slice(0, -amountSelectedChars);
         });
       } else {
-        setTypedValue2(prevTypValue => {
+        setTypedValueForEditMode(prevTypValue => {
           setPrevTypedValue(prevTypValue);
           return prevTypValue.slice(0, -1);
         });
@@ -407,11 +413,11 @@ const ElasticQueryField = props => {
     }
 
     switch (event.keyCode) {
-      case 32: // space
+      case CODE.SPACE:
         if (isEditingMode) return;
         handleValueToInsert(typedValue);
         break;
-      case 13: { // enter
+      case CODE.ENTER: {
         event.preventDefault();
 
         if (isEditingMode && !isSearchOptionToEdit) {
@@ -439,7 +445,7 @@ const ElasticQueryField = props => {
         }
         break;
       }
-      case 40: // arrowDown
+      case CODE.ARROW_DOWN:
         if (options.length) {
           const isLastOption = focusedOptionIndex === lastOptionIndex;
           if (isLastOption) {
@@ -451,7 +457,7 @@ const ElasticQueryField = props => {
           }
         }
         break;
-      case 38: // arrowUp
+      case CODE.ARROW_UP:
         if (options.length) {
           const isFirstOption = !focusedOptionIndex;
           if (isFirstOption) {
@@ -463,10 +469,10 @@ const ElasticQueryField = props => {
           }
         }
         break;
-      case 27: // escape
+      case CODE.ESCAPE:
         textareaRef.current.blur();
         break;
-      case 9: // tab
+      case CODE.TAB:
         closeOptions();
         resetFocusedOptionIndex();
         break;
@@ -544,11 +550,16 @@ const ElasticQueryField = props => {
   };
 
   const handleEditingMode = (event) => {
-    if (event.keyCode === 13) return;
-    const selectionStartNumber = event.target.selectionStart;
-    const selectionEndNumber = event.target.selectionEnd;
+    const {
+      keyCode,
+      target,
+    } = event;
+    if (keyCode === CODE.ENTER) return;
+    const selectionStartNumber = target.selectionStart;
+    const selectionEndNumber = target.selectionEnd;
     const curValue = actualValue.current;
     const isValueBeforeEditingNotEqualCurrent = valueBeforeEditing.current.toLowerCase() !== curValue.toLowerCase();
+    const isRemovingKeyCode = (keyCode === CODE.BACKSPACE || keyCode === CODE.DELETE || keyCode === CODE.X || keyCode === CODE.V);
 
     setSelectionStart(selectionStartNumber);
     setSelectionEnd(selectionEndNumber);
@@ -562,7 +573,7 @@ const ElasticQueryField = props => {
 
     if (
       warning ||
-      (isValueBeforeEditingNotEqualCurrent && (event.keyCode === 8 || event.keyCode === 46) && !prevTypedValue) ||
+      (isValueBeforeEditingNotEqualCurrent && isRemovingKeyCode && (!prevTypedValue || prevTypedValue.startsWith(CONTROL))) ||
       (selectionStartNumber !== curValue.length && isValueBeforeEditingNotEqualCurrent && selectionStartNumber < prevValue.length)
     ) {
       setIsEditingMode(true);
