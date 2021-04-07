@@ -8,4 +8,4 @@ export const CONTROL = 'Control';
 export const EMPTY_TERM = 'empty term';
 export const ANY_VALUE = 'any value';
 // `-=\[];',.//*-+Control
-export const chars = new Set([192, 189, 187, 220, 219, 221, 186, 222, 188, 190, 191, 111, 106, 109, 107, 17]);
+export const CHARS = new Set([192, 189, 187, 220, 219, 221, 186, 222, 188, 190, 191, 111, 106, 109, 107, 17]);

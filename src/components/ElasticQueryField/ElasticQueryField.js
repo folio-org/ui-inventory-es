@@ -22,7 +22,8 @@ import {
   setCaretPosition,
 } from './utils';
 import {
-  ANY_VALUE, chars,
+  ANY_VALUE,
+  CHARS,
   CLOSE_BRACKET,
   CONTROL,
   EMPTY_TERM,
@@ -370,9 +371,9 @@ const ElasticQueryField = props => {
       (keyCode >= 48 && keyCode <= 57) || // 0-9
       (keyCode >= 65 && keyCode <= 90) || // a-z
       keyCode === 32 || // space
-      chars.has(keyCode) // `-=\[];',.//*-+Control
+      CHARS.has(keyCode) // `-=\[];',.//*-+Control
     ) {
-      if (chars.has(keyCode)) {
+      if (CHARS.has(keyCode)) {
         typedChar = event.key;
       } else {
         typedChar = String.fromCharCode(keyCode);
