@@ -98,12 +98,13 @@ const ElasticQueryField = props => {
   const actualValue = useRef('');
 
   const isTypedValueNotBracket = typedValue !== OPEN_BRACKET && typedValue !== CLOSE_BRACKET;
+  const typedValueForOrdinaryMode = typedValue.startsWith(OPEN_BRACKET)
+    ? typedValue.slice(1)
+    : typedValue;
 
   const typedValueWithoutOpenBracket = isEditingMode && isSearchOptionToEdit
     ? getSearchOption(value, notEditableValueBefore, notEditableValueAfter)
-    : typedValue.startsWith(OPEN_BRACKET)
-      ? typedValue.slice(1)
-      : typedValue;
+    : typedValueForOrdinaryMode;
 
   const warningMessage = isWarning
     && (warning || intl.formatMessage({ id: 'ui-inventory-es.elasticWarning' }));
@@ -415,8 +416,8 @@ const ElasticQueryField = props => {
 
         if (isEditingMode && !isSearchOptionToEdit) {
           setIsEditedValueConfirmed(true);
-          const valueToInsert = value.replace(notEditableValueBefore, '').replace(notEditableValueAfter, '').trim();
-          processEnteredTerm(valueToInsert, false, true);
+          const valToInsert = value.replace(notEditableValueBefore, '').replace(notEditableValueAfter, '').trim();
+          processEnteredTerm(valToInsert, false, true);
           setTypedValue('');
           return;
         }

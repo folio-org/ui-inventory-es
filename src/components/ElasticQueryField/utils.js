@@ -27,8 +27,7 @@ const isValueToInsertAlreadyQuoted = (valueToInsert) => {
 const isAllQuotesExist = (val) => {
   let quotes = '';
 
-  for (let i = 0; i < val.length; i++) {
-    const char = val[i];
+  for (const char of val) {
     if (char === '"') {
       quotes += char;
     }
@@ -128,8 +127,7 @@ const addQuotesToTermItems = (valueToInsert, booleanOperators) => {
 const isEvenNumberOfBrackets = (val) => {
   let brackets = '';
 
-  for (let i = 0; i < val.length; i++) {
-    const char = val[i];
+  for (const char of val) {
     if (char === OPEN_BRACKET || char === CLOSE_BRACKET) {
       brackets += char;
     }
@@ -232,8 +230,8 @@ export const getNotEditableSearchOptionLeftSide = (selectionStartNumber, curValu
     const char = leftValue[i];
 
     if (char === SPACE) {
-      const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i, BEFORE);
-      if (boolOperatorBefore) {
+      const { label: boolOperBefore } = findBoolOperator(booleanOperators, curValue, i, BEFORE);
+      if (boolOperBefore) {
         return curValue.slice(0, i + 1);
       }
     }
@@ -276,25 +274,25 @@ export const getNotEditableValueBefore = (
     if (char === SPACE) {
       const operatorWithSpaceBefore = leftValue.slice(i - 2, i);
       const isOperatorBefore = operators.some(oper => oper.label === operatorWithSpaceBefore.trim());
-
       const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i, BEFORE);
-      if (boolOperatorBefore) {
-        return curValue.slice(0, i + 1);
-      }
-
       const { label: boolOperatorAfter } = findBoolOperator(booleanOperators, curValue, i, AFTER);
-      if (boolOperatorAfter || isOperatorBefore) {
+
+      if (
+        boolOperatorBefore ||
+        boolOperatorAfter ||
+        isOperatorBefore
+      ) {
         return curValue.slice(0, i + 1);
       }
     }
 
     const { label: boolOperatorAfter } = findBoolOperator(booleanOperators, curValue, i + 1, AFTER);
-    if (boolOperatorAfter && !typedValueForEditMode) {
-      return curValue.slice(0, i + 1);
-    }
-
     const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i + 1, BEFORE);
-    if (boolOperatorBefore) {
+
+    if (
+      (boolOperatorAfter && !typedValueForEditMode) ||
+      boolOperatorBefore
+    ) {
       return curValue.slice(0, i + 1);
     }
   }
@@ -307,21 +305,18 @@ export const getNotEditableValueAfter = (selectionStartNumber, curValue, boolean
     const char = curValue[i];
 
     if (char === SPACE) {
-      const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i, BEFORE);
-      if (boolOperatorBefore) return curValue.slice(i);
-
-      const { label: boolOperatorAfter } = findBoolOperator(booleanOperators, curValue, i, AFTER);
-      if (boolOperatorAfter) return curValue.slice(i);
-
       const isLineEndAfter = !curValue[i + 1];
+      const { label: boolOperatBefore } = findBoolOperator(booleanOperators, curValue, i, BEFORE);
+      const { label: boolOperatAfter } = findBoolOperator(booleanOperators, curValue, i, AFTER);
+
+      if (boolOperatBefore || boolOperatAfter) return curValue.slice(i);
       if (isLineEndAfter) return '';
     }
 
-    const { label: boolOperatorAfter } = findBoolOperator(booleanOperators, curValue, i - 1, AFTER);
-    if (boolOperatorAfter) return curValue.slice(i);
+    const { label: boolOperatAfter } = findBoolOperator(booleanOperators, curValue, i - 1, AFTER);
+    const { label: boolOperatBefore } = findBoolOperator(booleanOperators, curValue, i - 1, BEFORE);
 
-    const { label: boolOperatorBefore } = findBoolOperator(booleanOperators, curValue, i - 1, BEFORE);
-    if (boolOperatorBefore) return curValue.slice(i);
+    if (boolOperatAfter || boolOperatBefore) return curValue.slice(i);
   }
 
   return '';
