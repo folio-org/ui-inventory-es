@@ -257,7 +257,7 @@ export const itemFilterConfig = [
 ];
 
 const operators = [
-  { label: 'ui-inventory-es.equality', queryTemplate: '' },
+  { label: '=', queryTemplate: '' },
 ];
 
 const booleanOperators = [

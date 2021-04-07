@@ -579,7 +579,6 @@
 
   "elasticOptionsInfo": "When autocomplete results are available use up and down arrows to review and enter to select",
   "callNumber": "Call Number",
-  "equality": "=",
   "elasticWarning": "The entered value is not one of the suggested",
   "parser.emptyQuery": "The query to be parsed cannot be empty",
   "parser.eof": "Invalid search clause",
