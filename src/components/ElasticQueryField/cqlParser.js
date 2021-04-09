@@ -142,7 +142,8 @@ const cqlParser = (intl) => {
         if (this.look === ')') {
           this._move();
         } else {
-          throw new Error(intl.formatMessage({ id: 'ui-inventory-es.parser.missingCloseParenthesis' }));
+          // the parsing also happens correctly without the closing parentheses
+          // throw new Error(intl.formatMessage({ id: 'ui-inventory-es.parser.missingCloseParenthesis' }));
         }
         return b;
       } else if (this.look === 's' || this.look === 'q') {

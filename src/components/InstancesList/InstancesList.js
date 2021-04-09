@@ -532,19 +532,10 @@ class InstancesList extends React.Component {
       return { ...index, label };
     });
 
-    const advancedSearchSuggestions =
-      [operators, booleanOperators, searchableIndexesES].map(suggestions => {
-        return suggestions.map(suggestion => {
-          const label = intl.formatMessage({ id: suggestion.label });
-          return { ...suggestion, label };
-        });
-      });
-
-    const [
-      formattedOperators,
-      formattedBooleanOperators,
-      formattedSearchableIndexesES
-    ] = advancedSearchSuggestions;
+    const formattedSearchableIndexesES = searchableIndexesES.map(searchIndex => {
+      const label = intl.formatMessage({ id: searchIndex.label });
+      return { ...searchIndex, label };
+    });
 
     return (
       <>
@@ -557,8 +548,8 @@ class InstancesList extends React.Component {
             renderNavigation={this.renderNavigation}
             searchableIndexes={formattedSearchableIndexes}
             searchableIndexesES={formattedSearchableIndexesES}
-            operators={formattedOperators}
-            booleanOperators={formattedBooleanOperators}
+            operators={operators}
+            booleanOperators={booleanOperators}
             intl={intl}
             selectedIndex={get(data.query, 'qindex')}
             searchableIndexesPlaceholder={null}
