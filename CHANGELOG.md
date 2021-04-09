@@ -1,4 +1,12 @@
 # Change history for ui-inventory
+## [6.2.0](https://github.com/folio-org/ui-inventory-es/tree/v6.2.0) (2021-04-09)
+[Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.1.0...v6.2.0)
+
+* Validation error displayed when the user modifies the search value. Refs UISEES-47
+* Add NOT operator to the advance search text options. Refs UISEES-48
+* Expand search options - electronic access for instances, holdings and items. Refs UISEES-49
+* Include back-end permissions into permission set. Refs UISEES-55
+
 ## [6.1.0](https://github.com/folio-org/ui-inventory-es/tree/v6.1.0) (2021-03-26)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.0.0...v6.1.0)
 
@@ -15,7 +23,7 @@
 * Bump data-export inte*rface version. Refs UISEES-43
 * Replace search with ElasticQueryField. Refs UISEE-32
 * Update filters options for Instances with the facet data. Refs UISEES-29
-* Provide distinct permission values. Refs UISEES-42 
+* Provide distinct permission values. Refs UISEES-42
 * Add 'Proof of concept' label. Refs UISEES-13
 * Remove Inventory-es settings. Refs UISEES-40
 * Missing dependency in package.json. Refs UISEES-39
