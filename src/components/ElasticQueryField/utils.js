@@ -62,20 +62,32 @@ const processValueWithSpace = (valueToInsert) => {
 };
 
 export const findBoolOperator = (booleanOperators, val, i, flag) => {
-  let twoCharacterBoolOperWithSpace;
-  let threeCharacterBoolOperWithSpace;
+  const twoCharacterBoolOperLength = 2;
+  const threeCharacterBoolOperLength = 3;
+  let twoCharacterBoolOper;
+  let threeCharacterBoolOper;
+  let inferredTwoCharacterBoolOper;
+  let inferredThreeCharacterBoolOper;
 
   if (flag === BEFORE) {
-    twoCharacterBoolOperWithSpace = val.slice(i - 3, i);
-    threeCharacterBoolOperWithSpace = val.slice(i - 4, i);
+    inferredTwoCharacterBoolOper = val.slice(i - 3, i).trim();
+    inferredThreeCharacterBoolOper = val.slice(i - 4, i).trim();
+    twoCharacterBoolOper = inferredTwoCharacterBoolOper.length === twoCharacterBoolOperLength &&
+      inferredTwoCharacterBoolOper.toLowerCase();
+    threeCharacterBoolOper = inferredThreeCharacterBoolOper.length === threeCharacterBoolOperLength &&
+      inferredThreeCharacterBoolOper.toLowerCase();
   } else {
-    twoCharacterBoolOperWithSpace = val.slice(i + 1, i + 4);
-    threeCharacterBoolOperWithSpace = val.slice(i + 1, i + 5);
+    inferredTwoCharacterBoolOper = val.slice(i + 1, i + 4).trim();
+    inferredThreeCharacterBoolOper = val.slice(i + 1, i + 5).trim();
+    twoCharacterBoolOper = inferredTwoCharacterBoolOper.length === twoCharacterBoolOperLength &&
+      inferredTwoCharacterBoolOper.toLowerCase();
+    threeCharacterBoolOper = inferredThreeCharacterBoolOper.length === threeCharacterBoolOperLength &&
+      inferredThreeCharacterBoolOper.toLowerCase();
   }
 
   const booleanOperator = booleanOperators.find(boolOper => (
-    boolOper.label.toLowerCase() === twoCharacterBoolOperWithSpace.toLowerCase().trim() ||
-    boolOper.label.toLowerCase() === threeCharacterBoolOperWithSpace.toLowerCase().trim()
+    boolOper.label.toLowerCase() === twoCharacterBoolOper ||
+    boolOper.label.toLowerCase() === threeCharacterBoolOper
   ));
   return booleanOperator || {};
 };
@@ -160,7 +172,7 @@ export const addQuotes = (valueToInsert, booleanOperators) => {
     return `${valueToInsert.slice(0, -1)}${CLOSE_BRACKET}`;
   }
   if (valueToInsert.includes(SLASH)) {
-    return `"${valueToInsert}"`;
+    return `"${valueToInsert.replace(/^"|"$/g, '')}"`;
   }
   return valueToInsert;
 };

@@ -93,6 +93,7 @@ const ElasticQueryField = props => {
   const [selectionStart, setSelectionStart] = useState();
   const [selectionEnd, setSelectionEnd] = useState();
   const [isEditedValueConfirmed, setIsEditedValueConfirmed] = useState(false);
+  const [pastedContent, setPastedContent] = useState('');
 
   const textareaRef = useRef();
   const optionsContainerRef = useRef();
@@ -559,7 +560,13 @@ const ElasticQueryField = props => {
     const selectionEndNumber = target.selectionEnd;
     const curValue = actualValue.current;
     const isValueBeforeEditingNotEqualCurrent = valueBeforeEditing.current.toLowerCase() !== curValue.toLowerCase();
-    const isRemovingKeyCode = (keyCode === CODE.BACKSPACE || keyCode === CODE.DELETE || keyCode === CODE.X || keyCode === CODE.V);
+    const isCtrlVRemovingAction = curValue.replace(pastedContent, '') !== valueBeforeEditing.current;
+    const isRemovingKeyCode = (
+      keyCode === CODE.BACKSPACE ||
+      keyCode === CODE.DELETE ||
+      keyCode === CODE.X ||
+      (keyCode === CODE.V && isCtrlVRemovingAction)
+    );
 
     setSelectionStart(selectionStartNumber);
     setSelectionEnd(selectionEndNumber);
@@ -589,6 +596,10 @@ const ElasticQueryField = props => {
 
   const handleKeyUp = (event) => {
     handleEditingMode(event);
+  };
+
+  const handlePaste = (event) => {
+    setPastedContent(event.clipboardData.getData('Text'));
   };
 
   const renderOptions = () => {
@@ -718,6 +729,7 @@ const ElasticQueryField = props => {
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
         onMouseUp={handleMouseUp}
+        onPaste={handlePaste}
         warning={warningMessage}
       />
       <p
