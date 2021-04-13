@@ -16,7 +16,6 @@ import {
   getNotEditableValueBefore,
   getSearchOption,
   getSearchWords,
-  getValueToHighlight,
   isSomeOptionIncludesValue,
   isValueFromOptions,
   moveScrollToDown,
