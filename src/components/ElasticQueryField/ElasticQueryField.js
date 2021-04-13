@@ -133,7 +133,9 @@ const ElasticQueryField = props => {
 
   const processSend = () => {
     try {
-      getElasticQuery(value, false, searchOptions, operators, intl);
+      if (searchOption) {
+        getElasticQuery(value, false, searchOptions, operators, intl);
+      }
       setWarning('');
       searchButtonRef.current.click();
       closeOptions();
@@ -510,7 +512,7 @@ const ElasticQueryField = props => {
     if (typedValue !== SPACE && isTypedValueNotBracket) {
       const filteredOptions = suggestions.filter(suggestion => {
         return suggestion.label.toLowerCase()
-          .includes(getValueToHighlight(operators, booleanOperators, typedValueWithoutOpenBracket).toLowerCase());
+          .includes(typedValueWithoutOpenBracket.trim().toLowerCase());
       });
       setOptions(filteredOptions);
     } else {
@@ -633,8 +635,6 @@ const ElasticQueryField = props => {
                         isTypedValueNotBracket,
                         typedValue,
                         typedValueWithoutOpenBracket,
-                        operators,
-                        booleanOperators,
                       )}
                       text={option.label}
                     />
@@ -668,7 +668,7 @@ const ElasticQueryField = props => {
   useEffect(() => {
     changeTextAreaHeight(textareaRef);
 
-    if (value) {
+    if (value.trim()) {
       if (isEditingMode) {
         if (isSearchOptionToEdit) {
           processOptions();
