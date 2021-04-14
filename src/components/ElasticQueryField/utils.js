@@ -227,14 +227,6 @@ export const moveScrollToTop = (optionsContainerRef, optionRef, isFirstOption) =
   }
 };
 
-export const getValueToHighlight = (operators, booleanOperators, typedValueWithoutOpenBracket) => {
-  const isOperator = operators.some(oper => oper.label === typedValueWithoutOpenBracket.trim());
-  const isBoolOperator = booleanOperators.some(boolOper => boolOper.label === typedValueWithoutOpenBracket.trim());
-  return isOperator || isBoolOperator
-    ? typedValueWithoutOpenBracket.trim()
-    : typedValueWithoutOpenBracket;
-};
-
 export const getNotEditableSearchOptionLeftSide = (selectionStartNumber, curValue, booleanOperators) => {
   const leftValue = curValue.slice(0, selectionStartNumber);
 
@@ -338,15 +330,13 @@ export const getSearchWords = (
   isTypedValueNotBracket,
   typedValue,
   typedValueWithoutOpenBracket,
-  operators,
-  booleanOperators
 ) => {
   const isValidSearchWords =
     isTypedValueNotBracket
     && typedValue !== SPACE
     && typedValueWithoutOpenBracket;
   return isValidSearchWords
-    ? [getValueToHighlight(operators, booleanOperators, typedValueWithoutOpenBracket)]
+    ? [typedValueWithoutOpenBracket.trim()]
     : [];
 };
 
