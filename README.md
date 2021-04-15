@@ -9,17 +9,6 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 This is a [Stripes](https://github.com/folio-org/stripes-core/) UI module which is the cope of ui-invetoru for the ElasticSearch POC.
 
-## Additional information
-
-See the related [ui-users](https://github.com/folio-org/ui-users) module.
-
-Other [modules](https://dev.folio.org/source-code/#client-side).
-
-See project [UIIN](https://issues.folio.org/browse/UIIN)
-at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
-
-Other FOLIO Developer documentation is at [dev.folio.org](https://dev.folio.org/)
-
 ## How the UI parses user input before submitting to API
 
 UI provides autosuggestion for search options, operators and boolean operators.
@@ -114,3 +103,14 @@ Boolean operator | Boolean operator CQL
 or | OR
 and | AND
 not | NOT
+
+## Additional information
+
+See the related [ui-users](https://github.com/folio-org/ui-users) module.
+
+Other [modules](https://dev.folio.org/source-code/#client-side).
+
+See project [UIIN](https://issues.folio.org/browse/UIIN)
+at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
+
+Other FOLIO Developer documentation is at [dev.folio.org](https://dev.folio.org/)
