@@ -68,7 +68,6 @@ export const getFacetOptions = (selectedFiltersId, entries, facetData, key) => {
 
 const getSuppressedLabel = (id) => (id === 'true' ? 'yes' : 'no');
 const getSuppressedValue = (id) => (id === 'true' ? 'true' : 'false');
-const getSourceValue = (id) => (id === 'FOLIO' ? 'FOLIO' : 'MARC');
 
 const getSelectedSuppressedOptionsWithoutCount = (selectedFiltersId, suppressedOptionsRecords) => {
   const selectedFiltersWithoutCount = [];
@@ -118,11 +117,9 @@ const getSelectedSourceOptionsWithoutCount = (selectedFiltersId, sourceRecords) 
       const selectedFilterWithCount = sourceRecords.find(record => record.id === selectedFilterId);
 
       if (!selectedFilterWithCount) {
-        const value = getSourceValue(selectedFilterId);
-
         const option = {
-          label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
-          value,
+          label: selectedFilterId,
+          value: selectedFilterId,
           count: 0,
         };
         selectedFiltersWithoutCount.push(option);
@@ -137,11 +134,9 @@ export const getSourceOptions = (selectedFiltersId, sourceRecords) => {
   const restFilter = sourceRecords.reduce((accum, { id, totalRecords }) => {
     if (!totalRecords) return accum;
 
-    const value = getSourceValue(id);
-
     const option = {
-      label: <FormattedMessage id={`ui-inventory.${value.toLowerCase()}`} />,
-      value,
+      label: id,
+      value: id,
       count: totalRecords,
     };
 
