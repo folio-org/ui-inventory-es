@@ -154,9 +154,9 @@ const ElasticQueryField = props => {
     setNotEditableValueAfter('');
   };
 
-  const setEnteredSearchOption = (valueToInsert, isEnterClick) => {
+  const setEnteredSearchOption = (valueToInsert, isEnterClick, isOptionSelected) => {
     const desiredValueView = addQuotes(valueToInsert, booleanOperators);
-    const char = isEnterClick ? SPACE : '';
+    const char = isEnterClick || isOptionSelected ? SPACE : '';
     let inputValue;
 
     if (isEditingMode && isSearchOptionToEdit) {
@@ -193,7 +193,7 @@ const ElasticQueryField = props => {
         ? `${OPEN_BRACKET}${valueToInsert}`
         : valueToInsert;
 
-      setEnteredSearchOption(searchOptionValue, isEnterClick);
+      setEnteredSearchOption(searchOptionValue, isEnterClick, isOptionSelected);
       resetFocusedOptionIndex();
     } else {
       const valueWithoutOpenBracket = valueToInsert.startsWith(OPEN_BRACKET)
@@ -214,8 +214,8 @@ const ElasticQueryField = props => {
     }
   };
 
-  const setEnteredOperator = (valueToInsert, isEnterClick) => {
-    const char = isEnterClick ? SPACE : '';
+  const setEnteredOperator = (valueToInsert, isEnterClick, isOptionSelected) => {
+    const char = isEnterClick || isOptionSelected ? SPACE : '';
     const inputValue = `${prevValue}${valueToInsert}${char}`;
     onChange(inputValue);
     actualValue.current = inputValue;
@@ -231,7 +231,7 @@ const ElasticQueryField = props => {
 
   const processEnteredOperator = (valueToInsert, isOptionSelected, isEnterClick) => {
     if (isOptionSelected) {
-      setEnteredOperator(valueToInsert, isEnterClick);
+      setEnteredOperator(valueToInsert, isEnterClick, isOptionSelected);
       resetFocusedOptionIndex();
     } else if (isValueFromOptions(valueToInsert, options)) {
       setEnteredOperator(valueToInsert, isEnterClick);
@@ -304,9 +304,9 @@ const ElasticQueryField = props => {
     }
   };
 
-  const setEnteredBooleanOperator = (valueToInsert, isEnterClick) => {
+  const setEnteredBooleanOperator = (valueToInsert, isEnterClick, isOptionSelected) => {
     if (!valueToInsert) return;
-    const char = isEnterClick ? SPACE : '';
+    const char = isEnterClick || isOptionSelected ? SPACE : '';
     const inputValue = `${prevValue}${valueToInsert}${char}`;
     onChange(inputValue);
     actualValue.current = inputValue;
@@ -321,7 +321,7 @@ const ElasticQueryField = props => {
 
   const processEnteredBooleanOperator = (valueToInsert, isOptionSelected, isEnterClick) => {
     if (isOptionSelected) {
-      setEnteredBooleanOperator(valueToInsert, isEnterClick);
+      setEnteredBooleanOperator(valueToInsert, isEnterClick, isOptionSelected);
       resetFocusedOptionIndex();
       processStructure();
     } else if (isValueFromOptions(valueToInsert, options)) {
@@ -626,7 +626,7 @@ const ElasticQueryField = props => {
                     key={option.label}
                     ref={(element) => handleOptionRef(element, isFocused)}
                     className={classNames(css.option, isFocused && css.optionCursor)}
-                    onClick={() => handleValueToInsert(option.label)}
+                    onClick={() => handleValueToInsert(option.label, true)}
                     onKeyDown={() => null}
                   >
                     <Highlighter
