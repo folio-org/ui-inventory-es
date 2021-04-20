@@ -77,12 +77,11 @@ export function buildManifestObject() {
       records: 'ids',
       accumulate: true,
       fetch: false,
-      path: 'record-bulk/ids',
+      path: 'search/instances/ids',
       throwErrors: false,
       GET: {
         params: {
           query: buildQuery,
-          limit: '2147483647',
         },
         staticFallback: { params: {} },
       },
