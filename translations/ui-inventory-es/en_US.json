@@ -462,8 +462,6 @@
     "filters.effectiveLocation": "Effective location (item)",
     "yes": "Yes",
     "no": "No",
-    "folio": "FOLIO",
-    "marc": "MARC",
     "unknownNoteType": "Unknown note type",
     "communicationProblem": "Server communication problem. Please try again",
     "item.status": "Item status",
