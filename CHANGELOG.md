@@ -9,6 +9,7 @@
 * First letter of searched term is truncated. Refs UISEES-61
 * The same option repeated in Source facet. Refs UISEES-62
 * Update circulation and search interface versions. Refs FOLIO-3103
+* Update circulation and search interface versions. Refs UISEES-63
 
 ## [6.2.0](https://github.com/folio-org/ui-inventory-es/tree/v6.2.0) (2021-04-09)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.1.0...v6.2.0)
