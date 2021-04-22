@@ -1,4 +1,15 @@
 # Change history for ui-inventory
+
+## [6.3.0](https://github.com/folio-org/ui-inventory-es/tree/v6.3.0) (2021-04-22)
+[Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.2.0...v6.3.0)
+
+* Incorrect validation on the even number of words in keyword search. Refs UISEES-57
+* Update endpoint for saving UUIDs in Inventory ES app. Refs UISEES-58
+* Update README file with information about parsing CQL queries. Refs UISEES-59
+* First letter of searched term is truncated. Refs UISEES-61
+* The same option repeated in Source facet. Refs UISEES-62
+* Update circulation and search interface versions. Refs FOLIO-3103
+
 ## [6.2.0](https://github.com/folio-org/ui-inventory-es/tree/v6.2.0) (2021-04-09)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.1.0...v6.2.0)
 
