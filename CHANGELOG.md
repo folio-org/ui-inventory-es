@@ -1,5 +1,8 @@
 # Change history for ui-inventory
 
+## (IN PROGRESS)
+* Also support `circulation` `11.0`. Refs UISEES-65.
+
 ## [6.3.0](https://github.com/folio-org/ui-inventory-es/tree/v6.3.0) (2021-04-22)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.2.0...v6.3.0)
 
