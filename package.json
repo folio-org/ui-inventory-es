@@ -42,12 +42,12 @@
       }
     ],
     "okapiInterfaces": {
-      "inventory": "10.0",
+      "inventory": "11.0",
       "source-storage-records": "2.0 3.0",
       "search": "0.5",
-      "instance-storage": "7.0",
+      "instance-storage": "8.0",
       "holdings-storage": "3.0 4.4",
-      "item-storage": "8.0",
+      "item-storage": "9.0",
       "loan-types": "2.0",
       "material-types": "2.0",
       "item-note-types": "1.0",
