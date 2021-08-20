@@ -3,7 +3,7 @@
 ## [6.4.0](https://github.com/folio-org/ui-inventory-es/tree/v6.4.0) (2021-06-17)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.3.0...v6.4.0)
 * Also support `circulation` `11.0`. Refs UISEES-65.
-* Replace okapiInterfaces dependency `item-storage: 8.0` by `inventory 11.0`. Refs FOLIO-3179.
+* Add additional inventory interfaces for optimistic locking: `inventory 11.0`, `instance-storage 8.0`, `holdings-storage 5.0`, `item-storage 9.0`. Refs FOLIO-3179.
 
 ## [6.3.0](https://github.com/folio-org/ui-inventory-es/tree/v6.3.0) (2021-04-22)
 [Full Changelog](https://github.com/folio-org/ui-inventory-es/compare/v6.2.0...v6.3.0)
