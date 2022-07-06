@@ -1,4 +1,3 @@
-
 buildNPM {
   publishModDescriptor = true
   runLint = true
@@ -7,5 +6,3 @@ buildNPM {
   runTest = false
   runTestOptions = ''
 }
-
-
