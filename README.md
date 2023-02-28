@@ -1,13 +1,18 @@
 # ui-inventory-es
 
-Copyright (C) 2017-2019 The Open Library Foundation
+Copyright (C) 2017-2021 The Open Library Foundation
 
 This software is distributed under the terms of the Apache License,
 Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
+## DEPRECATED
+
+After the functionality of this proof of concept has been moved into <https://github.com/folio-org/ui-inventory>
+it is no longer needed and has been archived.
+
 ## Introduction
 
-This is a [Stripes](https://github.com/folio-org/stripes-core/) UI module which is the cope of ui-invetoru for the ElasticSearch POC.
+This is a [Stripes](https://github.com/folio-org/stripes-core/) UI module which is the cope of ui-inventory for the ElasticSearch POC.
 
 ## How the UI parses user input before submitting to API
 
